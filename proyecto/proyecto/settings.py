@@ -9,8 +9,9 @@ https://docs.djangoproject.com/en/4.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.0/ref/settings/
 """
-
+import os
 from pathlib import Path
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -25,7 +26,7 @@ SECRET_KEY = 'django-insecure-!59nq=1!3--62ftzqyq8er9+^80mb=qcm%0+)u1@*e(0_ms$e%
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*','djangoproject.localhost.com']
 
 
 # Application definition
@@ -128,7 +129,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 LOGIN_REDIRECT_URL = 'tablero'
 LOGIN_URL = 'login'
-LOGOUT_URL = 'login'
+LOGOUT_URL = 'logout'
 
 AUTHENTICATION_BACKENDS = (
 'social_core.backends.google.GoogleOAuth2',
@@ -138,3 +139,6 @@ AUTHENTICATION_BACKENDS = (
 
 SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '59830650569-2ic6dqilej7l21g8sjdi2cgp90vo94nu.apps.googleusercontent.com'
 SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = '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'
+
+STATIC_ROOT = os.path.join(BASE_DIR, "static/")
+
