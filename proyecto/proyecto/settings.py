@@ -128,7 +128,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 LOGIN_REDIRECT_URL = 'tablero'
 LOGIN_URL = 'login'
-LOGOUT_URL = 'logout'
+LOGOUT_URL = 'login'
 
 AUTHENTICATION_BACKENDS = (
 'social_core.backends.google.GoogleOAuth2',
