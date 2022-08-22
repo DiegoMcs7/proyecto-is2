@@ -1,0 +1,42 @@
+{% load static %}
+
+<html lang="en">
+<head>
+    <title>{% block title %} {% endblock %}</title>
+    <link href="{% static "css/base.css" %} " rel="stylesheet">
+</head>
+<body>
+    <div id="header">
+
+        <span class="logo">Gestor de Proyectos</span>
+        {% if request.user.is_authenticated %}
+          <ul class="menu">
+              <li {% if section == "tablero" %} class = "selected"{% endif %}
+              <a href="{% url "tablero" %}">Proyectos</a>
+              </li>
+              <li {% if section == "Contactos" %} class = "selected"{% endif %}
+              <a href="#">Contactos </a>
+              </li>
+              <li {% if section == "Acerca de" %} class = "selected"{% endif %}
+              <a href="#">Acerca de</a>
+              </li>
+          </ul>
+          {% endif %}
+          <span class="user">
+              {% if request.user.is_authenticated %}
+              Hola, {{ request.user.first_name }}..
+              <a href="{% url "logout" %}">Cerrar Sesión</a>
+              {% else %}
+              <a href="{% url "login" %}">Iniciar Sesión</a>
+              {% endif %}
+          </span>
+
+    </div>
+    <div id="content">
+
+        {% block content %}
+        {% endblock %}
+
+    </div>
+</body>
+</html>
