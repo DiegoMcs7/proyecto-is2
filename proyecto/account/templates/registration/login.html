@@ -18,14 +18,20 @@
             <div class="contenedor">
                 <div class="formulario">
                     <h2>Iniciar Sesión</h2>
-                    <form action="">
-                        <div class="input">
-                            <input type="text" placeholder="Nombre de Usuario">
-                        </div>
-                        <div class="input">
-                            <input type="password" placeholder="Contraseña">
-                        </div>
+                    {% if form.errors %}
+                    <p>
 
+                        Usuario o Contraseña incorrectas.
+                        Intente de nuevo...
+
+                    </p>
+
+                    {% endif %}
+                    
+                    <form action="{% url 'login'%}" method="post">
+                        {{form.as_p}}
+                        {% csrf_token %}
+                        <p><input type="submit" value="Acceder"></p>
                         <center><a class="google-button" href="{% url "social:begin" "google-oauth2" %}">Google</a></center>
                     </form>
                 </div>

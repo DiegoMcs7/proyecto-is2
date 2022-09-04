@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %} PROYECTO {% endblock %}
+
+{% block content %}
+
+<p style="margin-left:550px;"><a href="retrieve">Gestion del Proyecto</a></p>
+    <div class="container">
+        <table>
+            <tbody>
+                <form action="create" method="POST">
+                    {% csrf_token %}
+                    <tr>
+                        <td> id </td>
+                        <td><input type="text" name="id_p" required></td>
+                    </tr>
+                    <tr>
+                        <td> Nombre del Proyecto </td>
+                        <td><input type="text" name="n_p" required></td>
+                    </tr>
+                    <tr>
+                        <td> Descripcion del Proyecto </td>
+                        <td><textarea name='text' required></textarea></td>
+                    </tr>
+                        <tr>
+                            <td> Estado del Proyecto </td>
+                            <td><input type="text" name="e_p" required></td>
+                        </tr>
+                        <tr>
+                            <td> Fecha Inicio del Proyecto </td>
+                            <td><input type="date" name="fi_p" required></td>
+                        </tr>
+                        <tr>
+                            <td> Fecha Fin del Proyecto del Proyecto </td>
+                            <td><input type="date" name="ff_p" required></td>
+                        </tr>
+                        <td><button>Submit</button></td>
+                    </tr>
+                </form>
+            </tbody>
+        </table>
+    </div>
+
+{% endblock %}
