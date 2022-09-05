@@ -27,7 +27,6 @@
                     </p>
 
                     {% endif %}
-                    
                     <form action="{% url 'login'%}" method="post">
                         {{form.as_p}}
                         {% csrf_token %}
