@@ -3,7 +3,6 @@ from . import views
 from django.contrib.auth import views as auth_views
 from django.contrib.auth.models import User
 
-print(User.objects.all())
 
 urlpatterns = [
 
