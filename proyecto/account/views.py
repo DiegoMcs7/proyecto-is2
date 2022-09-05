@@ -6,6 +6,7 @@ from .forms import LoginForm,UserRegistrationForm
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseForbidden
 
+
 @login_required()
 def tablero(request):
     '''
@@ -56,3 +57,5 @@ def register(request):
     else:
         user_form=UserRegistrationForm()
     return render(request,'account/register.html',{'user_form': user_form})
+
+
