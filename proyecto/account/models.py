@@ -33,7 +33,7 @@ class Proyectos(models.Model):
     #historial_miembros = models.ListField()
     nombre_proyecto = models.CharField(max_length=30)
     desc_proyecto = models.TextField()
-    estado_proyecto = models.CharField(max_length=30)
+    estado_proyecto = models.CharField(max_length=30,default=True)
     fecha_inicio = models.DateField()
     fecha_fin = models.DateField()
 
@@ -101,8 +101,9 @@ class Backlogs(models.Model):
     #list_us = models.ListField()
 class Profile(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL,on_delete=models.CASCADE)
+    telefono = models.CharField(max_length=30)
     email = models.CharField(max_length=30)
-    estado_usuario = models.CharField(max_length=30)
+    is_active = models.BooleanField(default=True)
     
     def __str__(self):
         return f'Perfil de usuario {self.user.username}'

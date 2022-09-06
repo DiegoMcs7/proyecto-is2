@@ -3,25 +3,23 @@
 {% block title %} Tablero {% endblock %}
 
 {% block content %}
-{% if request.user.email %}
 <div class="body2">
   <ul class="menu2">
         <li style="--clr:#B3B6B7">
           <a href="#" data-text="&nbsp;Perfil">&nbsp;Perfil&nbsp;</a>
         </li>
         <li style="--clr:#B3B6B7">
-          <a href="#" data-text="&nbsp;Proyecto">&nbsp;Proyectos&nbsp;</a>
+          <a href="{% url "retrieve" %}" data-text="&nbsp;Proyecto">&nbsp;Proyectos&nbsp;</a>
         </li>
         <li style="--clr:#B3B6B7">
           <a href="#" data-text="&nbsp;Backlog">&nbsp;Backlog&nbsp;</a>
         </li>
         <li style="--clr:#B3B6B7">
-          <a href="#" data-text="&nbsp;Sprint">&nbsp;Sprint&nbsp;</a>
+          <a href="{% url "edit" %}" data-text="&nbsp;Editar Perfil">&nbsp;Editar Perfil&nbsp;</a>
         </li>
         <li style="--clr:#B3B6B7">
-          <a href="{% url "register" %}" data-text="&nbsp;Registro">&nbsp;Registro&nbsp;</a>
+          <a href="{% url "register" %}" data-text="&nbsp;Registro Usuario">&nbsp;Registro&nbsp;</a>
         </li>
       </ul>
 </div>
-{% endif %}
 {% endblock %}

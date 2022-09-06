@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block title %}Editar Usuario{% endblock %}
+
+{% block content %}
+<body>
+    <h1>Editar Proyecto</h1>
+    <p style="margin-left:550px;"><a href="{% url "retrieve" %}">Volver</a></p>
+    <div class="container">
+        <table>
+            <tbody>
+                <form action="/update/{{object.id}}" method="POST">
+                    {% csrf_token %}
+                    <tr>
+                        <td> Id</td>
+                        <td><input type="text" name="id" value={{object.id}}></input></td>
+                    </tr>
+                    <tr>
+                        <td> Nombre del Proyecto </td>
+                        <td><input type="text" name="nombre_proyecto" value={{object.nombre_proyecto}}></input></td>
+                    </tr>
+                    <tr>
+                        <td> Descripcion del Proyecto </td>
+                        <td><textarea name='desc_proyecto'>{{object.desc_proyecto}}</textarea></td>
+                    </tr>
+                    <tr>
+                        <tr>
+                            <td> Estado del Proyecto </td>
+                            <td><input type="text" name="estado_proyecto" value={{object.estado_proyecto}}></input></td>
+                        </tr>
+                        <tr>
+                            <td> Fecha Inicio del Proyecto </td>
+                            <td><input type="date" name="fecha_inicio" value={{object.fecha_inicio}}></input></td>
+                        </tr>
+                        <tr>
+                            <td> Fecha Fin del Proyecto  </td>
+                            <td><input type="date" name='fecha_fin' value={{object.fecha_fin}}></input></td>
+                        </tr>
+                        <tr>
+                        <td><button>Submit</button></td>
+                    </tr>
+                </form>
+            </tbody>
+        </table>
+    </div>
+</body>
+{% endblock %}

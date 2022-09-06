@@ -4,37 +4,29 @@
 
 {% block content %}
 
-<p style="margin-left:550px;"><a href="retrieve">Gestion del Proyecto</a></p>
+<p style="margin-left:550px;"><a href="{% url "retrieve" %}">Ver Proyecto</a></p>
     <div class="container">
         <table>
             <tbody>
                 <form action="create" method="POST">
                     {% csrf_token %}
                     <tr>
-                        <td> id </td>
-                        <td><input type="text" name="id_p" required></td>
-                    </tr>
-                    <tr>
                         <td> Nombre del Proyecto </td>
-                        <td><input type="text" name="n_p" required></td>
+                        <td><input type="text" name="nombre_proyecto" required></td>
                     </tr>
                     <tr>
                         <td> Descripcion del Proyecto </td>
-                        <td><textarea name='text' required></textarea></td>
+                        <td><textarea name='desc_proyecto' required></textarea></td>
                     </tr>
                         <tr>
-                            <td> Estado del Proyecto </td>
-                            <td><input type="text" name="e_p" required></td>
-                        </tr>
-                        <tr>
                             <td> Fecha Inicio del Proyecto </td>
-                            <td><input type="date" name="fi_p" required></td>
+                            <td><input type="date" name="fecha_inicio" required></td>
                         </tr>
                         <tr>
-                            <td> Fecha Fin del Proyecto del Proyecto </td>
-                            <td><input type="date" name="ff_p" required></td>
+                            <td> Fecha Fin del Proyecto </td>
+                            <td><input type="date" name="fecha_fin" required></td>
                         </tr>
-                        <td><button>Submit</button></td>
+                        <button><input type="submit" value="Crear Proyecto"></p></button>
                     </tr>
                 </form>
             </tbody>
