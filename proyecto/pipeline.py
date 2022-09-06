@@ -26,7 +26,8 @@ def create_user(strategy, details, user=None, *args, **kwargs):
             'user': strategy.create_user(**fields)
         }
     else:
-        return HttpResponseForbidden()
+        return HttpResponseForbidden("No estas registrado")
+
 
 
 def get_whitelisted_emails():
@@ -51,3 +52,5 @@ def get_whitelisted_emails():
 
     return whitelisted_domains_emails
 
+
+  
