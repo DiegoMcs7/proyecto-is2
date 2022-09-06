@@ -6,14 +6,14 @@
 <body>
     <h1>Editar Proyecto</h1>
     <p style="margin-left:550px;"><a href="{% url "retrieve" %}">Volver</a></p>
-    <div class="container">
+    <div >
         <table>
             <tbody>
                 <form action="/update/{{object.id}}" method="POST">
                     {% csrf_token %}
                     <tr>
                         <td> Id</td>
-                        <td><input type="text" name="id" value={{object.id}}></input></td>
+                        <td><input type="text" name="id" value={{object.id}} ></input></td>
                     </tr>
                     <tr>
                         <td> Nombre del Proyecto </td>

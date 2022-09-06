@@ -67,44 +67,38 @@ def edit(request):
 
 def index(request):
     return render(request,'index.html')
- 
+#anda
 def create(request):
     if request.method=="POST":
-        obj = Proyectos(request.POST)
+        obj = detailsform(request.POST)
         if obj.is_valid():
-            id=request.POST['id']
-            nombre_proyecto=request.POST['nombre_proyecto']
-            desc_proyecto=request.POST['desc_proyecto']
-            estado_proyecto=request.POST['estado_proyecto']
-            fecha_inicio=request.POST['fecha_inicio']
-            fecha_fin=request.POST['fecha_fin']
-            obj=Proyectos.objects.create(id=id,nombre_proyecto=nombre_proyecto,desc_proyecto=desc_proyecto,estado_proyecto=estado_proyecto,fecha_inicio=fecha_inicio,fecha_fin=fecha_fin)
             obj.save()
-        return render(request,'account/create_done.html',{'obj': obj})
-
+        return render(request,'create_done.html',{'obj': obj})
+#anda
 def retrieve(request):
     details=Proyectos.objects.all()
     return render(request,'retrieve.html',{'details':details})
 
 def edit(request,id):
-    
     object=Proyectos.objects.get(id=id)
     return render(request,'editp.html',{'object':object})
     
 def update(request,id):
     if request.method == 'POST':
         object=Proyectos.objects.get(id=id)
-        print(object)
         form=detailsform(request.POST,instance=object)
+        print(form)
         if form.is_valid():
-            print("entra")
+            print("1")
             form.save()
             object=Proyectos.objects.all()
             messages.success(request,'Se han actualizado los datos!')
             return render(request,'retrieve.html',{'object':object})
         else:
+            print("2")
             messages.error(request, 'Error al actualizar datos.')
     else:
+        print("3")
         form.save()
         object=Proyectos.objects.get(id=id)
         form=detailsform(request.POST,instance=object)
