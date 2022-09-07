@@ -191,7 +191,8 @@ AUTHENTICATION_BACKENDS = (
 
 SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '59830650569-2ic6dqilej7l21g8sjdi2cgp90vo94nu.apps.googleusercontent.com'
 SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = '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'
-
+DATE_FORMAT = "Y-m-d"
+USE_L10N = False
 
 SOCIAL_AUTH_PIPELINE = (
     'social_core.pipeline.social_auth.social_details',

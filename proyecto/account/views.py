@@ -2,7 +2,7 @@ from .models import Profile, Proyectos
 from django.shortcuts import render,redirect
 from django.shortcuts import HttpResponse
 from django.contrib.auth import authenticate,login
-from .forms import LoginForm,UserRegistrationForm,UserEditForm,ProfileEditForm, detailsform
+from .forms import LoginForm, ProfileForm,UserRegistrationForm,UserEditForm,ProfileEditForm, detailsform
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 
@@ -49,11 +49,10 @@ def register(request):
     return render(request,'account/register.html',{'user_form': user_form})
 
 @login_required
-def edit(request):
+def edit_us(request,id):
     if request.method == 'POST':
-        user_form = UserEditForm(instance=request.user,data=request.POST)
-        profile_form = ProfileEditForm(instance=request.user.profile,data=request.POST,files=request.FILES)
-        print(profile_form)
+        user_form = UserEditForm.objects.get(id=id)
+        profile_form = ProfileEditForm(request.POST,instance=object)
         if user_form.is_valid() and profile_form.is_valid():
             user_form.save()
             profile_form.save()
@@ -61,20 +60,28 @@ def edit(request):
         else:
             messages.error(request, 'Error al actualizar datos.')
     else:
-        user_form = UserEditForm(instance=request.user)
-        profile_form = ProfileEditForm(instance=request.user.profile)
+        user_form = UserEditForm.objects.get(id=id)
+        profile_form = ProfileEditForm(request.POST,instance=object)
     return render(request,'account/edit.html',{'user_form':user_form,'profile_form':profile_form})
+    
+def retrieve_user(request):
+    args = Profile.objects.all()
+    print(args)
+    #same here..
+    return render(request, 'account/retrieve_user.html', {'args': args})
 
+#CRUD PROYECTO
 def index(request):
     return render(request,'index.html')
-#anda
+    
 def create(request):
+    print('1')
     if request.method=="POST":
         obj = detailsform(request.POST)
         if obj.is_valid():
             obj.save()
         return render(request,'create_done.html',{'obj': obj})
-#anda
+
 def retrieve(request):
     details=Proyectos.objects.all()
     return render(request,'retrieve.html',{'details':details})
@@ -87,18 +94,14 @@ def update(request,id):
     if request.method == 'POST':
         object=Proyectos.objects.get(id=id)
         form=detailsform(request.POST,instance=object)
-        print(form)
         if form.is_valid():
-            print("1")
             form.save()
             object=Proyectos.objects.all()
             messages.success(request,'Se han actualizado los datos!')
             return render(request,'retrieve.html',{'object':object})
         else:
-            print("2")
             messages.error(request, 'Error al actualizar datos.')
     else:
-        print("3")
         form.save()
         object=Proyectos.objects.get(id=id)
         form=detailsform(request.POST,instance=object)

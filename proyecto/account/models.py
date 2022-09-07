@@ -13,6 +13,7 @@
 
 from django.db import models
 from django.conf import settings
+from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 # Create your models here.
 
 class Miembros(models.Model):
@@ -107,3 +108,4 @@ class Profile(models.Model):
     
     def __str__(self):
         return f'Perfil de usuario {self.user.username}'
+

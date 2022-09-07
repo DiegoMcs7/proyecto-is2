@@ -12,13 +12,10 @@
           <a href="{% url "retrieve" %}" data-text="&nbsp;Proyecto">&nbsp;Proyectos&nbsp;</a>
         </li>
         <li style="--clr:#B3B6B7">
-          <a href="#" data-text="&nbsp;Backlog">&nbsp;Backlog&nbsp;</a>
+          <a href="{% url "retrieve_user" %}" data-text="&nbsp;Usuarios">&nbsp;Usuarios&nbsp;</a>
         </li>
         <li style="--clr:#B3B6B7">
-          <a href="{% url "edit" %}" data-text="&nbsp;Editar Perfil">&nbsp;Editar Perfil&nbsp;</a>
-        </li>
-        <li style="--clr:#B3B6B7">
-          <a href="{% url "register" %}" data-text="&nbsp;Registro Usuario">&nbsp;Registro&nbsp;</a>
+          <a href="/edit/{{object.id}}" data-text="&nbsp;EditarP">&nbsp;Editar Perfil&nbsp;</a>
         </li>
       </ul>
 </div>

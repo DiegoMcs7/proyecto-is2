@@ -1,6 +1,7 @@
 from django import forms
 from django.contrib.auth.models import User
 from .models import Profile, Proyectos
+from django.conf import settings
 class LoginForm(forms.Form):
 
     username=forms.CharField()
@@ -18,11 +19,16 @@ class UserEditForm(forms.ModelForm):
 class ProfileEditForm(forms.ModelForm):
     class Meta:
         model = Profile
-        fields = ('telefono','is_active')
+        fields = "__all__"
+class ProfileForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ('first_name','last_name','email','is_active')
 
 class detailsform(forms.ModelForm):
+
     class Meta:
         model=Proyectos
         fields="__all__"
-
-
+class MyModelForm(forms.ModelForm):
+    issue_date = forms.DateField(input_formats=settings.DATE_INPUT_FORMATS)
