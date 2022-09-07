@@ -34,7 +34,7 @@
                     <td style="padding:10px;">{{i.last_name}}</td>
                     <td style="padding:10px;">{{i.email}}</td>
                     <td style="padding:10px;">{{i.is_active}}</td>
-                    <td style="padding:10px;"><a href="{% url 'edit' i.pk %}">Edit</a></td> 
+                    <td style="padding:10px;"><a href="{% url 'edit_us' i.pk %}">Edit</a></td> 
                     <td style="padding:10px;"><a href="{% url 'delete' i.pk %}">Delete</a></td> 
                 </tr>
                 {% endif %}

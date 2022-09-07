@@ -5,28 +5,32 @@
 {% block content %}
 <h1>Editar Usuario</h1>
 <body>
-    <h1>Editar Proyecto</h1>
     <p style="margin-left:550px;"><a href="{% url "retrieve_user" %}">Volver</a></p>
     <div >
         <table>
             <tbody>
-                <form action="/edit/{{object.id}}" method="POST">
+                <form action="/update_us/{{object.id}}" method="POST">
                     {% csrf_token %}
                     <tr>
                         <td> Id</td>
                         <td><input type="text" name="id" value={{object.id}} ></input></td>
                     </tr>
                     <tr>
-                        <td> Nombre Usuario </td>
+                        <td> Usuario </td>
+                        <td><input type="text" name="username" value={{object.username}}></input></td>
+                    </tr>
+                     <tr>
+                        <td> Nombre </td>
                         <td><input type="text" name="first_name" value={{object.first_name}}></input></td>
                     </tr>
-                    <tr>
-                        <td> Apellido Usuario </td>
-                        <td><textarea name='last_name'>{{object.last_name}}</textarea></td>
+                  <tr>
+                        <td> Apellido </td>
+                        <td><input type="text" name="last_name" value={{object.last_name}}></input></td>
                     </tr>
+
                     <tr>
                         <tr>
-                            <td> Email Usuario </td>
+                            <td> Email </td>
                             <td><input type="text" name="email" value={{object.email}}></input></td>
                         </tr>
                         <td><button>Submit</button></td>

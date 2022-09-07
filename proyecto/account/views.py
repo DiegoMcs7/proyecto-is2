@@ -2,7 +2,7 @@ from .models import Profile, Proyectos
 from django.shortcuts import render,redirect
 from django.shortcuts import HttpResponse
 from django.contrib.auth import authenticate,login
-from .forms import LoginForm, ProfileForm,UserRegistrationForm,UserEditForm,ProfileEditForm, detailsform
+from .forms import LoginForm, ProfileForm,UserRegistrationForm,UserEditForm,ProfileEditForm, detailsform, detailsformuser
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.contrib.auth import get_user_model
@@ -49,22 +49,26 @@ def register(request):
         user_form=UserRegistrationForm()
     return render(request,'account/register.html',{'user_form': user_form})
 
-@login_required
-def edit_us(request,id):
+def edit_us(request, id):
+    User = get_user_model()
+    object = User.objects.get(id=id)
+    print(object)
+    return render(request, 'account/edit.html', {'object': object})
+
+
+def update_us(request, id):
     if request.method == 'POST':
         User = get_user_model()
-        user_form = User.objects.get(id=id)
-        profile_form = User(request.POST,instance=object)
-        if user_form.is_valid() and profile_form.is_valid():
-            user_form.save()
-            profile_form.save()
-            messages.success(request,'Se han actualizado los datos!')
+        object = User.objects.get(id=id)
+        form = detailsformuser(request.POST, instance=object)
+        if form.is_valid():
+            form.save()
+            object = User.objects.all()
+            messages.success(request, 'Se han actualizado los datos!')
+            return redirect('retrieve_user')
         else:
             messages.error(request, 'Error al actualizar datos.')
-    else:
-        user_form = User.objects.get(id=id)
-        profile_form = User(request.POST,instance=object)
-    return render(request,'account/edit.html',{'user_form':user_form,'profile_form':profile_form})
+        return render(request, 'account/edit.html', {'object': object, 'form': form})
     
 def retrieve_user(request):
     User = get_user_model()

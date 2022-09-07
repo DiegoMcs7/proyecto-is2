@@ -32,3 +32,8 @@ class detailsform(forms.ModelForm):
         fields="__all__"
 class MyModelForm(forms.ModelForm):
     issue_date = forms.DateField(input_formats=settings.DATE_INPUT_FORMATS)
+
+class detailsformuser(forms.ModelForm):
+    class Meta:
+        model=User
+        fields = ('id','username','first_name','last_name','email','is_active')
