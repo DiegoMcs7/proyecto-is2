@@ -108,4 +108,3 @@ class Profile(models.Model):
     
     def __str__(self):
         return f'Perfil de usuario {self.user.username}'
-

@@ -5,6 +5,7 @@ from django.contrib.auth import authenticate,login
 from .forms import LoginForm, ProfileForm,UserRegistrationForm,UserEditForm,ProfileEditForm, detailsform
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.contrib.auth import get_user_model
 
 @login_required()
 def tablero(request):
@@ -51,8 +52,9 @@ def register(request):
 @login_required
 def edit_us(request,id):
     if request.method == 'POST':
-        user_form = UserEditForm.objects.get(id=id)
-        profile_form = ProfileEditForm(request.POST,instance=object)
+        User = get_user_model()
+        user_form = User.objects.get(id=id)
+        profile_form = User(request.POST,instance=object)
         if user_form.is_valid() and profile_form.is_valid():
             user_form.save()
             profile_form.save()
@@ -60,15 +62,15 @@ def edit_us(request,id):
         else:
             messages.error(request, 'Error al actualizar datos.')
     else:
-        user_form = UserEditForm.objects.get(id=id)
-        profile_form = ProfileEditForm(request.POST,instance=object)
+        user_form = User.objects.get(id=id)
+        profile_form = User(request.POST,instance=object)
     return render(request,'account/edit.html',{'user_form':user_form,'profile_form':profile_form})
     
 def retrieve_user(request):
-    args = Profile.objects.all()
-    print(args)
-    #same here..
-    return render(request, 'account/retrieve_user.html', {'args': args})
+    User = get_user_model()
+    users = User.objects.all()
+
+    return render(request, 'account/retrieve_user.html', {'users': users})
 
 #CRUD PROYECTO
 def index(request):
@@ -98,7 +100,7 @@ def update(request,id):
             form.save()
             object=Proyectos.objects.all()
             messages.success(request,'Se han actualizado los datos!')
-            return render(request,'retrieve.html',{'object':object})
+            return redirect('retrieve')
         else:
             messages.error(request, 'Error al actualizar datos.')
     else:
@@ -111,3 +113,8 @@ def update(request,id):
 def delete(request,pk):   
         Proyectos.objects.filter(id=pk).delete()
         return redirect('retrieve')
+
+def delete_us(request,pk):
+        User = get_user_model()
+        User.objects.filter(id=pk).delete()
+        return redirect('retrieve_user')

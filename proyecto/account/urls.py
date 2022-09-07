@@ -16,5 +16,6 @@ urlpatterns = [
     path('editp/<int:id>',views.edit,name="editp"),
     path('update/<int:id>',views.update,name="update"),
     path(r'^delete_proyecto/(?P<pk>[0-9]+)/$', views.delete,name="delete"), 
+    path(r'^delete_user/(?P<pk>[0-9]+)/$', views.delete_us,name="delete"), 
     
 ]
