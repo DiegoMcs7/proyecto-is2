@@ -2,10 +2,11 @@ from .models import Profile, Proyectos
 from django.shortcuts import render,redirect
 from django.shortcuts import HttpResponse
 from django.contrib.auth import authenticate,login
-from .forms import LoginForm, ProfileForm,UserRegistrationForm,UserEditForm,ProfileEditForm, detailsform, detailsformuser
+from .forms import LoginForm, ProfileForm, ProyectosForm,UserRegistrationForm,UserEditForm,ProfileEditForm, detailsformuser
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.contrib.auth import get_user_model
+from django.http import HttpResponseRedirect
 
 @login_required()
 def tablero(request):
@@ -78,12 +79,15 @@ def retrieve_user(request):
 
 #CRUD PROYECTO
 def index(request):
-    return render(request,'index.html')
+    User = get_user_model()
+    users = User.objects.all()
+    return render(request,'index.html',{'users': users})
     
 def create(request):
-    print('1')
     if request.method=="POST":
+        data = request.POST.getlist('miembro_id')
         obj = detailsform(request.POST)
+        print(data)
         if obj.is_valid():
             obj.save()
         return render(request,'create_done.html',{'obj': obj})
@@ -122,3 +126,40 @@ def delete_us(request,pk):
         User = get_user_model()
         User.objects.filter(id=pk).delete()
         return redirect('retrieve_user')
+
+
+#Nuevo crud para proyecto
+def add_project(request):
+	submitted = False
+	if request.method == "POST":
+			form = ProyectosForm(request.POST)
+			if form.is_valid():
+				project = form.save(commit=False)
+				project.manager = request.user 
+				project.save()
+				return 	HttpResponseRedirect('/add_project?submitted=True')	
+	else:
+	
+		form = ProyectosForm
+
+		if 'submitted' in request.GET:
+			submitted = True
+
+	return render(request, 'add_project.html', {'form':form, 'submitted':submitted})
+
+
+def update_project(request, id):
+	project = Proyectos.objects.get(id=id)
+
+	form = ProyectosForm(request.POST or None, instance=project)
+	
+	if form.is_valid():
+		form.save()
+		return redirect('list-projects')
+
+	return render(request, 'update_project.html',{'project': project,'form':form})
+
+def all_projects(request):
+	project_list = Proyectos.objects.all()
+	return render(request, 'project_list.html', 
+		{'project_list': project_list})

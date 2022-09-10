@@ -17,8 +17,6 @@ def create_user(strategy, details, user=None, *args, **kwargs):
     if not fields:
         return
 
-    print(fields[('email')] in next(zip(*allowed_emails)))
-
     if fields[('email')] in next(zip(*allowed_emails)):
 
         return {

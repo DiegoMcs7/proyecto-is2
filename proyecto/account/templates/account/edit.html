@@ -9,7 +9,7 @@
     <div >
         <table>
             <tbody>
-                <form action="/update_us/{{object.id}}" method="POST">
+                <form class="form-group" action="/update_us/{{object.id}}" method="POST">
                     {% csrf_token %}
                     <tr>
                         <td> Id</td>
@@ -27,7 +27,6 @@
                         <td> Apellido </td>
                         <td><input type="text" name="last_name" value={{object.last_name}}></input></td>
                     </tr>
-
                     <tr>
                         <tr>
                             <td> Email </td>

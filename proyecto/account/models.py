@@ -16,11 +16,12 @@ from django.conf import settings
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 # Create your models here.
 
-class Miembros(models.Model):
-   id = models.AutoField(primary_key=True)
-   id_usuario = models.ForeignKey("Usuarios",on_delete=models.CASCADE)
-   id_proyecto = models.ForeignKey("Proyectos",on_delete=models.CASCADE)
-   id_rol = models.ForeignKey("Roles",on_delete=models.CASCADE)
+# class Miembros(models.Model):
+#    id = models.AutoField(primary_key=True)
+#    id_usuario = models.ForeignKey("Usuarios",on_delete=models.CASCADE)
+#    id_proyecto = models.ForeignKey("Proyectos",on_delete=models.CASCADE)
+#    id_rol = models.ForeignKey("Roles",on_delete=models.CASCADE)
+   
 
 class Usuarios(models.Model):
     id = models.AutoField(primary_key=True)
@@ -29,14 +30,24 @@ class Usuarios(models.Model):
     estado_usuario = models.CharField(max_length=30)
 
 class Proyectos(models.Model):
-    id = models.AutoField(primary_key=True)
-    #miembros = models.ListField()
-    #historial_miembros = models.ListField()
+
+    estados = [
+
+        ('Pendiente','Pendiente'),
+        ('Iniciado','Iniciado'),
+        ('Cancelado','Cancelado'),
+        ('Finalizado','Finalizado'),
+
+    ]
+
     nombre_proyecto = models.CharField(max_length=30)
     desc_proyecto = models.TextField()
-    estado_proyecto = models.CharField(max_length=30,default=True)
+    estado_proyecto = models.CharField(max_length=11,choices=estados,default='Pendiente')
+    miembro = models.ManyToManyField(settings.AUTH_USER_MODEL)
     fecha_inicio = models.DateField()
     fecha_fin = models.DateField()
+
+
 
 class Roles(models.Model):
     nombre_rol = models.CharField(max_length=30)

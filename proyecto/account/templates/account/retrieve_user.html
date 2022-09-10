@@ -7,14 +7,12 @@
 <body>
     <p style="margin-left:550px;"><a href="{% url "register" %}">Agregar Usuarios</a></p>
     <div>
-        <table border="5px solid #000;">
+        <table class="table table-borderless table-dark">
             <tbody>
- 
-                <thead>
+                <thead class="thead-dark">
                     <tr>
                         <th>Id</th>
                         <th>NombreU</th>
-                        <th>Ultimo</th>
                         <th>Nombre</th>
                         <th>Apellido</th>
                         <th>Email</th>
@@ -29,7 +27,6 @@
                 <tr>
                     <td style="padding:10px;">{{i.id}}</td>
                     <td style="padding:10px;">{{i.username}}</td>
-                    <td style="padding:10px;">{{i.last_login}}</td>
                     <td style="padding:10px;">{{i.first_name}}</td>
                     <td style="padding:10px;">{{i.last_name}}</td>
                     <td style="padding:10px;">{{i.email}}</td>
