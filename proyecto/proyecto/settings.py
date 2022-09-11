@@ -200,6 +200,7 @@ SOCIAL_AUTH_PIPELINE = (
     'social_core.pipeline.social_auth.auth_allowed',
     # use our custom pipeline to check the "hd" claim
     'pipeline.create_user',
+    'social_core.pipeline.social_auth.associate_by_email',
     'social_core.pipeline.social_auth.social_user',
     'social_core.pipeline.user.get_username',
     'social_core.pipeline.user.create_user',

@@ -20,8 +20,7 @@ def create_user(strategy, details, user=None, *args, **kwargs):
     if fields[('email')] in next(zip(*allowed_emails)):
 
         return {
-            'is_new': True,
-            'user': strategy.create_user(**fields)
+            'is_new': False,
         }
     else:
         return HttpResponseForbidden("No estas registrado")
