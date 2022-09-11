@@ -1,9 +1,12 @@
-{% extends "base.html" %}
-
-{% block title %} Log-In {% endblock %}
-
-{% block content %}
-
+{% load static %}
+<html lang="en">
+<head>
+    <title> Login </title>
+    <link rel="stylesheet" type="text/css" href="{% static "css/base.css" %}" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-iYQeCzEYFbKjA/T2uDLTpkwGzCiq6soy8tYaI1GyVh/UjpbCx/TYkiZhlZB6+fzT" crossorigin="anonymous">
+</head>
+<body>
 <section>
         <div class="color"></div>
         <div class="color"></div>
@@ -28,10 +31,8 @@
 
                     {% endif %}
                     <form action="{% url 'login'%}" method="post">
-                        {{form.as_p}}
                         {% csrf_token %}
-                        <p><input type="submit" value="Acceder"></p>
-                        <center><a class="google-button" href="{% url "social:begin" "google-oauth2" %}">Google</a></center>
+                        <center><a class="btn btn-dark" href="{% url "social:begin" "google-oauth2" %}">Ingresar con Google</a></center>
                     </form>
                 </div>
             </div>
@@ -39,5 +40,5 @@
         </div>
     </section>
 
-
-{% endblock %}
+</body>
+</html>

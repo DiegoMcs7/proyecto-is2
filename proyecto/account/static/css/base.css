@@ -5,7 +5,7 @@ a {
 }
 
 a:hover {
-    color:#808B96;
+    color:#172838;
 }
 
 h1, h2 { font-family: 'roboto', sans-serif; font-weight:normal; }
@@ -27,16 +27,16 @@ ol {
 #header {
     padding:10px 100px;
     font-size:14px;
-    background:#808B96;
+    background:#172838;
     color:#fff;
-    border-bottom:4px solid #808B96;
+    border-bottom:4px solid #df8a3d;
     overflow:auto;
 }
 
 #header .logo {
     font-family: 'Roboto', sans-serif;
     float:left;
-    color:#f3f7cc;
+    color:#df8a3d;
     font-size:20px;
     margin-right:10%;
 }
@@ -53,12 +53,12 @@ ol {
 }
 
 #header ul.menu li.selected a, #header ul.menu li.selected a:hover {
-    color:#808B96;
+    color:#172838;
     font-weight:bold;
 }
 
 #header a {
-    color:#f3f7cc;
+    color:#df8a3d;
 }
 #header a:hover {
     color:#fff;
@@ -96,7 +96,7 @@ input, textarea {
 }
 input[type=submit], a.button {
     font-weight:bold;
-    background:#808B96;
+    background:#172838;
     color:#fff;
     padding:10px 20px;
     font-size:14px;
@@ -130,7 +130,6 @@ input[type=submit], a.button {
 			padding: 0;
 			box-sizing: border-box;
 			font-family: 'Roboto', sans-serif;
-
 		}
 
 	body {
@@ -226,7 +225,8 @@ input[type=submit], a.button {
             font-size: 30px;
             font-weight: 600;
             letter-spacing: 2px;
-            margin-bottom: 40px;
+            margin-bottom: 100px;
+            margin-left: 100px;
 
         }
 

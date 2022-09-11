@@ -3,23 +3,25 @@
 {% block content %}
 
 {% if user.is_authenticated %}
-	<h1>Add Project</h1>
-<br/><br/>
+	<h1>Crear Proyecto</h1>
+<br/>
 
 {% if submitted %}
 
 		Proyecto creado correctamente...
 
 	{% else %}
+	<div class="row">
+		<div class="col-6">
+			<form  class="text-danger" style="margin-left:15px;" action="" method=POST>
+				{% csrf_token %}
 
-		<form  class="text-danger" action="" method=POST>
-			{% csrf_token %}
+				{{ form.as_p }}
+				<input type="submit" value="Crear" class="btn btn-secondary">
 
-			{{ form.as_p }}
-
-			<input type="submit" value="Submit" class="btn btn-secondary">
-
-		</form>
+			</form>
+		</div>
+	</div>
 		{% endif %}
 
 <br/><br/>	
