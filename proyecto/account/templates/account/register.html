@@ -6,13 +6,14 @@
 
 <h1> Crear Cuenta </h1>
 
-<form method="post">
-
-    {{ user_form.as_p }}
-    {% csrf_token %}
-    <p><input type="submit" value="Crear Cuenta"></p>
-
-
-</form>
+<div class="row">
+		<div class="col-6">
+            <form method="post" style="margin-left:15px;">
+                {{ user_form.as_p }}
+                {% csrf_token %}
+                <p><input type="submit" value="Crear Cuenta"></p>
+            </form>
+        <div/>
+<div/>
 
 {% endblock %}

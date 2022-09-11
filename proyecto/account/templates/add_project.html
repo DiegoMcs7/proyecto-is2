@@ -3,7 +3,7 @@
 {% block content %}
 
 {% if user.is_authenticated %}
-	<h1>Crear Proyecto</h1>
+	<h1 >Crear Proyecto</h1>
 <br/>
 
 {% if submitted %}
@@ -17,7 +17,7 @@
 				{% csrf_token %}
 
 				{{ form.as_p }}
-				<input type="submit" value="Crear" class="btn btn-secondary">
+				<input type="submit" value="Crear">
 
 			</form>
 		</div>

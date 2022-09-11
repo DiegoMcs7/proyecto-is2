@@ -8,7 +8,7 @@
         integrity="sha384-iYQeCzEYFbKjA/T2uDLTpkwGzCiq6soy8tYaI1GyVh/UjpbCx/TYkiZhlZB6+fzT" crossorigin="anonymous">
 </head>
 <body style="overflow: overlay;">
-    <div id="header">
+    <div id="header" style="border-bottom:4px solid #df8a3d;">
 
         <a href="{% url "tablero" %}"><span class="logo">Gestor de Proyectos</span></a>
         {% if request.user.is_authenticated %}
@@ -34,7 +34,7 @@
           </span>
 
     </div>
-    <div id="content" style="margin-top:20px; margin-bottom:20px;">
+    <div id="content">
 
         {% block content %}
         {% endblock %}

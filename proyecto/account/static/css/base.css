@@ -29,9 +29,10 @@ ol {
     font-size:14px;
     background:#172838;
     color:#fff;
-    border-bottom:4px solid #df8a3d;
+    border-bottom:4px solid #ffffff;
     overflow:auto;
 }
+
 
 #header .logo {
     font-family: 'Roboto', sans-serif;
@@ -101,7 +102,33 @@ input[type=submit], a.button {
     padding:10px 20px;
     font-size:14px;
     text-transform:uppercase;
+    border-radius: 9px
 }
+
+.button-create{
+    font-weight:bold;
+    background:#172838;
+    color:#FFFFFF;
+    padding:10px 20px;
+    font-size:14px;
+    text-transform:uppercase;
+    border-radius: 9px;
+    text-decoration:none;
+    margin-top:20px;
+}
+.button-create:hover{
+    font-weight:bold;
+    background:#172838;
+    color:#9f7249;
+    padding:10px 20px;
+    font-size:14px;
+    text-transform:uppercase;
+    border-radius: 9px;
+    text-decoration:none;
+    margin-top:20px;
+}
+
+
 .errorlist {
     color: red;
     float:left;
@@ -273,6 +300,7 @@ input[type=submit], a.button {
 		    display: flex;
 		    align-items: center;
 		    justify-content: center;
+		    border-radius: 9px
 
         }
 
