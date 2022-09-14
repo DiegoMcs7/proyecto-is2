@@ -47,12 +47,11 @@ class detailsformuser(forms.ModelForm):
 class ProyectosForm(ModelForm):
     class Meta:
         model = Proyectos
-        fields = ('nombre_proyecto', 'desc_proyecto', 'estado_proyecto', 'miembro', 'fecha_inicio', 'fecha_fin')
+        fields = ('nombre_proyecto', 'desc_proyecto', 'estado_proyecto', 'fecha_inicio', 'fecha_fin')
         labels = {
             'nombre_proyecto': '',
             'desc_proyecto': '',
             'estado_proyecto': '',
-            'miembro': '',
             'fecha_inicio': 'Fecha Inicio',
             'fecha_fin': 'Fecha Fin',
         }
@@ -60,7 +59,6 @@ class ProyectosForm(ModelForm):
             'nombre_proyecto': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nombre del Proyecto'}),
             'desc_proyecto': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Descripcion del Proyecto'}),
             'estado_proyecto': forms.Select(attrs={'class': 'form-select', 'placeholder': 'Estado del Proyecto'}),
-            'miembro': forms.SelectMultiple(attrs={'class': 'form-control', 'placeholder': 'Miembros'}),
             'fecha_inicio': forms.DateInput(
                 attrs={'type': 'date', 'class': 'form-control', 'placeholder': 'Fecha Inicio'}),
             'fecha_fin': forms.DateInput(attrs={'type': 'date', 'class': 'form-control', 'placeholder': 'Fecha Fin'}),

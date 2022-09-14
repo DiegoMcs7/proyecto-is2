@@ -17,7 +17,7 @@ from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 # Create your models here.
 
 class Miembros(models.Model):
-   id_usuario = models.ForeignKey("Usuarios",on_delete=models.CASCADE)
+   id_usuario = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE)
    id_proyecto = models.ForeignKey("Proyectos",on_delete=models.CASCADE)
    id_rol = models.ManyToManyField("Roles")
    
@@ -42,10 +42,12 @@ class Proyectos(models.Model):
     nombre_proyecto = models.CharField(max_length=30)
     desc_proyecto = models.TextField()
     estado_proyecto = models.CharField(max_length=11,choices=estados,default='Pendiente')
-    miembro = models.ManyToManyField(settings.AUTH_USER_MODEL)
     fecha_inicio = models.DateField()
     fecha_fin = models.DateField()
 
+
+    def __str__(self):
+        return self.nombre_proyecto
 
 
 class Roles(models.Model):
