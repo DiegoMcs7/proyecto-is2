@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block title %} Tabla Proyecto {% endblock %}
+
+{% block content %}
+
+<body>
+    <p class="display-3" style="margin-left:550px;"><a class="button-create" href="{% url "add-project" %}">Agregar Proyecto</a></p>
+    <div>
+        <table class="table table-striped" border="5px solid #000;" style="margin-top:30px;">
+                <thead class="thead-dark">
+                    <tr data-href="https://es.wikipedia.org/wiki/%CE%95">
+                        <th>Id</th>
+                        <th>Nombre</th>
+                        <th>Descripción</th>
+                        <th>Estado de Proyecto</th>
+                        <th>Miembros</th>
+                        <th>Fecha Inicio</th>
+                        <th>Fecha Fin</th>
+                    </tr>
+                </thead>
+                
+                {% for i in project_list %}
+                <tr scope="row">
+                    <td style="padding:10px;"><a href="{% url 'tablero' %}"> {{i.id}} </a></td>
+                    <td style="padding:10px;">{{i.nombre_proyecto}}</td>
+                    <td style="padding:10px;">{{i.desc_proyecto}}</td>
+                    <td style="padding:10px;">{{i.estado_proyecto}}</td>
+                    <td style="padding:10px;">{{i.miembro}}</td>
+                    <td style="padding:10px;">{{i.fecha_inicio}}</td>
+                    <td style="padding:10px;">{{i.fecha_fin}}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+            </tbody>
+        </table>
+    </div>
+    <div class="row">
+		<div class="col-6">
+			<form  class="text-danger" style="margin-left:15px;" action="" method=POST>
+				{% csrf_token %}
+				{{ form.as_p }}
+				<input type="submit" value="Crear">
+
+			</form>
+		</div>
+	</div>
+</body>
+ 
+{% endblock %}

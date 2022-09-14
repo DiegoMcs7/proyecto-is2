@@ -16,11 +16,10 @@ from django.conf import settings
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 # Create your models here.
 
-# class Miembros(models.Model):
-#    id = models.AutoField(primary_key=True)
-#    id_usuario = models.ForeignKey("Usuarios",on_delete=models.CASCADE)
-#    id_proyecto = models.ForeignKey("Proyectos",on_delete=models.CASCADE)
-#    id_rol = models.ForeignKey("Roles",on_delete=models.CASCADE)
+class Miembros(models.Model):
+   id_usuario = models.ForeignKey("Usuarios",on_delete=models.CASCADE)
+   id_proyecto = models.ForeignKey("Proyectos",on_delete=models.CASCADE)
+   id_rol = models.ManyToManyField("Roles")
    
 
 class Usuarios(models.Model):

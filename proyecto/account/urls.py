@@ -10,15 +10,9 @@ urlpatterns = [
     path('register/', views.register, name='register'),
     path('edit_us/<int:id>',views.edit_us,name="edit_us"),
     path('retrieve_user/',views.retrieve_user,name="retrieve_user"),
-    path('index/',views.index,name='index'),
-    path('create/',views.create,name="create"), 
-    path('retrieve/',views.retrieve,name="retrieve"),
-    path('editp/<int:id>',views.edit,name="editp"),
-    path('update/<int:id>',views.update,name="update"),
-    path(r'^delete_proyecto/(?P<pk>[0-9]+)/$', views.delete,name="delete"), 
-    path(r'^delete_user/(?P<pk>[0-9]+)/$', views.delete_us,name="delete"), 
+    path('add_members/<int:id>', views.add_members, name="add-members"),
     path('projects', views.all_projects, name="list-projects"),
     path('add_project', views.add_project, name='add-project'),
-    path('update_project/<event_id>', views.update_project, name='update-project'),
+    path('update_project/<int:id>', views.update_project, name='update-project'),
     
 ]
