@@ -111,8 +111,9 @@ def all_projects(request):
 
 def add_members(request, id):
     project = Proyectos.objects.get(id=id)
+    form = AddMembersForm(request.POST or None, instance=project, initial={'id_proyecto': id})
 
-    form = AddMembersForm(request.POST or None, instance=project)
+
     if form.is_valid():
         form.save()
         return redirect('list-projects')

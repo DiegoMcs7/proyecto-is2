@@ -64,6 +64,7 @@ class ProyectosForm(ModelForm):
             'fecha_fin': forms.DateInput(attrs={'type': 'date', 'class': 'form-control', 'placeholder': 'Fecha Fin'}),
         }
 
+
 class AddMembersForm(ModelForm):
     class Meta:
         model = Miembros
