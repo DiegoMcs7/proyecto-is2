@@ -13,13 +13,13 @@
 
 from django.db import models
 from django.conf import settings
-from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
+from django.contrib.auth.models import Permission
 # Create your models here.
 
 class Miembros(models.Model):
    id_usuario = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE)
    id_proyecto = models.ForeignKey("Proyectos",on_delete=models.CASCADE)
-   id_rol = models.ManyToManyField("Roles")
+   id_rol = models.ManyToManyField("Rol")
    
 
 class Usuarios(models.Model):
@@ -49,12 +49,15 @@ class Proyectos(models.Model):
     def __str__(self):
         return self.nombre_proyecto
 
+class Rol(models.Model):
 
-class Roles(models.Model):
-    nombre_rol = models.CharField(max_length=30)
-    desc_rol = models.TextField()
-    #permisos_rol = models.ListField()
+      rol = models.CharField(max_length=20,blank=True, null=True)
+      desc_rol = models.TextField()
+      permisos = models.ManyToManyField(Permission)
 
+      def __str__(self):
+        return self.rol
+    
 class UserStory(models.Model):
     id = models.AutoField(primary_key=True)
     nombre_us = models.CharField(max_length=30)

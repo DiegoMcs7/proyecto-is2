@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+{% if user.is_authenticated %}
+	<h1> Crear Rol </h1>
+<br/>
+
+{% if submitted %}
+
+		Rol creado correctamente.
+	<a href="{% url 'list-roles' %}">Atras</a>
+
+	{% else %}
+	<div class="row">
+		<div class="col-6">
+			<form  class="text-danger" style="margin-left:15px;" action="" method=POST>
+				{% csrf_token %}
+				{{ form.as_p }}
+				<input type="submit" value="Crear">
+
+			</form>
+		</div>
+	</div>
+		{% endif %}
+
+<br/><br/>	
+
+{% else %}
+<h1>Sorry! You Must Be Logged In To View This Page...</h1>
+
+<a href="{% url 'login' %}">Login Here</a>
+
+{% endif %}
+
+{% endblock %}

@@ -1,8 +1,9 @@
 from django import forms
 from django.contrib.auth.models import User
-from .models import Profile, Proyectos, Miembros
+from .models import Profile, Proyectos, Miembros, Rol
 from django.conf import settings
 from django.forms import ModelForm
+
 
 
 class LoginForm(forms.Form):
@@ -72,9 +73,24 @@ class AddMembersForm(ModelForm):
         labels = {
             'id_usuario': 'Usuario',
             'id_proyecto': 'Proyecto',
-
         }
         widgets = {
             'id_usuario': forms.Select(attrs={'class': 'form-control', 'placeholder': 'Usuario'}),
-            'id_proyecto': forms.Select(attrs={'class': 'form-control', 'placeholder': 'Proyecto'}),
+            'id_proyecto': forms.HiddenInput(attrs={'class': 'form-control', 'placeholder': 'Proyecto'}),
+        }
+
+class RolForm(ModelForm):
+    class Meta:
+        model = Rol
+        fields = ('rol','desc_rol','permisos')
+        labels = {
+            'rol': '',
+            'desc_rol': '',
+            'permisos': ''
+        }
+        widgets = {
+            'rol': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Rol'}),
+            'desc_rol': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Descripcion'}),
+            'permisos': forms.SelectMultiple(attrs={'class': 'form-control', 'placeholder': 'Permisos'}),
+
         }

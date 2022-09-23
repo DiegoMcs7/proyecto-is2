@@ -1,13 +1,12 @@
-from .models import Profile, Proyectos
+from .models import Profile, Proyectos, Rol
 from django.shortcuts import render, redirect
-from django.shortcuts import HttpResponse
-from django.contrib.auth import authenticate, login
-from .forms import LoginForm, ProfileForm,AddMembersForm, ProyectosForm, UserRegistrationForm, UserEditForm, ProfileEditForm, \
-    detailsformuser
+from .forms import AddMembersForm, ProyectosForm, RolForm, UserRegistrationForm,detailsformuser
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.http import HttpResponseRedirect
+from django.contrib.auth.models import Permission
+from django.contrib.contenttypes.models import ContentType
 
 
 @login_required()
@@ -119,3 +118,37 @@ def add_members(request, id):
         return redirect('list-projects')
 
     return render(request, 'project/add_members.html', {'project': project, 'form': form})
+
+def all_roles(request):
+    roles_list = Rol.objects.all()
+
+    return render(request, 'roles_y_permisos/roles_list.html',
+                  {'roles_list': roles_list})
+
+def add_rol(request):
+    submitted = False
+    if request.method == "POST":
+        form = RolForm(request.POST)
+        if form.is_valid():
+            role = form.save(commit=False)
+            role.manager = request.user
+            role.save()
+            return HttpResponseRedirect('/add_rol?submitted=True')
+    else:
+
+        form = RolForm
+
+        if 'submitted' in request.GET:
+            submitted = True
+
+    return render(request, 'roles_y_permisos/add_rol.html', {'form': form, 'submitted': submitted})
+
+def update_rol(request, id):
+    role = Rol.objects.get(id=id)
+    form = RolForm(request.POST or None, instance=role)
+
+    if form.is_valid():
+        form.save()
+        return redirect('list-roles')
+
+    return render(request, 'roles_y_permisos/update_rol.html', {'role': role, 'form': form})

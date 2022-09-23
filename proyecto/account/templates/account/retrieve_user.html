@@ -22,7 +22,6 @@
                 </thead>
             <tbody>
                 {% for i in users %}
-                {% if i.last_login  %}
                 <tr>
                     <td style="padding:10px;">{{i.id}}</td>
                     <td style="padding:10px;">{{i.username}}</td>
@@ -32,7 +31,6 @@
                     <td style="padding:10px;">{{i.is_active}}</td>
                     <td style="padding:10px;"><a href="{% url 'edit_us' i.pk %}">Edit</a></td> 
                 </tr>
-                {% endif %}
                 {% endfor %}
             </tbody>
             </tbody>

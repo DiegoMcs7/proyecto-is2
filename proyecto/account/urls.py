@@ -1,4 +1,4 @@
-from django.urls import path,include
+from django.urls import path
 from . import views
 from django.contrib.auth import views as auth_views
 
@@ -14,5 +14,7 @@ urlpatterns = [
     path('projects', views.all_projects, name="list-projects"),
     path('add_project', views.add_project, name='add-project'),
     path('update_project/<int:id>', views.update_project, name='update-project'),
-    
+    path('roles', views.all_roles, name="list-roles"),
+    path('add_rol', views.add_rol, name='add-rol'),
+    path('update_rol/<int:id>', views.update_rol, name='update-rol'),
 ]
