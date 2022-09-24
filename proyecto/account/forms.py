@@ -69,14 +69,16 @@ class ProyectosForm(ModelForm):
 class AddMembersForm(ModelForm):
     class Meta:
         model = Miembros
-        fields = ('id_usuario', 'id_proyecto')
+        fields = ('id_usuario', 'id_proyecto', 'id_rol')
         labels = {
             'id_usuario': 'Usuario',
             'id_proyecto': 'Proyecto',
+            'id_rol': 'Rol',
         }
         widgets = {
             'id_usuario': forms.Select(attrs={'class': 'form-control', 'placeholder': 'Usuario'}),
-            'id_proyecto': forms.HiddenInput(attrs={'class': 'form-control', 'placeholder': 'Proyecto'}),
+            'id_proyecto': forms.Select(attrs={'class': 'form-control', 'placeholder': 'Proyecto'}),
+            'id_rol': forms.Select(attrs={'class': 'form-control', 'placeholder': 'Rol'}),
         }
 
 class RolForm(ModelForm):

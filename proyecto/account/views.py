@@ -1,4 +1,4 @@
-from .models import Profile, Proyectos, Rol
+from .models import Miembros, Profile, Proyectos, Rol
 from django.shortcuts import render, redirect
 from .forms import AddMembersForm, ProyectosForm, RolForm, UserRegistrationForm,detailsformuser
 from django.contrib.auth.decorators import login_required
@@ -109,15 +109,15 @@ def all_projects(request):
 
 
 def add_members(request, id):
-    project = Proyectos.objects.get(id=id)
-    form = AddMembersForm(request.POST or None, instance=project, initial={'id_proyecto': id})
-
-
-    if form.is_valid():
-        form.save()
-        return redirect('list-projects')
-
-    return render(request, 'project/add_members.html', {'project': project, 'form': form})
+        project = Proyectos.objects.get(id=id)
+        members = Miembros.objects.all()
+        form = AddMembersForm(request.POST or None, initial={'id_proyecto': id})
+        
+        if form.is_valid():
+            new_user = form.save(commit=False)
+            new_user.save()
+            return redirect('list-projects')
+        return render(request, 'project/add_members.html', {'project': project, 'form': form, 'members': members})
 
 def all_roles(request):
     roles_list = Rol.objects.all()

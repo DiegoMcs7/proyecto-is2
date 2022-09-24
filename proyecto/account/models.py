@@ -17,11 +17,10 @@ from django.contrib.auth.models import Permission
 # Create your models here.
 
 class Miembros(models.Model):
-   id_usuario = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE)
-   id_proyecto = models.ForeignKey("Proyectos",on_delete=models.CASCADE)
-   id_rol = models.ManyToManyField("Rol")
+    id_usuario = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE)
+    id_proyecto = models.ForeignKey("Proyectos",on_delete=models.CASCADE)
+    id_rol = models.ManyToManyField("Rol")
    
-
 class Usuarios(models.Model):
     id = models.AutoField(primary_key=True)
     nombre_usuario = models.CharField(max_length=15)
