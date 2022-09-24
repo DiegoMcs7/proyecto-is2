@@ -15,6 +15,7 @@
 	<div class="row">
 		<div class="col-6">
 			<form  class="text-danger" style="margin-left:15px;" action="" method=POST>
+				
 				{% csrf_token %}
 				{{ form.as_p }}
 				<input type="submit" value="Crear">

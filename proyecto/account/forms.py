@@ -60,8 +60,7 @@ class ProyectosForm(ModelForm):
             'nombre_proyecto': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nombre del Proyecto'}),
             'desc_proyecto': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Descripcion del Proyecto'}),
             'estado_proyecto': forms.Select(attrs={'class': 'form-select', 'placeholder': 'Estado del Proyecto'}),
-            'fecha_inicio': forms.DateInput(
-                attrs={'type': 'date', 'class': 'form-control', 'placeholder': 'Fecha Inicio'}),
+            'fecha_inicio': forms.DateInput(attrs={'type': 'date', 'class': 'form-control', 'placeholder': 'Fecha Inicio'}),
             'fecha_fin': forms.DateInput(attrs={'type': 'date', 'class': 'form-control', 'placeholder': 'Fecha Fin'}),
         }
 
@@ -77,8 +76,8 @@ class AddMembersForm(ModelForm):
         }
         widgets = {
             'id_usuario': forms.Select(attrs={'class': 'form-control', 'placeholder': 'Usuario'}),
-            'id_proyecto': forms.Select(attrs={'class': 'form-control', 'placeholder': 'Proyecto'}),
-            'id_rol': forms.Select(attrs={'class': 'form-control', 'placeholder': 'Rol'}),
+            'id_proyecto': forms.HiddenInput(attrs={'class': 'form-control', 'placeholder': 'Proyecto'}),
+            'id_rol': forms.SelectMultiple(attrs={'class': 'form-control', 'placeholder': 'Rol'}),
         }
 
 class RolForm(ModelForm):

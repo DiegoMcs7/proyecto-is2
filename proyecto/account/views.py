@@ -1,13 +1,10 @@
 from .models import Miembros, Profile, Proyectos, Rol
 from django.shortcuts import render, redirect
 from .forms import AddMembersForm, ProyectosForm, RolForm, UserRegistrationForm,detailsformuser
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required,permission_required
 from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.http import HttpResponseRedirect
-from django.contrib.auth.models import Permission
-from django.contrib.contenttypes.models import ContentType
-
 
 @login_required()
 def tablero(request):
@@ -69,7 +66,6 @@ def edit(request, id):
     object = Proyectos.objects.get(id=id)
     return render(request, 'project/edit_project.html', {'object': object})
 
-
 # Nuevo crud para proyecto
 def add_project(request):
     submitted = False
@@ -107,30 +103,38 @@ def all_projects(request):
     return render(request, 'project/project_list.html',
                   {'project_list': project_list})
 
-
 def add_members(request, id):
         project = Proyectos.objects.get(id=id)
         members = Miembros.objects.all()
         form = AddMembersForm(request.POST or None, initial={'id_proyecto': id})
         
         if form.is_valid():
-            new_user = form.save(commit=False)
+            new_user = form.save()
             new_user.save()
             return redirect('list-projects')
         return render(request, 'project/add_members.html', {'project': project, 'form': form, 'members': members})
 
 def all_roles(request):
+
     roles_list = Rol.objects.all()
+    userid = request.user.id
+
+    b = Miembros.objects.filter(id_usuario=userid).values_list('id')
+    out = [item for t in b for item in t]
+    a = Miembros.id_rol.through.objects.filter(miembros_id__in=out).values_list('rol_id')
+    out = [item for t in a for item in t]
+    a = Rol.permisos.through.objects.filter(rol_id__in=out).values_list('permission_id')
+    out = [item for t in a for item in t]
 
     return render(request, 'roles_y_permisos/roles_list.html',
-                  {'roles_list': roles_list})
+                  {'roles_list': roles_list,'out':out})
 
 def add_rol(request):
     submitted = False
     if request.method == "POST":
         form = RolForm(request.POST)
         if form.is_valid():
-            role = form.save(commit=False)
+            role = form.save()
             role.manager = request.user
             role.save()
             return HttpResponseRedirect('/add_rol?submitted=True')
