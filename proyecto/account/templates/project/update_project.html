@@ -3,7 +3,7 @@
 {% block content %}
 
 {% if user.is_authenticated %}
-	<h1>Edit Project</h1>
+	<h1>Editar Proyecto</h1>
 <br/><br/>
 
 {% if submitted %}
@@ -11,8 +11,9 @@
     Proyecto actualizado correctamente...
 
 	{% else %}
-
-		<form action="" method=POST>
+	<div class="row">
+		<div class="col-6">
+		<form action="" method=POST style="margin-left:15px;">
 			{% csrf_token %}
 
 			{{ form.as_p }}
@@ -21,6 +22,8 @@
 
 		</form>
 		{% endif %}
+		</div>
+	</div>
 
 <br/><br/>	
 

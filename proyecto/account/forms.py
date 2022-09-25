@@ -157,6 +157,14 @@ class AddMembersSprintForm(ModelForm):
         }
         widgets = {
             'usuario': forms.Select(attrs={'class': 'form-control', 'placeholder': 'Usuario'}),
-            'sprint': forms.HiddenInput(attrs={'class': 'form-control', 'placeholder': 'Sprint'}),
+            'sprint': forms.Select(attrs={'class': 'form-control', 'placeholder': 'Sprint'}),
             'horas_trabajo': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Horas de trabajo por día'}),
         }
+
+    def __init__(self, *args, **kwargs):
+        self._pwd = kwargs.pop('pwd', None)
+        print(self._pwd)
+        super().__init__(*args, **kwargs)
+        print(User.objects.filter(miembros__id_proyecto=self._pwd))
+        self.fields['usuario'].queryset = User.objects.filter(miembros__id_proyecto=self._pwd)
+

@@ -172,7 +172,7 @@ def add_sprint(request,id):
             sprint = form.save()
             sprint.manager = request.user
             sprint.save()
-            return HttpResponseRedirect('/add_sprint?submitted=True')
+            return HttpResponseRedirect('/sprint/%d'%id)
     else:
 
         form = SprintForm(initial={'id_proyecto':x})
@@ -182,24 +182,26 @@ def add_sprint(request,id):
     return render(request, 'sprint/add_sprint.html', {'form': form, 'submitted': submitted})
 
 
-def update_sprint(request, id):
-    sprint = Sprint.objects.get(id=id)
+def update_sprint(request, id_proyecto, id_sprint):
+    sprint = Sprint.objects.get(id=id_sprint)
 
     form = SprintForm(request.POST or None, instance=sprint)
-
     if form.is_valid():
         form.save()
-        return redirect('sprint-list')
+        return redirect('/sprint/%d'%id_proyecto)
 
     return render(request, 'sprint/update_sprint.html', {'sprint': sprint, 'form': form})
 
-def add_members_sprint(request, id):
-        sprint = Sprint.objects.get(id=id)
+
+def add_members_sprint(request, id_proyecto, id_sprint):
+        sprint = Sprint.objects.get(id=id_sprint)
         members_sprint = Miembro_Sprint.objects.all()
-        form = AddMembersSprintForm(request.POST or None, initial={'id_sprint': id})
+        form = AddMembersSprintForm(request.POST or None, pwd=id_proyecto, initial={'id': id_sprint})
         
         if form.is_valid():
             new_user = form.save()
             new_user.save()
-            return redirect('sprint-list')
-        return render(request, 'sprint/add_members_sprint.html', {'sprint': sprint, 'form': form, 'members_sprint': members_sprint})
+            return redirect('/sprint/%d'%id_sprint)
+        return render(request, 'sprint/add_members_sprint.html',
+                      {'sprint': sprint, 'form': form, 'members_sprint': members_sprint
+                       })

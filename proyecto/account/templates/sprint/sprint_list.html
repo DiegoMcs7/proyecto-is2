@@ -29,17 +29,22 @@
                       <th>Edit</th>
                     </tr>
                 </thead>
-                {% for i in sprint_list %}
-                <tr scope="row" data-href="{% url 'add-members-sprint' i.pk %}" style="tr:hover {background-color: #77bdff;}">
-                    <td style="padding:10px;">{{i.id}} </a></td>
-                    <td style="padding:10px;">{{i.nombre_sprint}}</td>
-                    <td style="padding:10px;">{{i.desc_sprint}}</td>
-                    <td style="padding:10px;">{{i.estado_sprint}}</td>
-                    <td style="padding:10px;">{{i.duracion_dias}}</td>
-                    <td style="padding:10px;">{{i.fecha_inicio}}</td>
-                    <td style="padding:10px;"><a href="{% url 'update-sprint' i.pk %}">Edit</a></td>
+            {% for p in sprint_list %}
+                {% if id_project == p.id_proyecto_id %}
+                <tr scope="row" data-href="{% url 'add-members-sprint' id_project p.pk %}"
+                    style="tr:hover {background-color: #77bdff;}">
+                    <td style="padding:10px;">{{p.id}} </a></td>
+                    <td style="padding:10px;">{{p.nombre_sprint}}</td>
+                    <td style="padding:10px;">{{p.desc_sprint}}</td>
+                    <td style="padding:10px;">{{p.estado_sprint}}</td>
+                    <td style="padding:10px;">{{p.duracion_dias}}</td>
+                    <td style="padding:10px;">{{p.fecha_inicio}}</td>
+                    <td style="padding:10px;"><a href="{% url 'update-sprint' id_project p.pk %}">Edit</a></td>
                 </tr>
-                {% endfor %}
+
+                {% endif %}
+
+            {% endfor %}
         </table>
     </div>
 </body>
