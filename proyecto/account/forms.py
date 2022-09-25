@@ -99,18 +99,20 @@ class RolForm(ModelForm):
 class SprintForm(ModelForm):
     class Meta:
         model = Sprint
-        fields = ('nombre_sprint', 'desc_sprint', 'estado_sprint', 'duracion_dias')
+        fields = ('nombre_sprint', 'desc_sprint', 'estado_sprint', 'duracion_dias','id_proyecto')
         labels = {
             'nombre_sprint': '',
             'desc_sprint': '',
             'estado_sprint': '',
             'duracion_dias': '',
+            'id_proyecto': '',
         }
         widgets = {
             'nombre_sprint': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nombre del sprint'}),
             'desc_sprint': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Descripcion del sprint'}),
             'estado_sprint': forms.Select(attrs={'class': 'form-select', 'placeholder': 'Estado del sprint'}),
             'duracion_dias': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Duración en días hábiles'}),
+            'id_proyecto': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Proyecto'}),
         }
 
 class AddMembersSprintForm(ModelForm):

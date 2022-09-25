@@ -118,9 +118,9 @@ class Sprint(models.Model):
 
     ]
     estado_sprint = models.CharField(choices=estado, default='Iniciado', max_length=10)
-    fecha_inicio = models.DateField(null=True)
+    fecha_inicio = models.DateField(auto_now=True,blank=True,null=True)
     duracion_dias = models.IntegerField(null=True) #Duracion en dias habiles
-    id_proyecto = models.ForeignKey("Proyectos",on_delete=models.CASCADE,null=True)
+    id_proyecto = models.ForeignKey("Proyectos",on_delete=models.CASCADE,blank=True,null=True)
 
     def __str__(self):
         return self.nombre_sprint

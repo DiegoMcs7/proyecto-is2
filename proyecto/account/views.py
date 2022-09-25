@@ -1,4 +1,4 @@
-from datetime import date, datetime
+from datetime import datetime
 from .models import Miembro_Sprint, Miembros, Profile, Proyectos, Rol, Sprint
 from django.shortcuts import render, redirect
 from .forms import AddMembersForm, AddMembersSprintForm, ProyectosForm, RolForm, UserRegistrationForm,detailsformuser, SprintForm
@@ -163,18 +163,19 @@ def all_sprints(request,id):
 
 def add_sprint(request,id):
     submitted = False
+    project = Proyectos.objects.get(id=id)
+    x = project.id
+    print(x)
     if request.method == "POST":
-        form = SprintForm(request.POST, initial={'id_proyecto':id,'fecha_inicio': datetime.today})
+        form = SprintForm(request.POST, initial={'id_proyecto':x})
         if form.is_valid():
             sprint = form.save()
             sprint.manager = request.user
             sprint.save()
-            url = 'account/sprint-list/'+str(id)
-            return HttpResponseRedirect(url)
+            return HttpResponseRedirect('/add_sprint?submitted=True')
     else:
 
-        form = SprintForm
-
+        form = SprintForm(initial={'id_proyecto':x})
         if 'submitted' in request.GET:
             submitted = True
 

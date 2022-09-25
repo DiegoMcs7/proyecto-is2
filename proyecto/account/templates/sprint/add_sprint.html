@@ -6,24 +6,25 @@
 	<h1 >Crear Sprint</h1>
 <br/>
 
-{% if submitted %}
+	{% if submitted %}
 
-		Sprint creado correctamente.
+	Sprint creado correctamente.
 	<a href="{% url 'sprint-list' id_proyecto %}"> Atras</a>
-
+	
 	{% else %}
 	<div class="row">
 		<div class="col-6">
 			<form  class="text-danger" style="margin-left:15px;" action="" method=POST>
 				{% csrf_token %}
-
+				
 				{{ form.as_p }}
+				
 				<input type="submit" value="Crear">
 
 			</form>
 		</div>
 	</div>
-		{% endif %}
+	{% endif %}
 
 <br/><br/>	
 
