@@ -101,13 +101,14 @@ def all_projects(request):
 def add_members(request, id):
         project = Proyectos.objects.get(id=id)
         members = Miembros.objects.all()
+        roles = Rol.objects.all()
         form = AddMembersForm(request.POST or None, initial={'id_proyecto': id})
         
         if form.is_valid():
             new_user = form.save()
             new_user.save()
             return redirect('list-projects')
-        return render(request, 'project/add_members.html', {'project': project, 'form': form, 'members': members})
+        return render(request, 'project/add_members.html', {'project': project, 'form': form, 'members': members, 'roles': roles})
 
 def all_roles(request):
 
@@ -154,20 +155,22 @@ def update_rol(request, id):
 
 # CRUD para sprint
 
-def all_sprints(request):
+def all_sprints(request,id):
     sprint_list = Sprint.objects.all()
+                                                             
     return render(request, 'sprint/sprint_list.html',
-                  {'sprint_list': sprint_list})
+                  {'sprint_list': sprint_list,'id_project': id})
 
-def add_sprint(request):
+def add_sprint(request,id):
     submitted = False
     if request.method == "POST":
-        form = SprintForm(request.POST, initial={'fecha_inicio': datetime.today})
+        form = SprintForm(request.POST, initial={'id_proyecto':id,'fecha_inicio': datetime.today})
         if form.is_valid():
-            sprint = form.save(commit=False)
+            sprint = form.save()
             sprint.manager = request.user
             sprint.save()
-            return HttpResponseRedirect('/add_sprint?submitted=True')
+            url = 'account/sprint-list/'+str(id)
+            return HttpResponseRedirect(url)
     else:
 
         form = SprintForm
@@ -198,4 +201,4 @@ def add_members_sprint(request, id):
             new_user = form.save()
             new_user.save()
             return redirect('sprint-list')
-        return render(request, 'sprint/add_members.html', {'sprint': sprint, 'form': form, 'members_sprint': members_sprint})
+        return render(request, 'sprint/add_members_sprint.html', {'sprint': sprint, 'form': form, 'members_sprint': members_sprint})

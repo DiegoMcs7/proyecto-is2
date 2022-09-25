@@ -42,20 +42,28 @@
             <thead class="thead-dark">
                 <tr>
                     <th>Miembros</th>
+                    <th>Rol</th>
+                    
                 </tr>
             </thead>
-            
-            {% for i in members %}
-            
-            <tr>
-                {% if project.id == i.id_proyecto_id %}
-                <td style="padding:10px;">{{i.id_usuario}}</td>
-                {% endif %}
-            </tr>
 
+            {% for p in members %}
+            <tr>
+                
+                {% if project.id == p.id_proyecto_id %}
+                <td style="padding:10px;">{{p.id_usuario}}</td> 
+                {% for x in p.id_rol.all %}
+                <td style="padding:10px;">{{x.rol}}</td> 
+                {%endfor%}
+                {% endif %}
+
+            </tr>
             {% endfor %}
     </table>
-</div>
+    </div>
+    <div>
+        <p class="display-3" style="margin-left:550px;"><a class="button-create" href="{% url "sprint-list" project.id %}">Sprints</a></p>
+    </div>
    
 </body>
  

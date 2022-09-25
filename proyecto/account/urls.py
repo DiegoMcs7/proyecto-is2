@@ -18,7 +18,7 @@ urlpatterns = [
     path('add_rol', views.add_rol, name='add-rol'),
     path('update_rol/<int:id>', views.update_rol, name='update-rol'),
     path('add_members_sprint/<int:id>', views.add_members_sprint, name="add-members-sprint"),
-    path('sprint', views.all_sprints, name="sprint-list"),
-    path('add_sprint', views.add_sprint, name='add-sprint'),
+    path('sprint/<int:id>', views.all_sprints, name="sprint-list"),
+    path('add_sprint/<int:id>', views.add_sprint, name='add-sprint'),
     path('update_sprint/<int:id>', views.update_sprint, name='update-sprint'),
 ]

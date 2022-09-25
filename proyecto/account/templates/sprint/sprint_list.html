@@ -5,7 +5,7 @@
 {% block content %}
 
 <body>
- <p class="display-3" style="margin-left:550px;"><a class="button-create" href="{% url "add-sprint" %}">Agregar Sprint</a></p>
+ <p class="display-3" style="margin-left:550px;"><a class="button-create" href="{% url "add-sprint" id_project %}">Agregar Sprint</a></p>
     <div>
         <script>
             document.addEventListener("DOMContentLoaded", () => {
@@ -32,7 +32,7 @@
                 
                 {% for i in sprint_list %}
                 <tr scope="row" data-href="{% url 'add-members-sprint' i.pk %}" style="tr:hover {background-color: #77bdff;}">
-                    <td style="padding:10px;"><a href="{% url 'add-members-sprint' i.pk %}"> {{i.id}} </a></td>
+                    <td style="padding:10px;">{{i.id}} </a></td>
                     <td style="padding:10px;">{{i.nombre_sprint}}</td>
                     <td style="padding:10px;">{{i.desc_sprint}}</td>
                     <td style="padding:10px;">{{i.estado_sprint}}</td>

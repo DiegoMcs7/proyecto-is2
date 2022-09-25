@@ -120,9 +120,13 @@ class Sprint(models.Model):
     estado_sprint = models.CharField(choices=estado, default='Iniciado', max_length=10)
     fecha_inicio = models.DateField(null=True)
     duracion_dias = models.IntegerField(null=True) #Duracion en dias habiles
+    id_proyecto = models.ForeignKey("Proyectos",on_delete=models.CASCADE,null=True)
+
+    def __str__(self):
+        return self.nombre_sprint
 
 class Miembro_Sprint (models.Model):
-    usuario = models.ForeignKey("Miembros", on_delete=models.CASCADE)
+    usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     sprint = models.ForeignKey("Sprint", on_delete=models.CASCADE)
     horas_trabajo = models.BigIntegerField()
 
