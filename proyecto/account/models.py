@@ -143,3 +143,16 @@ class Profile(models.Model):
     
     def __str__(self):
         return f'Perfil de usuario {self.user.username}'
+
+class Permission(Permission):
+    def permission_string_method(self):
+        if 'Can delete' in self.name:
+            self.name = self.name.replace('Can delete', 'Puede eliminar')
+        elif 'Can add' in self.name:
+            self.name = self.name.replace('Can add', 'Puede crear')
+        elif 'Can change' in self.name:
+            self.name = self.name.replace('Can change', 'Puede modificar')
+        elif 'Can view' in self.name:
+            self.name = self.name.replace('Can view', 'Puede ver')
+        return '%s' % (self.name)
+    Permission._str_ = permission_string_method
