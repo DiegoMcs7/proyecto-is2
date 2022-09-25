@@ -1,6 +1,7 @@
-from .models import Miembros, Profile, Proyectos, Rol
+from datetime import date, datetime
+from .models import Miembro_Sprint, Miembros, Profile, Proyectos, Rol, Sprint
 from django.shortcuts import render, redirect
-from .forms import AddMembersForm, ProyectosForm, RolForm, UserRegistrationForm,detailsformuser
+from .forms import AddMembersForm, AddMembersSprintForm, ProyectosForm, RolForm, UserRegistrationForm,detailsformuser, SprintForm
 from django.contrib.auth.decorators import login_required,permission_required
 from django.contrib import messages
 from django.contrib.auth import get_user_model
@@ -59,12 +60,6 @@ def retrieve_user(request):
     users = User.objects.all()
 
     return render(request, 'account/retrieve_user.html', {'users': users})
-
-
-# CRUD PROYECTO
-def edit(request, id):
-    object = Proyectos.objects.get(id=id)
-    return render(request, 'project/edit_project.html', {'object': object})
 
 # Nuevo crud para proyecto
 def add_project(request):
@@ -156,3 +151,51 @@ def update_rol(request, id):
         return redirect('list-roles')
 
     return render(request, 'roles_y_permisos/update_rol.html', {'role': role, 'form': form})
+
+    # Nuevo crud para sprint
+def add_sprint(request):
+    submitted = False
+    if request.method == "POST":
+        form = SprintForm(request.POST, initial={'fecha_inicio': datetime.today})
+        if form.is_valid():
+            sprint = form.save(commit=False)
+            sprint.manager = request.user
+            sprint.save()
+            return HttpResponseRedirect('/add_sprint?submitted=True')
+    else:
+
+        form = SprintForm
+
+        if 'submitted' in request.GET:
+            submitted = True
+
+    return render(request, 'sprint/add_sprint.html', {'form': form, 'submitted': submitted})
+
+
+def update_sprint(request, id):
+    sprint = Sprint.objects.get(id=id)
+
+    form = SprintForm(request.POST or None, instance=sprint)
+
+    if form.is_valid():
+        form.save()
+        return redirect('sprint-list')
+
+    return render(request, 'sprint/update_sprint.html', {'sprint': sprint, 'form': form})
+
+
+def all_sprints(request):
+    sprint_list = Sprint.objects.all()
+    return render(request, 'sprint/sprint_list.html',
+                  {'sprint_list': sprint_list})
+
+def add_members_sprint(request, id):
+        sprint = Sprint.objects.get(id=id)
+        members_sprint = Miembro_Sprint.objects.all()
+        form = AddMembersSprintForm(request.POST or None, initial={'id_sprint': id})
+        
+        if form.is_valid():
+            new_user = form.save()
+            new_user.save()
+            return redirect('sprint-list')
+        return render(request, 'sprint/add_members.html', {'sprint': sprint, 'form': form, 'members_sprint': members_sprint})

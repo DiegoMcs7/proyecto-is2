@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth.models import User
-from .models import Profile, Proyectos, Miembros, Rol
+from .models import Miembro_Sprint, Profile, Proyectos, Miembros, Rol, Sprint
 from django.conf import settings
 from django.forms import ModelForm
 
@@ -94,4 +94,36 @@ class RolForm(ModelForm):
             'desc_rol': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Descripcion'}),
             'permisos': forms.SelectMultiple(attrs={'class': 'form-control', 'placeholder': 'Permisos'}),
 
+        }
+
+class SprintForm(ModelForm):
+    class Meta:
+        model = Sprint
+        fields = ('nombre_sprint', 'desc_sprint', 'estado_sprint', 'duracion_dias')
+        labels = {
+            'nombre_sprint': '',
+            'desc_sprint': '',
+            'estado_sprint': '',
+            'duracion_dias': '',
+        }
+        widgets = {
+            'nombre_sprint': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nombre del sprint'}),
+            'desc_sprint': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Descripcion del sprint'}),
+            'estado_sprint': forms.Select(attrs={'class': 'form-select', 'placeholder': 'Estado del sprint'}),
+            'duracion_dias': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Duración en días hábiles'}),
+        }
+
+class AddMembersSprintForm(ModelForm):
+    class Meta:
+        model = Miembro_Sprint
+        fields = ('usuario', 'sprint', 'horas_trabajo')
+        labels = {
+            'usuario': 'Usuario',
+            'sprint': 'Sprint',
+            'horas_trabajo': '',
+        }
+        widgets = {
+            'usuario': forms.Select(attrs={'class': 'form-control', 'placeholder': 'Usuario'}),
+            'sprint': forms.HiddenInput(attrs={'class': 'form-control', 'placeholder': 'Sprint'}),
+            'horas_trabajo': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Horas de trabajo por día'}),
         }

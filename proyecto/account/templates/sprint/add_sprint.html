@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+{% if user.is_authenticated %}
+	<h1 >Crear Sprint</h1>
+<br/>
+
+{% if submitted %}
+
+		Sprint creado correctamente.
+	<a href="{% url 'sprint-list' %}"> Atras</a>
+
+	{% else %}
+	<div class="row">
+		<div class="col-6">
+			<form  class="text-danger" style="margin-left:15px;" action="" method=POST>
+				{% csrf_token %}
+
+				{{ form.as_p }}
+				<input type="submit" value="Crear">
+
+			</form>
+		</div>
+	</div>
+		{% endif %}
+
+<br/><br/>	
+
+{% else %}
+<h1>Deberías de estar logueado para acceder a esta página...</h1>
+
+<a href="{% url 'login' %}">Login Here</a>
+
+{% endif %}
+
+{% endblock %}

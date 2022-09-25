@@ -11,6 +11,7 @@
         Incluimos dentro de la clase donde nos encontramos la nueva clase creada junto con la relación que deseamos que tenga.
 '''
 
+from pyexpat import model
 from django.db import models
 from django.conf import settings
 from django.contrib.auth.models import Permission
@@ -60,13 +61,21 @@ class Rol(models.Model):
 class UserStory(models.Model):
     id = models.AutoField(primary_key=True)
     nombre_us = models.CharField(max_length=30)
-    prioridad_us = models.CharField(max_length=30)
-    tipo_us = models.CharField(max_length=30)
+    #tipo_us = models.CharField(max_length=30)
+    tipo_us = models.ForeignKey("TipoUS",on_delete=models.CASCADE)
     desc_us = models.TextField()
-    com_us = models.TextField()
-    historial_us = models.CharField(max_length=30)
-    fecha_inicio = models.DateField()
-    fecha_fin = models.DateField()
+    #com_us = models.TextField()
+    #historial_us = models.CharField(max_length=30)
+    horas_estimadas = models.IntegerField(null=True)
+    encargado = models.OneToOneField("Miembro_Sprint", on_delete=models.CASCADE, null=True)
+    prioridad = [
+
+        ('Baja','Baja'),
+        ('Media','Media'),
+        ('Alta','Alta'),
+
+    ]
+    prioridad_us = models.CharField(choices=prioridad, max_length=10)
 
 class Reuniones(models.Model):
     nombre_reunion = models.CharField(max_length=30)
@@ -102,9 +111,21 @@ class Sprint(models.Model):
     id = models.AutoField(primary_key=True)
     nombre_sprint = models.CharField(max_length=30)
     desc_sprint = models.TextField()
-    estado_sprint = models.CharField(max_length=30)
-    fecha_inicio = models.DateField()
-    fecha_fin = models.DateField()
+    estado = [
+
+        ('Iniciado','Iniciado'),
+        ('Terminado','Terminado'),
+
+    ]
+    estado_sprint = models.CharField(choices=estado, default='Iniciado', max_length=10)
+    fecha_inicio = models.DateField(null=True)
+    duracion_dias = models.IntegerField(null=True) #Duracion en dias habiles
+
+class Miembro_Sprint (models.Model):
+    usuario = models.ForeignKey("Miembros", on_delete=models.CASCADE)
+    sprint = models.ForeignKey("Sprint", on_delete=models.CASCADE)
+    horas_trabajo = models.BigIntegerField()
+
 
 class Reportes(models.Model):
     id = models.AutoField(primary_key=True)
