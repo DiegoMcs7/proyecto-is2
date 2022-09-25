@@ -1,8 +1,11 @@
 from django import forms
 from django.contrib.auth.models import User
+from django.db.models import Q
 from .models import Miembro_Sprint, Profile, Proyectos, Miembros, Rol, Sprint
 from django.conf import settings
 from django.forms import ModelForm
+from django.contrib.auth.models import Permission
+
 
 
 
@@ -11,10 +14,23 @@ class LoginForm(forms.Form):
     password = forms.CharField(widget=forms.PasswordInput)
 
 
-class UserRegistrationForm(forms.ModelForm):
+class UserRegistrationForm(ModelForm):
     class Meta:
         model = User
         fields = ('username', 'first_name', 'email')
+        labels = {
+            'username': 'Username',
+            'first_name': 'Nombre',
+            'email': 'Email',
+        }
+        help_texts = {
+            'username': '',
+        }
+        widgets = {
+            'username': forms.TextInput(attrs={'class': 'form-control'}),
+            'first_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'email': forms.TextInput(attrs={'class': 'form-control'}),
+        }
 
 
 class UserEditForm(forms.ModelForm):
@@ -58,7 +74,7 @@ class ProyectosForm(ModelForm):
         }
         widgets = {
             'nombre_proyecto': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nombre del Proyecto'}),
-            'desc_proyecto': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Descripcion del Proyecto'}),
+            'desc_proyecto': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Descripcion del Proyecto', 'style': 'height: 30%;'}),
             'estado_proyecto': forms.Select(attrs={'class': 'form-select', 'placeholder': 'Estado del Proyecto'}),
             'fecha_inicio': forms.DateInput(attrs={'type': 'date', 'class': 'form-control', 'placeholder': 'Fecha Inicio'}),
             'fecha_fin': forms.DateInput(attrs={'type': 'date', 'class': 'form-control', 'placeholder': 'Fecha Fin'}),
@@ -80,10 +96,11 @@ class AddMembersForm(ModelForm):
             'id_rol': forms.SelectMultiple(attrs={'class': 'form-control', 'placeholder': 'Rol'}),
         }
 
+
 class RolForm(ModelForm):
     class Meta:
         model = Rol
-        fields = ('rol','desc_rol','permisos')
+        fields = ('rol','desc_rol', 'permisos')
         labels = {
             'rol': '',
             'desc_rol': '',
@@ -91,10 +108,24 @@ class RolForm(ModelForm):
         }
         widgets = {
             'rol': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Rol'}),
-            'desc_rol': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Descripcion'}),
-            'permisos': forms.SelectMultiple(attrs={'class': 'form-control', 'placeholder': 'Permisos'}),
+            'desc_rol': forms.Textarea(
+                attrs={'class': 'form-control', 'placeholder': 'Descripcion', 'style': 'height: 30%;'}),
+            'permisos': forms.SelectMultiple(
+                attrs={'class': 'form-control', 'placeholder': 'Permisos', 'style': 'height: 40%;'}),
 
         }
+
+    def __init__(self, *args, **kwargs):
+        super(RolForm, self).__init__(*args, **kwargs)
+        self.fields["permisos"].queryset = Permission.objects.exclude(
+            Q(name__icontains="association") | Q(name__icontains='code') | Q(name__icontains='nonce') | Q(
+                name__icontains='user social auth') | Q(name__icontains='partial') | Q(name__icontains='permission') |
+            Q(name__icontains='miembro_ sprint') | Q(name__icontains='kanban') | Q(name__icontains='reuniones') |
+            Q(name__icontains='reportes') | Q(name__icontains='sprint backlog') | Q(name__icontains='tipo us') |
+            Q(name__icontains='backlog') | Q(name__icontains='user story') | Q(name__icontains='group') | Q(
+                name__icontains='log entry') | Q(name__icontains='user') | Q(name__icontains='content type')
+                | Q(name__icontains='session')| Q(name__icontains='profile'))
+
 
 class SprintForm(ModelForm):
     class Meta:
@@ -109,7 +140,7 @@ class SprintForm(ModelForm):
         }
         widgets = {
             'nombre_sprint': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nombre del sprint'}),
-            'desc_sprint': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Descripcion del sprint'}),
+            'desc_sprint': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Descripcion del sprint', 'style': 'height: 30%;'}),
             'estado_sprint': forms.Select(attrs={'class': 'form-select', 'placeholder': 'Estado del sprint'}),
             'duracion_dias': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Duración en días hábiles'}),
             'id_proyecto': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Proyecto'}),
