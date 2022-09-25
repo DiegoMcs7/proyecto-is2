@@ -155,4 +155,4 @@ class Permission(Permission):
         elif 'Can view' in self.name:
             self.name = self.name.replace('Can view', 'Puede ver')
         return '%s' % (self.name)
-    Permission._str_ = permission_string_method
+    Permission.__str__ = permission_string_method

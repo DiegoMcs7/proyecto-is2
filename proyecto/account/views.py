@@ -152,7 +152,13 @@ def update_rol(request, id):
 
     return render(request, 'roles_y_permisos/update_rol.html', {'role': role, 'form': form})
 
-    # Nuevo crud para sprint
+# CRUD para sprint
+
+def all_sprints(request):
+    sprint_list = Sprint.objects.all()
+    return render(request, 'sprint/sprint_list.html',
+                  {'sprint_list': sprint_list})
+
 def add_sprint(request):
     submitted = False
     if request.method == "POST":
@@ -182,12 +188,6 @@ def update_sprint(request, id):
         return redirect('sprint-list')
 
     return render(request, 'sprint/update_sprint.html', {'sprint': sprint, 'form': form})
-
-
-def all_sprints(request):
-    sprint_list = Sprint.objects.all()
-    return render(request, 'sprint/sprint_list.html',
-                  {'sprint_list': sprint_list})
 
 def add_members_sprint(request, id):
         sprint = Sprint.objects.get(id=id)
