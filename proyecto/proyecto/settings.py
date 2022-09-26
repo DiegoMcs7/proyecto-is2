@@ -58,7 +58,7 @@ Explicación de componentes del modulo
 
 
 """
-
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -74,7 +74,7 @@ SECRET_KEY = 'django-insecure-!59nq=1!3--62ftzqyq8er9+^80mb=qcm%0+)u1@*e(0_ms$e%
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*','djangoproject.localhost.com']
 
 
 # Application definition
@@ -208,3 +208,4 @@ SOCIAL_AUTH_PIPELINE = (
     'social_core.pipeline.social_auth.load_extra_data',
     'social_core.pipeline.user.user_details',
 )
+STATIC_ROOT = os.path.join(BASE_DIR, "static/")
