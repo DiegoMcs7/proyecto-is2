@@ -31,7 +31,7 @@ def register(request):
         ofrece el mismo.
     '''
     if request.method == 'POST':
-        user_form = UserRegistrationForm(request.POST)
+        user_form = UserRegistrationForm(request.POST,{'is_superuser':True})
         if user_form.is_valid():
             new_user = user_form.save(commit=False)
             new_user.save()

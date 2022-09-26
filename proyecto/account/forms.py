@@ -17,26 +17,31 @@ class LoginForm(forms.Form):
 class UserRegistrationForm(ModelForm):
     class Meta:
         model = User
-        fields = ('username', 'first_name', 'email')
+        fields = ('username', 'first_name', 'email', 'is_superuser')
+        CHOICES = [(True, 'Si'), (False, 'No')]
         labels = {
             'username': 'Username',
             'first_name': 'Nombre',
             'email': 'Email',
+            'is_superuser': "SuperUser"
         }
         help_texts = {
             'username': '',
+            'is_superuser': '',
         }
         widgets = {
             'username': forms.TextInput(attrs={'class': 'form-control'}),
             'first_name': forms.TextInput(attrs={'class': 'form-control'}),
             'email': forms.TextInput(attrs={'class': 'form-control'}),
+            'is_superuser': forms.RadioSelect(choices=CHOICES),
         }
 
 
 class UserEditForm(forms.ModelForm):
     class Meta:
         model = User
-        fields = ('first_name', 'last_name', 'email')
+        fields = ('first_name', 'last_name', 'email', 'is_superuser')
+
 
 
 class ProfileEditForm(forms.ModelForm):
@@ -58,7 +63,7 @@ class MyModelForm(forms.ModelForm):
 class detailsformuser(forms.ModelForm):
     class Meta:
         model = User
-        fields = ('id', 'username', 'first_name', 'last_name', 'email', 'is_active')
+        fields = ('id', 'username', 'first_name', 'last_name', 'email', 'is_active','is_superuser')
 
 
 class ProyectosForm(ModelForm):
@@ -126,7 +131,7 @@ class RolForm(ModelForm):
             Q(name__icontains='reportes') | Q(name__icontains='sprint backlog') | Q(name__icontains='tipo us') |
             Q(name__icontains='backlog') | Q(name__icontains='user story') | Q(name__icontains='group') | Q(
                 name__icontains='log entry') | Q(name__icontains='user') | Q(name__icontains='content type')
-                | Q(name__icontains='session')| Q(name__icontains='profile'))
+                | Q(name__icontains='session')| Q(name__icontains='usuarios') | Q(name__icontains='profile'))
 
 
 class SprintForm(ModelForm):

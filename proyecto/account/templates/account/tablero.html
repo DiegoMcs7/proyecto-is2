@@ -11,12 +11,14 @@
         <li style="--clr:#B3B6B7">
           <a href="{% url "list-projects" %}" data-text="&nbsp;Proyectos">&nbsp;Proyectos&nbsp;</a>
         </li>
+      {% if request.user.is_superuser %}
         <li style="--clr:#B3B6B7">
           <a href="{% url "retrieve_user" %}" data-text="&nbsp;Usuarios">&nbsp;Usuarios&nbsp;</a>
         </li>
+<<<<<<< Updated upstream
         <li style="--clr:#B3B6B7" hidden>
-          <a href="{% url "list-roles" %}" data-text="&nbsp;Roles">&nbsp;Roles&nbsp;</a>
-        </li>
+=======
+      {% endif %}
       </ul>
 </div>
 {% endblock %}
