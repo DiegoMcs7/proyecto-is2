@@ -5,7 +5,9 @@
 {% block content %}
 
 <body>
+{% if 25 in out or request.user.is_superuser %}
  <p class="display-3" style="margin-left:550px;"><a class="button-create" href="{% url "add-sprint" id_project %}">Agregar Sprint</a></p>
+{% endif %}
     <div>
         <script>
             document.addEventListener("DOMContentLoaded", () => {
@@ -39,7 +41,9 @@
                     <td style="padding:10px;">{{p.estado_sprint}}</td>
                     <td style="padding:10px;">{{p.duracion_dias}}</td>
                     <td style="padding:10px;">{{p.fecha_inicio}}</td>
+                    {% if 26 in out or request.user.is_superuser %}
                     <td style="padding:10px;"><a href="{% url 'update-sprint' id_project p.pk %}">Edit</a></td>
+                    {% endif %}
                 </tr>
 
                 {% endif %}

@@ -5,7 +5,9 @@
 {% block content %}
 
 <body>
+{% if 41 in out or request.user.is_superuser %}
 <p class="display-3" style="margin-left:550px;"><a class="button-create" href="{% url 'add-user_story' id_project %}">Agregar User Story</a></p>
+{% endif %}
 <div>
         <script>
             document.addEventListener("DOMContentLoaded", () => {
@@ -36,7 +38,9 @@
                     <td style="padding:10px;">{{p.horas_estimadas}}</td>
                     <td style="padding:10px;">{{p.prioridad_us}}</td>
                     <td style="padding:10px;">{{p.encargado}}</td>
+                    {% if 42 in out or request.user.is_superuser %}
                     <td style="padding:10px;"><a href="{% url 'update-user_story' id_project p.id %}">Edit</a></td>
+                    {% endif %}
                 </tr>
 
                 {% endif %}

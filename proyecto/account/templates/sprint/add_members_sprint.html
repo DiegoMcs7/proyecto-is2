@@ -27,6 +27,7 @@
             {% endfor %}
     </table>
 </div>
+       {% if 26 in out or request.user.is_superuser %}
     <div class="row">
 		<div class="col-4">
 			<form  class="text-danger" style="margin-left:15px;" action="" method=POST>
@@ -36,7 +37,7 @@
 			</form>
 		</div>
 	</div>
-
+{% endif %}
    
 </body>
  
