@@ -1,4 +1,5 @@
 from datetime import datetime
+from urllib.request import Request
 from .models import Miembro_Sprint, Miembros, Profile, Proyectos, Rol, Sprint
 from django.shortcuts import render, redirect
 from .forms import AddMembersForm, AddMembersSprintForm, ProyectosForm, RolForm, UserRegistrationForm,detailsformuser, SprintForm
@@ -6,6 +7,7 @@ from django.contrib.auth.decorators import login_required,permission_required
 from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.http import HttpResponseRedirect
+from django.contrib.auth.models import User
 
 @login_required()
 def tablero(request):
@@ -66,10 +68,17 @@ def add_project(request):
     submitted = False
     if request.method == "POST":
         form = ProyectosForm(request.POST)
+        
         if form.is_valid():
             project = form.save(commit=False)
             project.manager = request.user
             project.save()
+            #############CORREGIR LAST############
+            project_member = Proyectos.objects.last()
+            user_member = User.objects.get(id=form['scrum_master'].value())
+            rol_member = Rol.objects.get(id=1)
+            Miembros.objects.create(id_usuario=user_member, id_proyecto=project_member)
+            Miembros.objects.last().id_rol.add(rol_member)
             return HttpResponseRedirect('/add_project?submitted=True')
     else:
 

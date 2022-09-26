@@ -64,13 +64,14 @@ class detailsformuser(forms.ModelForm):
 class ProyectosForm(ModelForm):
     class Meta:
         model = Proyectos
-        fields = ('nombre_proyecto', 'desc_proyecto', 'estado_proyecto', 'fecha_inicio', 'fecha_fin')
+        fields = ('nombre_proyecto', 'desc_proyecto', 'estado_proyecto', 'fecha_inicio', 'fecha_fin', 'scrum_master')
         labels = {
             'nombre_proyecto': '',
             'desc_proyecto': '',
             'estado_proyecto': '',
             'fecha_inicio': 'Fecha Inicio',
             'fecha_fin': 'Fecha Fin',
+            'scrum_master': 'Scrum Master'
         }
         widgets = {
             'nombre_proyecto': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nombre del Proyecto'}),
@@ -78,6 +79,7 @@ class ProyectosForm(ModelForm):
             'estado_proyecto': forms.Select(attrs={'class': 'form-select', 'placeholder': 'Estado del Proyecto'}),
             'fecha_inicio': forms.DateInput(attrs={'type': 'date', 'class': 'form-control', 'placeholder': 'Fecha Inicio'}),
             'fecha_fin': forms.DateInput(attrs={'type': 'date', 'class': 'form-control', 'placeholder': 'Fecha Fin'}),
+            'scrum_master': forms.Select(attrs={'class': 'form-select', 'placeholder': 'Scrum Master'}),
         }
 
 

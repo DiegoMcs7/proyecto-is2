@@ -44,6 +44,7 @@ class Proyectos(models.Model):
     estado_proyecto = models.CharField(max_length=11,choices=estados,default='Pendiente')
     fecha_inicio = models.DateField()
     fecha_fin = models.DateField()
+    scrum_master = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
 
 
     def __str__(self):
