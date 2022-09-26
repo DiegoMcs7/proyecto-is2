@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.db.models import Q
-from .models import Miembro_Sprint, Profile, Proyectos, Miembros, Rol, Sprint
+from .models import Miembro_Sprint, Profile, Proyectos, Miembros, Rol, Sprint, UserStory
 from django.conf import settings
 from django.forms import ModelForm
 from django.contrib.auth.models import Permission
@@ -150,7 +150,7 @@ class SprintForm(ModelForm):
             'desc_sprint': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Descripcion del sprint', 'style': 'height: 30%;'}),
             'estado_sprint': forms.Select(attrs={'class': 'form-select', 'placeholder': 'Estado del sprint'}),
             'duracion_dias': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Duración en días hábiles'}),
-            'id_proyecto': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Proyecto'}),
+            'id_proyecto': forms.HiddenInput(attrs={'class': 'form-control', 'placeholder': 'Proyecto'}),
         }
 
 class AddMembersSprintForm(ModelForm):
@@ -175,3 +175,33 @@ class AddMembersSprintForm(ModelForm):
         print(User.objects.filter(miembros__id_proyecto=self._pwd))
         self.fields['usuario'].queryset = User.objects.filter(miembros__id_proyecto=self._pwd)
 
+
+class UserStoryForm(ModelForm):
+    class Meta:
+        model = UserStory
+        fields = ('nombre_us', 'desc_us', 'horas_estimadas', 'encargado', 'prioridad_us', 'id_sprint', 'id_proyecto')
+        labels = {
+            'nombre_us': 'Nombre',
+            'desc_us': 'Descripción',
+            'horas_estimadas': 'Horas estimadas',
+            'encargado': 'Encargado',
+            'prioridad_us': 'Prioridad',
+            'id_sprint': 'Sprint',
+            'id_proyecto': 'Proyecto',
+
+        }
+        widgets = {
+            'nombre_us': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nombre del user story'}),
+            'desc_us': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Descripcion del user story', 'style': 'height: 30%;'}),
+            'horas_estimadas': forms.NumberInput(attrs={'class': 'form-control'}),
+            'encargado': forms.Select(attrs={'class': 'form-control', 'placeholder': 'Encargado'}),
+            'prioridad_us': forms.Select(attrs={'class': 'form-control', 'placeholder': 'Horas de trabajo por día'}),
+            'id_sprint': forms.Select(attrs={'class': 'form-control', 'placeholder': 'Sprint'}),
+            'id_proyecto': forms.HiddenInput(attrs={'class': 'form-control', 'placeholder': 'Sprint'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        self._pwd = kwargs.pop('pwd', None)
+        print(self._pwd)
+        super().__init__(*args, **kwargs)
+        self.fields['encargado'].queryset = User.objects.filter(miembros__id_proyecto=self._pwd)

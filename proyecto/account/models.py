@@ -58,17 +58,18 @@ class Rol(models.Model):
 
       def __str__(self):
         return self.rol
-    
+
+
 class UserStory(models.Model):
     id = models.AutoField(primary_key=True)
     nombre_us = models.CharField(max_length=30)
-    #tipo_us = models.CharField(max_length=30)
-    tipo_us = models.ForeignKey("TipoUS",on_delete=models.CASCADE)
+    # tipo_us = models.CharField(max_length=30, default='si')
+    # tipo_us = models.ForeignKey("TipoUS",on_delete=models.CASCADE)
     desc_us = models.TextField()
     #com_us = models.TextField()
     #historial_us = models.CharField(max_length=30)
     horas_estimadas = models.IntegerField(null=True)
-    encargado = models.OneToOneField("Miembro_Sprint", on_delete=models.CASCADE, null=True)
+    encargado = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
     prioridad = [
 
         ('Baja','Baja'),
@@ -76,7 +77,9 @@ class UserStory(models.Model):
         ('Alta','Alta'),
 
     ]
-    prioridad_us = models.CharField(choices=prioridad, max_length=10)
+    prioridad_us = models.CharField(choices=prioridad, max_length=10, default='Baja')
+    id_proyecto = models.ForeignKey("Proyectos", on_delete=models.CASCADE, null=True)
+    id_sprint = models.ForeignKey("Sprint", on_delete=models.CASCADE, null=True, blank=True)
 
 class Reuniones(models.Model):
     nombre_reunion = models.CharField(max_length=30)

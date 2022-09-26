@@ -1,8 +1,9 @@
 from datetime import datetime
 from urllib.request import Request
-from .models import Miembro_Sprint, Miembros, Profile, Proyectos, Rol, Sprint
+from .models import Miembro_Sprint, Miembros, Profile, Proyectos, Rol, Sprint, UserStory
 from django.shortcuts import render, redirect
-from .forms import AddMembersForm, AddMembersSprintForm, ProyectosForm, RolForm, UserRegistrationForm,detailsformuser, SprintForm
+from .forms import AddMembersForm, AddMembersSprintForm, ProyectosForm, RolForm, UserRegistrationForm, detailsformuser, \
+    SprintForm, UserStoryForm
 from django.contrib.auth.decorators import login_required,permission_required
 from django.contrib import messages
 from django.contrib.auth import get_user_model
@@ -282,10 +283,10 @@ def update_sprint(request, id_proyecto, id_sprint):
     '''
     sprint = Sprint.objects.get(id=id_sprint)
 
-    form = SprintForm(request.POST or None, instance=sprint)
+    form = SprintForm(request.POST or None, instance=sprint, initial={'id_proyecto': id_proyecto})
     if form.is_valid():
         form.save()
-        return redirect('/sprint/%d'%id_proyecto)
+        return redirect('/sprint/%d' % id_proyecto)
 
     return render(request, 'sprint/update_sprint.html', {'sprint': sprint, 'form': form})
 
@@ -306,3 +307,35 @@ def add_members_sprint(request, id_proyecto, id_sprint):
         new_user.save()
         return redirect('/sprint/%d'%id_sprint)
     return render(request, 'sprint/add_members_sprint.html',{'sprint': sprint, 'form': form, 'members_sprint': members_sprint})
+
+
+def all_user_story(request, id):
+    print('user_story')
+    user_story = UserStory.objects.all()
+    print(user_story)
+    return render(request, 'user_story/user_story_list.html',
+                  {'user_story_list': user_story, 'id_project': id})
+
+
+def add_user_story(request, id_proyecto):
+    user_story = UserStory.objects.all()
+    form = UserStoryForm(request.POST or None, pwd=id_proyecto, initial={'id_proyecto': id_proyecto})
+
+    if form.is_valid():
+        print(form)
+        new_user_story = form.save()
+        new_user_story.save()
+        return HttpResponseRedirect('/user_story/%d'%id_proyecto)
+    return render(request, 'user_story/add_user_story.html',
+                  {'user_story': user_story, 'form': form})
+
+
+def update_user_story(request, id_proyecto, id_user_story):
+    print('hola', id_user_story)
+    user_story = UserStory.objects.get(id=id_user_story)
+    form = UserStoryForm(request.POST or None, instance=user_story, pwd=id_proyecto, initial={'id_proyecto': id_proyecto})
+    if form.is_valid():
+        form.save()
+        return redirect('/user_story/%d'%id_proyecto)
+
+    return render(request, 'user_story/update_user_story.html', {'user_story': user_story, 'form': form})
