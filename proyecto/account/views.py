@@ -306,7 +306,7 @@ def add_members_sprint(request, id_proyecto, id_sprint):
         new_user = form.save()
         new_user.save()
         return redirect('/sprint/%d'%id_sprint)
-    return render(request, 'sprint/add_members_sprint.html',{'sprint': sprint, 'form': form, 'members_sprint': members_sprint})
+    return render(request, 'sprint/add_members_sprint.html',{'sprint': sprint, 'form': form, 'id_sprint': id_sprint, 'members_sprint': members_sprint})
 
 
 def all_user_story(request, id):
@@ -316,6 +316,13 @@ def all_user_story(request, id):
     return render(request, 'user_story/user_story_list.html',
                   {'user_story_list': user_story, 'id_project': id})
 
+
+def all_user_story_sprint_backlog(request, id):
+    print('user_story')
+    user_story = UserStory.objects.all()
+    print(user_story)
+    return render(request, 'user_story/user_story_list_sprint_backlog.html',
+                  {'user_story_list': user_story, 'id_sprint': id})
 
 def add_user_story(request, id_proyecto):
     user_story = UserStory.objects.all()

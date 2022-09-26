@@ -69,7 +69,7 @@ class UserStory(models.Model):
     #com_us = models.TextField()
     #historial_us = models.CharField(max_length=30)
     horas_estimadas = models.IntegerField(null=True)
-    encargado = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
+    encargado = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
     prioridad = [
 
         ('Baja','Baja'),
