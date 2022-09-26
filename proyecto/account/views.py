@@ -23,6 +23,13 @@ def tablero(request):
 
 
 def register(request):
+    '''
+        Registrar usuario
+        fecha: 25/9/2022
+
+        Funcion en la cual se puede registrar un usuario al sistema para que pueda acceder a las diferentes opciones que
+        ofrece el mismo.
+    '''
     if request.method == 'POST':
         user_form = UserRegistrationForm(request.POST)
         if user_form.is_valid():
@@ -36,6 +43,12 @@ def register(request):
 
 
 def edit_us(request, id):
+    '''
+        Editar usuario
+        fecha: 25/9/2022
+
+        Funcion en la cual se pueden editar los diferentes campos con los que cuenta un usuario. 
+    '''
     User = get_user_model()
     object = User.objects.get(id=id)
     print(object)
@@ -43,6 +56,12 @@ def edit_us(request, id):
 
 
 def update_us(request, id):
+    '''
+        Editar usuario
+        fecha: 25/9/2022
+
+        Funcion en la cual se pueden editar los diferentes campos con los que cuenta un usuario. 
+    '''
     if request.method == 'POST':
         User = get_user_model()
         object = User.objects.get(id=id)
@@ -58,6 +77,13 @@ def update_us(request, id):
 
 
 def retrieve_user(request):
+    '''
+        Vista de todos los usuarios
+        fecha: 25/9/2022
+
+            Esta vista es la encargada de llamar al archivo retrieve_user.html con el fin de mostrar en pantalla la lista
+            de todos los usuarios registrados en el sistema.       
+    '''
     User = get_user_model()
     users = User.objects.all()
 
@@ -65,6 +91,12 @@ def retrieve_user(request):
 
 # Nuevo crud para proyecto
 def add_project(request):
+    '''
+        Agregar un proyecto
+        fecha: 25/9/2022
+
+            Funcion en la cual se pueden agregar proyectos.        
+    '''
     submitted = False
     if request.method == "POST":
         form = ProyectosForm(request.POST)
@@ -91,6 +123,12 @@ def add_project(request):
 
 
 def update_project(request, id):
+    '''
+        Editar un proyecto
+        fecha: 25/9/2022
+
+            Funcion en la cual se pueden editar proyectos.        
+    '''
     project = Proyectos.objects.get(id=id)
 
     form = ProyectosForm(request.POST or None, instance=project)
@@ -103,24 +141,43 @@ def update_project(request, id):
 
 
 def all_projects(request):
+    '''
+        Vista de todos los proyectos
+        fecha: 25/9/2022
+
+            Esta vista es la encargada de llamar al archivo project_list.html con el fin de mostrar en pantalla la lista
+            de todos los proyectos registrados en el sistema.       
+    '''
     project_list = Proyectos.objects.all()
     return render(request, 'project/project_list.html',
                   {'project_list': project_list})
 
 def add_members(request, id):
-        project = Proyectos.objects.get(id=id)
-        members = Miembros.objects.all()
-        roles = Rol.objects.all()
-        form = AddMembersForm(request.POST or None, initial={'id_proyecto': id})
-        
-        if form.is_valid():
-            new_user = form.save()
-            new_user.save()
-            return redirect('list-projects')
-        return render(request, 'project/add_members.html', {'project': project, 'form': form, 'members': members, 'roles': roles})
+    '''
+        Agregar mimembro a un proyecto
+        fecha: 25/9/2022
+
+            Funcion en la cual se pueden agregar miembros a diferentes proyectos.        
+    '''
+    project = Proyectos.objects.get(id=id)
+    members = Miembros.objects.all()
+    roles = Rol.objects.all()
+    form = AddMembersForm(request.POST or None, initial={'id_proyecto': id})
+    
+    if form.is_valid():
+        new_user = form.save()
+        new_user.save()
+        return redirect('list-projects')
+    return render(request, 'project/add_members.html', {'project': project, 'form': form, 'members': members, 'roles': roles})
 
 def all_roles(request):
+    '''
+        Vista de todos los roles y permisos
+        fecha: 25/9/2022
 
+            Esta vista es la encargada de llamar al archivo roles_list.html con el fin de mostrar en pantalla la lista
+            de todos los roles y permisos registrados en el sistema.       
+    '''
     roles_list = Rol.objects.all()
     userid = request.user.id
 
@@ -135,6 +192,12 @@ def all_roles(request):
                   {'roles_list': roles_list,'out':out})
 
 def add_rol(request):
+    '''
+        Agregar rol a un proyecto
+        fecha: 25/9/2022
+
+            Funcion en la cual se pueden agregar roles y permisos a diferentes proyectos.        
+    '''
     submitted = False
     if request.method == "POST":
         form = RolForm(request.POST)
@@ -153,6 +216,12 @@ def add_rol(request):
     return render(request, 'roles_y_permisos/add_rol.html', {'form': form, 'submitted': submitted})
 
 def update_rol(request, id):
+    '''
+        Editar rol de un proyecto
+        fecha: 25/9/2022
+
+            Funcion en la cual se pueden editar roles y permisos a diferentes proyectos.        
+    '''
     role = Rol.objects.get(id=id)
     form = RolForm(request.POST or None, instance=role)
 
@@ -165,12 +234,25 @@ def update_rol(request, id):
 # CRUD para sprint
 
 def all_sprints(request,id):
+    '''
+        Vista de todos los sprints creados para cada proyecto
+        fecha: 25/9/2022
+
+            Esta vista es la encargada de llamar al archivo sprint_list.html con el fin de mostrar en pantalla la lista
+            de todos los sprints creados para cada proyecto.       
+    '''
     sprint_list = Sprint.objects.all()
                                                              
     return render(request, 'sprint/sprint_list.html',
                   {'sprint_list': sprint_list,'id_project': id})
 
 def add_sprint(request,id):
+    '''
+        Agregar sprint a un proyecto
+        fecha: 25/9/2022
+
+            Funcion en la cual se pueden agregar sprint para diferentes proyectos.        
+    '''
     submitted = False
     project = Proyectos.objects.get(id=id)
     x = project.id
@@ -192,6 +274,12 @@ def add_sprint(request,id):
 
 
 def update_sprint(request, id_proyecto, id_sprint):
+    '''
+        Editar sprint de un proyecto
+        fecha: 25/9/2022
+
+            Funcion en la cual se pueden editar sprint a diferentes proyectos.        
+    '''
     sprint = Sprint.objects.get(id=id_sprint)
 
     form = SprintForm(request.POST or None, instance=sprint)
@@ -203,14 +291,18 @@ def update_sprint(request, id_proyecto, id_sprint):
 
 
 def add_members_sprint(request, id_proyecto, id_sprint):
-        sprint = Sprint.objects.get(id=id_sprint)
-        members_sprint = Miembro_Sprint.objects.all()
-        form = AddMembersSprintForm(request.POST or None, pwd=id_proyecto, initial={'id': id_sprint})
-        
-        if form.is_valid():
-            new_user = form.save()
-            new_user.save()
-            return redirect('/sprint/%d'%id_sprint)
-        return render(request, 'sprint/add_members_sprint.html',
-                      {'sprint': sprint, 'form': form, 'members_sprint': members_sprint
-                       })
+    '''
+        Agregar mimembro a un sprint
+        fecha: 25/9/2022
+
+            Funcion en la cual se pueden agregar miembros a diferentes sprints.        
+    '''
+    sprint = Sprint.objects.get(id=id_sprint)
+    members_sprint = Miembro_Sprint.objects.all()
+    form = AddMembersSprintForm(request.POST or None, pwd=id_proyecto, initial={'id': id_sprint})
+    
+    if form.is_valid():
+        new_user = form.save()
+        new_user.save()
+        return redirect('/sprint/%d'%id_sprint)
+    return render(request, 'sprint/add_members_sprint.html',{'sprint': sprint, 'form': form, 'members_sprint': members_sprint})
