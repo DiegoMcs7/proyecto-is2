@@ -40,7 +40,25 @@ class UserRegistrationForm(ModelForm):
 class UserEditForm(forms.ModelForm):
     class Meta:
         model = User
-        fields = ('first_name', 'last_name', 'email', 'is_superuser')
+        fields = ('username', 'first_name', 'email', 'is_superuser')
+        CHOICES = [(True, 'Si'), (False, 'No')]
+        labels = {
+            'username': 'Username',
+            'first_name': 'Nombre',
+            'email': 'Email',
+            'is_superuser': "SuperUser"
+        }
+        help_texts = {
+            'username': '',
+            'is_superuser': '',
+        }
+        widgets = {
+            'username': forms.TextInput(attrs={'class': 'form-control'}),
+            'first_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'email': forms.TextInput(attrs={'class': 'form-control'}),
+            'is_superuser': forms.RadioSelect(choices=CHOICES),
+        }
+
 
 
 
@@ -129,20 +147,21 @@ class RolForm(ModelForm):
                 name__icontains='user social auth') | Q(name__icontains='partial') | Q(name__icontains='permission') |
             Q(name__icontains='miembro_ sprint') | Q(name__icontains='kanban') | Q(name__icontains='reuniones') |
             Q(name__icontains='reportes') | Q(name__icontains='sprint backlog') | Q(name__icontains='tipo us') |
-            Q(name__icontains='backlog') | Q(name__icontains='user story') | Q(name__icontains='group') | Q(
-                name__icontains='log entry') | Q(name__icontains='user') | Q(name__icontains='content type')
+            Q(name__icontains='backlog') | Q(name__icontains='group') | Q(
+                name__icontains='log entry') | Q(name='user') | Q(name__icontains='content type')
                 | Q(name__icontains='session')| Q(name__icontains='usuarios') | Q(name__icontains='profile'))
 
 
 class SprintForm(ModelForm):
     class Meta:
         model = Sprint
-        fields = ('nombre_sprint', 'desc_sprint', 'estado_sprint', 'duracion_dias','id_proyecto')
+        fields = ('nombre_sprint', 'desc_sprint', 'estado_sprint', 'duracion_dias','capacidad','id_proyecto')
         labels = {
             'nombre_sprint': '',
             'desc_sprint': '',
             'estado_sprint': '',
             'duracion_dias': '',
+            'capacidad': '',
             'id_proyecto': '',
         }
         widgets = {
@@ -150,6 +169,7 @@ class SprintForm(ModelForm):
             'desc_sprint': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Descripcion del sprint', 'style': 'height: 30%;'}),
             'estado_sprint': forms.Select(attrs={'class': 'form-select', 'placeholder': 'Estado del sprint'}),
             'duracion_dias': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Duración en días hábiles'}),
+            'capacidad': forms.HiddenInput(attrs={'class': 'form-control', 'placeholder': 'Duración en días hábiles'}),
             'id_proyecto': forms.HiddenInput(attrs={'class': 'form-control', 'placeholder': 'Proyecto'}),
         }
 
@@ -164,7 +184,7 @@ class AddMembersSprintForm(ModelForm):
         }
         widgets = {
             'usuario': forms.Select(attrs={'class': 'form-control', 'placeholder': 'Usuario'}),
-            'sprint': forms.Select(attrs={'class': 'form-control', 'placeholder': 'Sprint'}),
+            'sprint': forms.HiddenInput(attrs={'class': 'form-control', 'placeholder': 'Sprint'}),
             'horas_trabajo': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Horas de trabajo por día'}),
         }
 

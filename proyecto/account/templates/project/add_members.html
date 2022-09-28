@@ -21,18 +21,20 @@
                 <tr>
                     <th>Miembros</th>
                     <th>Rol</th>
+                    <th>Edit</th>
                 </tr>
                 </thead>
-
                 {% for p in members %}
                 <tr>
                     {% if project.id == p.id_proyecto_id %}
                         <td style="padding:10px;">{{p.id_usuario}}</td>
                         {% for x in p.id_rol.all %}
-                            <td style="padding:10px;">{{x.rol}}</td>
+                        <td style="padding:10px;">{{x.rol}}</td>
                         {%endfor%}
+                        {% if 14 in out or request.user.is_superuser %}
+                        <td style="padding:10px;"><a href="{% url 'update-members_project' project.id p.pk %}">Edit</a></td>
+                        {% endif %}
                     {% endif %}
-
                 </tr>
                 {% endfor %}
             </table>

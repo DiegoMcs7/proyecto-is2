@@ -27,11 +27,15 @@
                       <th>Descripción</th>
                       <th>Estado de Sprint</th>
                       <th>Duracion</th>
+                      <th>Capacidad</th>
                       <th>Fecha inicio</th>
                       <th>Edit</th>
                     </tr>
                 </thead>
+                
             {% for p in sprint_list %}
+              {{p.duracion_dias}}
+                {{p.capacidad}}
                 {% if id_project == p.id_proyecto_id %}
                 <tr scope="row" data-href="{% url 'add-members-sprint' id_project p.pk %}"
                     style="tr:hover {background-color: #77bdff;}">
@@ -40,6 +44,11 @@
                     <td style="padding:10px;">{{p.desc_sprint}}</td>
                     <td style="padding:10px;">{{p.estado_sprint}}</td>
                     <td style="padding:10px;">{{p.duracion_dias}}</td>
+                    {% if p.capacidad %}
+                    <td style="padding:10px;">{{ p.capacidad }}</td>
+                    {% else %}
+                    <td style="padding:10px;"> </td>
+                    {% endif %}
                     <td style="padding:10px;">{{p.fecha_inicio}}</td>
                     {% if 26 in out or request.user.is_superuser %}
                     <td style="padding:10px;"><a href="{% url 'update-sprint' id_project p.pk %}">Edit</a></td>

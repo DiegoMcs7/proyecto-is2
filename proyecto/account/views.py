@@ -2,7 +2,7 @@ from datetime import datetime
 from urllib.request import Request
 from .models import Miembro_Sprint, Miembros, Profile, Proyectos, Rol, Sprint, UserStory
 from django.shortcuts import render, redirect
-from .forms import AddMembersForm, AddMembersSprintForm, ProyectosForm, RolForm, UserRegistrationForm, detailsformuser, \
+from .forms import AddMembersForm, AddMembersSprintForm, ProyectosForm, RolForm, UserEditForm, UserRegistrationForm, detailsformuser, \
     SprintForm, UserStoryForm
 from django.contrib.auth.decorators import login_required,permission_required
 from django.contrib import messages
@@ -43,38 +43,18 @@ def register(request):
     return render(request, 'account/register.html', {'user_form': user_form})
 
 
-def edit_us(request, id):
-    '''
-        Editar usuario
-        fecha: 25/9/2022
+def update_us(request,id):
 
-        Funcion en la cual se pueden editar los diferentes campos con los que cuenta un usuario. 
-    '''
     User = get_user_model()
-    object = User.objects.get(id=id)
-    print(object)
-    return render(request, 'account/edit.html', {'object': object})
+    users = User.objects.get(id=id)
+    print(users)
+    form = UserEditForm(request.POST or None, instance=users,initial={'id_usuario': id})
 
+    if form.is_valid():
+        form.save()
+        return redirect('retrieve_user')
 
-def update_us(request, id):
-    '''
-        Editar usuario
-        fecha: 25/9/2022
-
-        Funcion en la cual se pueden editar los diferentes campos con los que cuenta un usuario. 
-    '''
-    if request.method == 'POST':
-        User = get_user_model()
-        object = User.objects.get(id=id)
-        form = detailsformuser(request.POST, instance=object)
-        if form.is_valid():
-            form.save()
-            object = User.objects.all()
-            messages.success(request, 'Se han actualizado los datos!')
-            return redirect('retrieve_user')
-        else:
-            messages.error(request, 'Error al actualizar datos.')
-        return render(request, 'account/edit.html', {'object': object, 'form': form})
+    return render(request, 'account/edit_us.html', {'users': users, 'form': form})
 
 
 def retrieve_user(request):
@@ -150,8 +130,10 @@ def all_projects(request):
             de todos los proyectos registrados en el sistema.       
     '''
     project_list = Proyectos.objects.all()
+    members = Miembros.objects.all()
+    x = request.user.id
     return render(request, 'project/project_list.html',
-                  {'project_list': project_list})
+                  {'project_list': project_list,'members': members,'x': x})
 
 def add_members(request, id):
     '''
@@ -232,6 +214,11 @@ def update_rol(request, id):
 
     return render(request, 'roles_y_permisos/update_rol.html', {'role': role, 'form': form})
 
+def delete_rol(request, id):
+	role = Rol.objects.get(id=id)
+	role.delete()
+	return redirect('list-roles')	
+
 # CRUD para sprint
 
 def all_sprints(request,id):
@@ -286,7 +273,7 @@ def update_sprint(request, id_proyecto, id_sprint):
     form = SprintForm(request.POST or None, instance=sprint, initial={'id_proyecto': id_proyecto})
     if form.is_valid():
         form.save()
-        return redirect('/sprint/%d' % id_proyecto)
+        return redirect('/sprint/%d' %id_proyecto)
 
     return render(request, 'sprint/update_sprint.html', {'sprint': sprint, 'form': form})
 
@@ -300,12 +287,15 @@ def add_members_sprint(request, id_proyecto, id_sprint):
     '''
     sprint = Sprint.objects.get(id=id_sprint)
     members_sprint = Miembro_Sprint.objects.all()
-    form = AddMembersSprintForm(request.POST or None, pwd=id_proyecto, initial={'id': id_sprint})
-    
+    form = AddMembersSprintForm(request.POST or None, pwd=id_proyecto, initial={'id': id_sprint,'sprint':id_sprint})
+    x = id_proyecto
+    y = id_sprint
+    print(form['horas_trabajo'].value())
     if form.is_valid():
+        sprint.capacidad = sprint.capacidad + form['horas_trabajo'].value()
         new_user = form.save()
         new_user.save()
-        return redirect('/sprint/%d'%id_sprint)
+        return redirect('/add_members_sprint/'+str(x)+'/'+str(y))
     return render(request, 'sprint/add_members_sprint.html',{'sprint': sprint, 'form': form, 'id_sprint': id_sprint, 'members_sprint': members_sprint})
 
 
@@ -346,3 +336,38 @@ def update_user_story(request, id_proyecto, id_user_story):
         return redirect('/user_story/%d'%id_proyecto)
 
     return render(request, 'user_story/update_user_story.html', {'user_story': user_story, 'form': form})
+
+#Edit de miembros del Equipo Proyecto y Sprint
+
+def update_members_project(request, id_proyecto, id_miembro):
+    '''
+        Editar un miembro del proyecto
+        fecha: 25/9/2022
+
+            Funcion en la cual se pueden editar miembros de un proyecto.        
+    '''
+    members = Miembros.objects.get(id=id_miembro)
+    form = AddMembersForm(request.POST or None, instance=members, initial={'id_proyecto': id_proyecto})
+    if form.is_valid():
+        form.save()
+        return redirect('/add_members/%d'%id_proyecto)
+
+    return render(request, 'project/update_members_project.html', {'members': members, 'form': form})
+
+def update_members_sprint(request, id_proyecto, id_sprint,id_usuario):
+    '''
+        Editar un miembro del sprint
+        fecha: 25/9/2022
+
+            Funcion en la cual se pueden editar miembros de un sprint.        
+    '''
+    members = Miembro_Sprint.objects.get(id=id_usuario)
+    form = AddMembersSprintForm(request.POST or None, instance=members, initial={'usuario':id_usuario,'id_proyecto': id_proyecto,'sprint': id_sprint,})
+    x = id_proyecto
+    y = id_sprint
+    if form.is_valid():
+        form.save()
+        return redirect('/add_members_sprint/'+str(x)+'/'+str(y))
+
+    return render(request, 'project/update_members_sprint.html', {'id_proyecto': id_proyecto,'members': members, 'form': form})
+

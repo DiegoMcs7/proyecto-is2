@@ -31,24 +31,25 @@
                         <th>Edit</th>
                     </tr>
                 </thead>
-
-                {% for i in project_list %}
-                <tr scope="row" data-href="{% url 'add-members' i.pk %}" style="tr:hover {background-color: #77bdff;}">
-                    <td style="padding:10px;">{{i.id}} </a></td>
-                    <td style="padding:10px;">{{i.nombre_proyecto}}</td>
-                    <td style="padding:10px;">{{i.desc_proyecto}}</td>
-                    <td style="padding:10px;">{{i.estado_proyecto}}</td>
-                    <td style="padding:10px;">{{i.fecha_inicio}}</td>
-                    <td style="padding:10px;">{{i.fecha_fin}}</td>
-                    {% if 14 in out or request.user.is_superuser %}
-                    <td style="padding:10px;"><a href="{% url 'update-project' i.pk %}">Edit</a></td>
-                    {% endif %}
-                </tr>
+                
+                  {% for i in project_list %}
+                  <tr scope="row" data-href="{% url 'add-members' i.pk %}" style="tr:hover {background-color: #77bdff;}">
+                      <td style="padding:10px;">{{i.id}} </a></td>
+                      <td style="padding:10px;">{{i.nombre_proyecto}}</td>
+                      <td style="padding:10px;">{{i.desc_proyecto}}</td>
+                      <td style="padding:10px;">{{i.estado_proyecto}}</td>
+                      <td style="padding:10px;">{{i.fecha_inicio}}</td>
+                      <td style="padding:10px;">{{i.fecha_fin}}</td>
+                      {% if 14 in out or request.user.is_superuser %}
+                      <td style="padding:10px;"><a href="{% url 'update-project' i.pk %}">Edit</a></td>
+                      {% endif %}
+                  </tr>
+                
                 {% endfor %}
         </table>
 
     </div>
-
+ 
 </body>
  
 {% endblock %}

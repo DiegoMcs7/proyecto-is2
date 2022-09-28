@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+{% if user.is_authenticated %}
+	<h1>Editar Usuario</h1>
+<br/><br/>
+
+{% if submitted %}
+
+    Usuario actualizado correctamente...
+
+	{% else %}
+	<div class="row">
+		<div class="col-6">
+		<form action="" method=POST style="margin-left:15px;">
+            
+			{% csrf_token %}
+			{{ form.as_p }}
+
+			<input type="submit" value="Actualizar" class="btn btn-secondary">
+
+		</form>
+		{% endif %}
+		</div>
+	</div>
+
+<br/><br/>	
+
+{% else %}
+<h1>Sorry! You Must Be Logged In To View This Page...</h1>
+
+<a href="{% url 'login' %}">Login Here</a>
+
+{% endif %}
+
+
+{% endblock %}

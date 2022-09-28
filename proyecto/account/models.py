@@ -11,6 +11,7 @@
         Incluimos dentro de la clase donde nos encontramos la nueva clase creada junto con la relación que deseamos que tenga.
 '''
 
+from email.policy import default
 from pyexpat import model
 from django.db import models
 from django.conf import settings
@@ -32,7 +33,7 @@ class Proyectos(models.Model):
 
     estados = [
 
-        ('Pendiente','Pendiente'),
+        ('Planificado','Planificado'),
         ('Iniciado','Iniciado'),
         ('Cancelado','Cancelado'),
         ('Finalizado','Finalizado'),
@@ -41,11 +42,10 @@ class Proyectos(models.Model):
 
     nombre_proyecto = models.CharField(max_length=30)
     desc_proyecto = models.TextField()
-    estado_proyecto = models.CharField(max_length=11,choices=estados,default='Pendiente')
+    estado_proyecto = models.CharField(max_length=11,choices=estados,default='Planificado')
     fecha_inicio = models.DateField()
     fecha_fin = models.DateField()
     scrum_master = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
-
 
     def __str__(self):
         return self.nombre_proyecto
@@ -117,13 +117,17 @@ class Sprint(models.Model):
     desc_sprint = models.TextField()
     estado = [
 
+        ('Planificado','Planificado'),
         ('Iniciado','Iniciado'),
+        ('Cancelado','Cancelado'),
         ('Terminado','Terminado'),
+        
 
     ]
-    estado_sprint = models.CharField(choices=estado, default='Iniciado', max_length=10)
+    estado_sprint = models.CharField(choices=estado, default='Iniciado', max_length=12)
     fecha_inicio = models.DateField(auto_now=True,blank=True,null=True)
     duracion_dias = models.IntegerField(null=True) #Duracion en dias habiles
+    capacidad = models.IntegerField(default=0) #Capacidad de produccion
     id_proyecto = models.ForeignKey("Proyectos",on_delete=models.CASCADE,blank=True,null=True)
 
     def __str__(self):
@@ -132,8 +136,7 @@ class Sprint(models.Model):
 class Miembro_Sprint (models.Model):
     usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     sprint = models.ForeignKey("Sprint", on_delete=models.CASCADE)
-    horas_trabajo = models.BigIntegerField()
-
+    horas_trabajo = models.IntegerField(null=True)
 
 class Reportes(models.Model):
     id = models.AutoField(primary_key=True)
