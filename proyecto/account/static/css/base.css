@@ -41,7 +41,8 @@ ol {
 #header .logo {
     font-family: 'Roboto', sans-serif;
     float:left;
-    color:#df8a3d;
+    color:white;
+    text-decoration:none;
     font-size:20px;
     margin-right:10%;
 }
@@ -63,10 +64,12 @@ ol {
 }
 
 #header a {
-    color:#df8a3d;
+    color:white;
+    text-decoration:none;
+
 }
 #header a:hover {
-    color:#fff;
+    color:#df8a3d;
 }
 
 #header .user {
