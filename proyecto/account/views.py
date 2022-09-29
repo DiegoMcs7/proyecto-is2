@@ -131,9 +131,9 @@ def all_projects(request):
     '''
     project_list = Proyectos.objects.all()
     members = Miembros.objects.all()
-    x = request.user.id
+    user = request.user.id
     return render(request, 'project/project_list.html',
-                  {'project_list': project_list,'members': members,'x': x})
+                  {'project_list': project_list,'members': members,'user': user})
 
 def add_members(request, id):
     '''
@@ -153,7 +153,7 @@ def add_members(request, id):
         return redirect('list-projects')
     return render(request, 'project/add_members.html', {'project': project, 'form': form, 'members': members, 'roles': roles})
 
-def all_roles(request):
+def all_roles(request, id_proyecto):
     '''
         Vista de todos los roles y permisos
         fecha: 25/9/2022
@@ -164,17 +164,16 @@ def all_roles(request):
     roles_list = Rol.objects.all()
     userid = request.user.id
 
-    b = Miembros.objects.filter(id_usuario=userid).values_list('id')
+    b = Miembros.objects.filter(id_usuario=userid,id_proyecto_id=id_proyecto).values_list('id')
     out = [item for t in b for item in t]
     a = Miembros.id_rol.through.objects.filter(miembros_id__in=out).values_list('rol_id')
     out = [item for t in a for item in t]
     a = Rol.permisos.through.objects.filter(rol_id__in=out).values_list('permission_id')
     out = [item for t in a for item in t]
 
-    return render(request, 'roles_y_permisos/roles_list.html',
-                  {'roles_list': roles_list,'out':out})
+    return render(request, 'roles_y_permisos/roles_list.html',{'roles_list': roles_list,'out':out,'id_proyecto':id_proyecto})
 
-def add_rol(request):
+def add_rol(request,id_proyecto):
     '''
         Agregar rol a un proyecto
         fecha: 25/9/2022
@@ -188,7 +187,7 @@ def add_rol(request):
             role = form.save()
             role.manager = request.user
             role.save()
-            return HttpResponseRedirect('/add_rol?submitted=True')
+            return HttpResponseRedirect('/roles/%d'%id_proyecto)
     else:
 
         form = RolForm
@@ -196,9 +195,9 @@ def add_rol(request):
         if 'submitted' in request.GET:
             submitted = True
 
-    return render(request, 'roles_y_permisos/add_rol.html', {'form': form, 'submitted': submitted})
+    return render(request, 'roles_y_permisos/add_rol.html', {'form': form, 'submitted': submitted,'id_proyecto':id_proyecto})
 
-def update_rol(request, id):
+def update_rol(request, id,id_proyecto):
     '''
         Editar rol de un proyecto
         fecha: 25/9/2022
@@ -210,14 +209,14 @@ def update_rol(request, id):
 
     if form.is_valid():
         form.save()
-        return redirect('list-roles')
+        return HttpResponseRedirect('/roles/%d'%id_proyecto)
 
     return render(request, 'roles_y_permisos/update_rol.html', {'role': role, 'form': form})
 
-def delete_rol(request, id):
+def delete_rol(request, id,id_proyecto):
 	role = Rol.objects.get(id=id)
 	role.delete()
-	return redirect('list-roles')	
+	return HttpResponseRedirect('/roles/%d'%id_proyecto)	
 
 # CRUD para sprint
 
