@@ -34,8 +34,7 @@
                 </thead>
                 
             {% for p in sprint_list %}
-              {{p.duracion_dias}}
-                {{p.capacidad}}
+
                 {% if id_project == p.id_proyecto_id %}
                 <tr scope="row" data-href="{% url 'add-members-sprint' id_project p.pk %}"
                     style="tr:hover {background-color: #77bdff;}">

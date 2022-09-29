@@ -7,6 +7,7 @@
 <body>
     <div class="row">
         <div class="col-sm-1"><h2>{{project.nombre_proyecto}}</h2></div>
+        <div class="col-sm-1"><p class="display-3" style="margin-left:550px; padding-top: 12;"><a class="button-create" href="{% url "tipos_us-list" project.id %}">Tipo_US</a></p>&nbsp;</div>
         <div class="col-sm-1"><p class="display-3" style="margin-left:550px; padding-top: 12;"><a class="button-create" href="{% url "sprint-list" project.id %}">Sprints</a></p>&nbsp;</div>
         <div class="col-sm-1"><p class="display-3" style="margin-left:550px; padding-top: 12;"><a class="button-create" href="{% url "list-roles" project.id %}">Roles</a></p></div>
         <div class="col-sm-1"><p class="display-3" style="margin-left:550px; padding-top: 12;"><a class="button-create" href="{% url "user_story-list" project.id %}">Product_Backlog</a></p></div>
@@ -52,7 +53,7 @@
 			<form  class="text-danger" style="margin-left:15px;" action="" method=POST>
 				{% csrf_token %}
 				{{ form.as_p }}
-				<input type="submit" value="Crear">
+				<input type="submit" value="Añadir Miembro">
 			</form>
 		</div>
 	</div>

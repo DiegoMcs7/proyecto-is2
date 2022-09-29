@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.db.models import Q
-from .models import Miembro_Sprint, Profile, Proyectos, Miembros, Rol, Sprint, UserStory
+from .models import Estados, Miembro_Sprint, Profile, Proyectos, Miembros, Rol, Sprint, Tipo_User_Story, UserStory
 from django.conf import settings
 from django.forms import ModelForm
 from django.contrib.auth.models import Permission
@@ -231,3 +231,35 @@ class UserStoryForm(ModelForm):
         print(self._pwd)
         super().__init__(*args, **kwargs)
         self.fields['encargado'].queryset = User.objects.filter(miembros__id_proyecto=self._pwd)
+
+class TipoUsForm(ModelForm):
+    class Meta:
+        model = Tipo_User_Story
+        fields = ('nombre_tipo_us', 'id_estado', 'id_proyecto')
+        labels = {
+            'nombre_tipo_us': '',
+            'id_estado': '',
+            'id_proyecto': '',
+
+        }
+        widgets = {
+            'nombre_tipo_us': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nombre del Tipo_US'}),
+            'id_estado': forms.Select(attrs={'class': 'form-control', 'placeholder': 'Estado'}),
+            'id_proyecto': forms.Select(attrs={'class': 'form-control', 'placeholder': 'Proyecto'}),
+        }
+
+
+class EstadosForm(ModelForm):
+    class Meta:
+        model = Estados
+        fields = ('nombre_estado', 'id_tipo_user_story')
+        labels = {
+            'nombre_estado': '',
+            'id_tipo_user_story': '',
+
+        }
+        widgets = {
+            'nombre_estado': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nombre del Estados'}),
+            'id_tipo_user_story': forms.Select(attrs={'class': 'form-control', 'placeholder': 'Tipo User Story'}),
+        }
+

@@ -30,4 +30,10 @@ urlpatterns = [
     path('user_story_list_sprint_backlog/<int:id>', views.all_user_story_sprint_backlog, name="user_story_sprint_backlog-list"),
     path('add_user_story/<int:id_proyecto>', views.add_user_story, name='add-user_story'),
     path('update_user_story/<int:id_proyecto>/<int:id_user_story>', views.update_user_story, name='update-user_story'),
+    path('tipos_us/<int:id_proyecto>', views.all_tipos_us, name="tipos_us-list"),
+    path('add_tipos_us/<int:id>', views.add_tipos_us, name='add-tipos_us'),
+    path('update_tipos_us/<int:id_proyecto>/<int:id_tipo_us>', views.update_tipos_us, name='update-tipos_us'),
+    path('estados/<int:id_proyecto>/<int:id_tipo_us>', views.all_estados, name="estados-list"),
+    path('add_estados/<int:id_proyecto>/<int:id_tipo_us>', views.add_estados, name='add-estados'),
+    path('update_estados/<int:id_proyecto>/<int:id_tipo_us>/<int:id_estado>', views.update_estados, name='update-estados'),
 ]

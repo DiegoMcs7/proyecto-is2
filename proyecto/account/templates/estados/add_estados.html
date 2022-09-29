@@ -3,13 +3,13 @@
 {% block content %}
 
 {% if user.is_authenticated %}
-	<h1 >Crear Sprint</h1>
+	<h1 >Crear Estado</h1>
 <br/>
 
 	{% if submitted %}
 
-	Sprint creado correctamente.
-	<a href="{% url 'sprint-list' id_proyecto %}"> Atras</a>
+	Estado creado correctamente.
+	<a href="{% url 'tipo_us-list' id_proyecto id_tipo_us %}"> Atras</a>
 	
 	{% else %}
 	<div class="row">
@@ -18,17 +18,8 @@
 				{% csrf_token %}
 				
 				{{ form.as_p }}
-				{% for message in messages %}
-
-				<div class="alert alert-success">
-					<a class="close" href="#" data-dismiss="alert"></a>
-					{{ message }}
-				</div>
-
-				{% endfor %}
 				
 				<input type="submit" value="Crear">
-				
 
 			</form>
 		</div>

@@ -55,7 +55,7 @@ class Rol(models.Model):
       rol = models.CharField(max_length=20,blank=True, null=True)
       desc_rol = models.TextField()
       permisos = models.ManyToManyField(Permission)
-      proyecto = models.ForeignKey("Proyectos", on_delete=models.CASCADE)
+      proyecto = models.ForeignKey("Proyectos", on_delete=models.CASCADE, null=True)
 
       def __str__(self):
         return self.rol
@@ -81,6 +81,7 @@ class UserStory(models.Model):
     prioridad_us = models.CharField(choices=prioridad, max_length=10, default='Baja')
     id_proyecto = models.ForeignKey("Proyectos", on_delete=models.CASCADE, null=True)
     id_sprint = models.ForeignKey("Sprint", on_delete=models.CASCADE, null=True, blank=True)
+    id_tipo_user_story = models.ForeignKey("Tipo_User_Story", on_delete=models.CASCADE, null=True, blank=True)
 
 class Reuniones(models.Model):
     nombre_reunion = models.CharField(max_length=30)
@@ -96,9 +97,25 @@ class Permisos(models.Model):
     nombre_permisos = models.CharField(max_length=30)
     desc_permisos = models.TextField()
 
-class TipoUS(models.Model):
-    id = models.AutoField(primary_key=True)
+class Tipo_User_Story(models.Model):
+
     nombre_tipo_us = models.CharField(max_length=30)
+    id_estado = models.ForeignKey("Estados",on_delete=models.CASCADE, null=True, blank=True)
+    id_proyecto = models.ForeignKey("Proyectos",on_delete=models.CASCADE, null=True, blank=True)
+
+    def __str__(self):
+        return self.nombre_tipo_us
+
+class Estados(models.Model):
+
+    nombre_estado = models.CharField(max_length=30)
+    id_tipo_user_story = models.ForeignKey("Tipo_User_Story", on_delete=models.CASCADE, null=True)
+
+    def __str__(self):
+        return self.nombre_estado
+
+# lista_default = {to do, doing, done}
+# Estados.objects.filter(id_estado__in_lista_default | id_tipo_user_story=id_tipo_user_story)
 
 class SprintBacklog(models.Model):
     id = models.AutoField(primary_key=True)

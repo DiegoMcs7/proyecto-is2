@@ -7,7 +7,7 @@
 <body>
  <p class="display-3" style="margin-left:550px;">
   {% if 45 in out or request.user.is_superuser %}
-  <a class="button-create" href="{% url "add-rol" project.id %}">Agregar Rol</a></p>
+  <a class="button-create" href="{% url "add-rol" id_proyecto %}">Agregar Rol</a></p>
  {% endif %}
     <div>
         <script>
@@ -44,10 +44,10 @@
                     {% endfor %}</td>
                     <td style="padding:10px;">{{i.proyecto}}</td>
                     {% if 46 in out or request.user.is_superuser %}
-                    <td style="padding:10px;"><a href="{% url 'update-rol' i.pk project.id %}">Edit</a></td>
+                    <td style="padding:10px;"><a href="{% url 'update-rol' i.pk id_proyecto %}">Edit</a></td>
                     {% endif %}
                     {% if 46 in out or request.user.is_superuser %}
-                    <td style="padding:10px;"><a href="{% url 'delete-rol' i.pk project.id %}">Delete</a></td>
+                    <td style="padding:10px;"><a href="{% url 'delete-rol' i.pk id_proyecto %}">Delete</a></td>
                     {% endif %}
                 </tr>
                 {% endif %}
