@@ -138,7 +138,7 @@ class RolForm(ModelForm):
                 attrs={'class': 'form-control', 'placeholder': 'Descripcion', 'style': 'height: 30%;'}),
             'permisos': forms.SelectMultiple(
                 attrs={'class': 'form-control', 'placeholder': 'Permisos', 'style': 'height: 40%;'}),
-            'proyecto': forms.HiddenInput(attrs={'class': 'form-control', 'placeholder': 'Proyecto'}),
+            'proyecto': forms.HiddenInput(attrs={'class': 'form-control'}),
         }
 
     def __init__(self, *args, **kwargs):

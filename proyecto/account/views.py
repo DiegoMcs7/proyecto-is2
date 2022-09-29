@@ -185,14 +185,15 @@ def add_rol(request, id_proyecto):
     submitted = False
     project = Proyectos.objects.get(id=id_proyecto)
     if request.method == "POST":
-        form = RolForm(request.POST,initial={'proyecto': project})
+        form = RolForm(request.POST, initial={'proyecto': project})
+        print(project.id)
         if form.is_valid():
             role = form.save()
             role.manager = request.user
             role.save()
             return HttpResponseRedirect('/roles/%d'%project.id)
     else:
-        form = RolForm
+        form = RolForm(initial={'proyecto': project})
         if 'submitted' in request.GET:
             submitted = True
 

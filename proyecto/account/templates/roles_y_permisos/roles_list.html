@@ -34,7 +34,7 @@
                 </thead>
                 
                 {% for i in roles_list %}
-                {% if project == i.proyecto or request.user.is_superuser %}
+                {% if project == i.proyecto %}
                 <tr>
                     <td style="padding:10px;">{{i.id}}</td>
                     <td style="padding:10px;">{{i.rol}}</td>
