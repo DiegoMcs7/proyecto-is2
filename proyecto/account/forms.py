@@ -125,11 +125,12 @@ class AddMembersForm(ModelForm):
 class RolForm(ModelForm):
     class Meta:
         model = Rol
-        fields = ('rol','desc_rol', 'permisos')
+        fields = ('rol','desc_rol', 'permisos', 'proyecto')
         labels = {
             'rol': '',
             'desc_rol': '',
-            'permisos': ''
+            'permisos': '',
+            'proyecto': '',
         }
         widgets = {
             'rol': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Rol'}),
@@ -137,7 +138,7 @@ class RolForm(ModelForm):
                 attrs={'class': 'form-control', 'placeholder': 'Descripcion', 'style': 'height: 30%;'}),
             'permisos': forms.SelectMultiple(
                 attrs={'class': 'form-control', 'placeholder': 'Permisos', 'style': 'height: 40%;'}),
-
+            'proyecto': forms.HiddenInput(attrs={'class': 'form-control', 'placeholder': 'Proyecto'}),
         }
 
     def __init__(self, *args, **kwargs):
