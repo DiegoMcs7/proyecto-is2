@@ -22,6 +22,7 @@
                     <th>Miembros</th>
                     <th>Rol</th>
                     <th>Edit</th>
+                    <th>Delete</th>
                 </tr>
                 </thead>
                 {% for p in members %}
@@ -31,8 +32,11 @@
                         {% for x in p.id_rol.all %}
                         <td style="padding:10px;">{{x.rol}}</td>
                         {%endfor%}
-                        {% if 14 in out or request.user.is_superuser %}
+                        {% if 54 in out or request.user.is_superuser %}
                         <td style="padding:10px;"><a href="{% url 'update-members_project' project.id p.pk %}">Edit</a></td>
+                        {% endif %}
+                        {% if 55 in out or request.user.is_superuser %}
+                        <td style="padding:10px;"><a href="{% url 'delete-members_project' p.pk project.id %}">Delete</a></td>
                         {% endif %}
                     {% endif %}
                 </tr>

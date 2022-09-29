@@ -120,6 +120,11 @@ class AddMembersForm(ModelForm):
             'id_proyecto': forms.HiddenInput(attrs={'class': 'form-control', 'placeholder': 'Proyecto'}),
             'id_rol': forms.SelectMultiple(attrs={'class': 'form-control', 'placeholder': 'Rol'}),
         }
+    def __init__(self, *args, **kwargs):
+        self._pwd = kwargs.pop('pwd', None)
+        print(self._pwd)
+        super().__init__(*args, **kwargs)
+        self.fields['id_rol'].queryset = Rol.objects.filter(proyecto_id=self._pwd)
 
 
 class RolForm(ModelForm):

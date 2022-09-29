@@ -1,6 +1,7 @@
 from datetime import datetime
 from urllib.request import Request
 from .models import Miembro_Sprint, Miembros, Profile, Proyectos, Rol, Sprint, UserStory
+from django.db.models import Q
 from django.shortcuts import render, redirect
 from .forms import AddMembersForm, AddMembersSprintForm, ProyectosForm, RolForm, UserEditForm, UserRegistrationForm, detailsformuser, \
     SprintForm, UserStoryForm
@@ -8,6 +9,7 @@ from django.contrib.auth.decorators import login_required,permission_required
 from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.http import HttpResponseRedirect
+from django.contrib.auth.models import Permission
 from django.contrib.auth.models import User
 
 @login_required()
@@ -80,22 +82,35 @@ def add_project(request):
     '''
     submitted = False
     if request.method == "POST":
-        form = ProyectosForm(request.POST)
+        form = ProyectosForm(request.POST, initial={'scrum_master': request.user.id})
         
         if form.is_valid():
             project = form.save(commit=False)
             project.manager = request.user
             project.save()
-            #############CORREGIR LAST############
-            project_member = Proyectos.objects.last()
-            user_member = User.objects.get(id=form['scrum_master'].value())
-            rol_member = Rol.objects.get(id=1)
-            Miembros.objects.create(id_usuario=user_member, id_proyecto=project_member)
-            Miembros.objects.last().id_rol.add(rol_member)
+            #Creacion de los roles por defecto
+            project_member = Proyectos.objects.filter(scrum_master=request.user.id).last()
+            permisos= Permission.objects.all()
+            permisos_prodOwner = permisos.filter(Q(content_type_id=1) | Q(content_type_id=9) | Q(content_type_id=11) | Q(codename__icontains="view"))
+            permisos_miembros = permisos.filter(codename__icontains="view")
+            permisos_prodOwner.union(permisos_miembros)
+            rol_member1 = Rol.objects.create(rol="Scrum Master",desc_rol= "Scrum Master", proyecto=project_member)
+            rol_member1.permisos.set(permisos)
+            rol_member2 = Rol.objects.create(rol="Product Owner", desc_rol="Product Owner", proyecto=project_member)
+            rol_member2.permisos.set(permisos_prodOwner)
+            rol_member3 = Rol.objects.create(rol="Miembro", desc_rol="Miembro", proyecto=project_member)
+            rol_member3.permisos.set(permisos_miembros)
+            rol_member1.save()
+            rol_member2.save()
+            rol_member3.save()
+            user_member = request.user
+            miembro= Miembros.objects.create(id_usuario=user_member, id_proyecto=project_member)
+            miembro.id_rol.add(rol_member1)
+            miembro.save()
             return HttpResponseRedirect('/add_project?submitted=True')
     else:
 
-        form = ProyectosForm
+        form = ProyectosForm(initial= {'scrum_master': request.user.id})
 
         if 'submitted' in request.GET:
             submitted = True
@@ -145,13 +160,30 @@ def add_members(request, id):
     project = Proyectos.objects.get(id=id)
     members = Miembros.objects.all()
     roles = Rol.objects.all()
-    form = AddMembersForm(request.POST or None, initial={'id_proyecto': id})
+    form = AddMembersForm(request.POST or None, pwd=project.id, initial={'id_proyecto': id})
     
     if form.is_valid():
         new_user = form.save()
         new_user.save()
-        return redirect('list-projects')
+        return redirect('/add_members/%d'%project.id)
     return render(request, 'project/add_members.html', {'project': project, 'form': form, 'members': members, 'roles': roles})
+
+def update_members_project(request, id_proyecto, id_miembro):
+    '''
+        Editar un miembro del proyecto
+        fecha: 25/9/2022
+
+            Funcion en la cual se pueden editar miembros de un proyecto.
+    '''
+    project = Proyectos.objects.get(id=id_proyecto)
+    members = Miembros.objects.get(id=id_miembro)
+    roles = Rol.objects.all()
+    form = AddMembersForm(request.POST or None, pwd=project.id, instance=members)
+    if form.is_valid():
+        form.save()
+        return redirect('/add_members/%d'%id_proyecto)
+
+    return render(request, 'project/update_members_project.html', {'project': project, 'members': members, 'form': form, 'roles': roles})
 
 def all_roles(request, id_proyecto):
     '''
@@ -215,10 +247,19 @@ def update_rol(request, id, id_proyecto):
         return HttpResponseRedirect('/roles/%d'%id_proyecto)
     return render(request, 'roles_y_permisos/update_rol.html', {'role': role, 'form': form}, {'project': project})
 
+def delete_proyecto(request, id):
+	project = Proyectos.objects.get(id=id)
+	project.delete()
+	return HttpResponseRedirect('/projects')
 def delete_rol(request, id,id_proyecto):
 	role = Rol.objects.get(id=id)
 	role.delete()
-	return HttpResponseRedirect('/roles/%d'%id_proyecto)	
+	return HttpResponseRedirect('/roles/%d'%id_proyecto)
+
+def delete_miembro_proyecto(request, id,id_proyecto):
+	m = Miembros.objects.get(id=id)
+	m.delete()
+	return HttpResponseRedirect('/add_members/%d'%id_proyecto)
 
 # CRUD para sprint
 
@@ -340,20 +381,7 @@ def update_user_story(request, id_proyecto, id_user_story):
 
 #Edit de miembros del Equipo Proyecto y Sprint
 
-def update_members_project(request, id_proyecto, id_miembro):
-    '''
-        Editar un miembro del proyecto
-        fecha: 25/9/2022
 
-            Funcion en la cual se pueden editar miembros de un proyecto.        
-    '''
-    members = Miembros.objects.get(id=id_miembro)
-    form = AddMembersForm(request.POST or None, instance=members, initial={'id_proyecto': id_proyecto})
-    if form.is_valid():
-        form.save()
-        return redirect('/add_members/%d'%id_proyecto)
-
-    return render(request, 'project/update_members_project.html', {'members': members, 'form': form})
 
 def update_members_sprint(request, id_proyecto, id_sprint,id_usuario):
     '''
