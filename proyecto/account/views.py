@@ -208,6 +208,16 @@ def all_roles(request, id_proyecto):
     return render(request, 'roles_y_permisos/roles_list.html',
                   {'roles_list': roles_list, 'out': out, 'id_proyecto': id_proyecto, 'project': project})
 
+
+def list_permisos(request, id_proyecto, id_rol):
+
+    roles_list = Rol.objects.all()
+    project = Proyectos.objects.get(id=id_proyecto)
+
+    return render(request, 'roles_y_permisos/permisos_list.html',
+                  {'roles_list': roles_list, 'id_proyecto': id_proyecto, 'project': project, 'id_rol': id_rol})
+
+
 def add_rol(request,id_proyecto):
     '''
         Agregar rol a un proyecto
@@ -233,6 +243,7 @@ def add_rol(request,id_proyecto):
 
     return render(request, 'roles_y_permisos/add_rol.html', {'form': form, 'submitted': submitted,'id_proyecto':id_proyecto})
 
+
 def update_rol(request, id,id_proyecto):
     '''
         Editar rol de un proyecto
@@ -247,23 +258,28 @@ def update_rol(request, id,id_proyecto):
         form.save()
         return HttpResponseRedirect('/roles/%d'%id_proyecto)
 
-    return render(request, 'roles_y_permisos/update_rol.html', {'role': role, 'form': form})
+    return render(request, 'roles_y_permisos/update_rol.html', {'role': role, 'form': form, 'id_proyecto': id_proyecto})
+
 
 def delete_proyecto(request, id):
-	project = Proyectos.objects.get(id=id)
-	project.delete()
-	return HttpResponseRedirect('/projects')
-def delete_rol(request, id,id_proyecto):
-	role = Rol.objects.get(id=id)
-	role.delete()
-	return HttpResponseRedirect('/roles/%d'%id_proyecto)
+    project = Proyectos.objects.get(id=id)
+    project.delete()
+    return HttpResponseRedirect('/projects')
 
-def delete_miembro_proyecto(request, id,id_proyecto):
-	m = Miembros.objects.get(id=id)
-	m.delete()
-	return HttpResponseRedirect('/add_members/%d'%id_proyecto)
+
+def delete_rol(request, id, id_proyecto):
+    role = Rol.objects.get(id=id)
+    role.delete()
+    return HttpResponseRedirect('/roles/%d' % id_proyecto)
+
+
+def delete_miembro_proyecto(request, id, id_proyecto):
+    m = Miembros.objects.get(id=id)
+    m.delete()
+    return HttpResponseRedirect('/add_members/%d' % id_proyecto)
 
 # CRUD para sprint
+
 
 def all_sprints(request,id):
     '''
@@ -277,6 +293,7 @@ def all_sprints(request,id):
                                                              
     return render(request, 'sprint/sprint_list.html',
                   {'sprint_list': sprint_list,'id_project': id})
+
 
 def add_sprint(request,id):
     '''
@@ -307,7 +324,7 @@ def add_sprint(request,id):
         if 'submitted' in request.GET:
             submitted = True
 
-    return render(request, 'sprint/add_sprint.html', {'form': form, 'submitted': submitted})
+    return render(request, 'sprint/add_sprint.html', {'form': form, 'submitted': submitted, 'id_proyecto': id})
 
 
 def update_sprint(request, id_proyecto, id_sprint):
@@ -324,7 +341,7 @@ def update_sprint(request, id_proyecto, id_sprint):
         form.save()
         return redirect('/sprint/%d' %id_proyecto)
 
-    return render(request, 'sprint/update_sprint.html', {'sprint': sprint, 'form': form})
+    return render(request, 'sprint/update_sprint.html', {'sprint': sprint, 'form': form, 'id_proyecto': id_proyecto})
 
 
 def add_members_sprint(request, id_proyecto, id_sprint):
@@ -345,7 +362,7 @@ def add_members_sprint(request, id_proyecto, id_sprint):
         new_user = form.save()
         new_user.save()
         return redirect('/add_members_sprint/'+str(x)+'/'+str(y))
-    return render(request, 'sprint/add_members_sprint.html',{'sprint': sprint, 'form': form, 'id_sprint': id_sprint, 'members_sprint': members_sprint})
+    return render(request, 'sprint/add_members_sprint.html',{'sprint': sprint, 'form': form, 'id_sprint': id_sprint, 'members_sprint': members_sprint, 'id_proyecto': id_proyecto})
 
 
 def all_user_story(request, id):
@@ -363,6 +380,7 @@ def all_user_story_sprint_backlog(request, id):
     return render(request, 'user_story/user_story_list_sprint_backlog.html',
                   {'user_story_list': user_story, 'id_sprint': id})
 
+
 def add_user_story(request, id_proyecto):
     user_story = UserStory.objects.all()
     form = UserStoryForm(request.POST or None, pwd=id_proyecto, initial={'id_proyecto': id_proyecto})
@@ -373,7 +391,7 @@ def add_user_story(request, id_proyecto):
         new_user_story.save()
         return HttpResponseRedirect('/user_story/%d'%id_proyecto)
     return render(request, 'user_story/add_user_story.html',
-                  {'user_story': user_story, 'form': form})
+                  {'user_story': user_story, 'form': form, 'id_proyecto': id_proyecto})
 
 
 def update_user_story(request, id_proyecto, id_user_story):
@@ -384,7 +402,7 @@ def update_user_story(request, id_proyecto, id_user_story):
         form.save()
         return redirect('/user_story/%d'%id_proyecto)
 
-    return render(request, 'user_story/update_user_story.html', {'user_story': user_story, 'form': form})
+    return render(request, 'user_story/update_user_story.html', {'user_story': user_story, 'form': form, 'id_proyecto': id_proyecto})
 
 #Edit de miembros del Equipo Proyecto y Sprint
 
@@ -507,7 +525,7 @@ def add_tipos_us(request,id):
         if 'submitted' in request.GET:
             submitted = True
 
-    return render(request, 'tipos_us/add_tipos_us.html', {'form': form, 'submitted': submitted})
+    return render(request, 'tipos_us/add_tipos_us.html', {'form': form, 'submitted': submitted,'id_proyecto': id})
 
 
 def update_tipos_us(request,id_proyecto,id_tipo_us):
