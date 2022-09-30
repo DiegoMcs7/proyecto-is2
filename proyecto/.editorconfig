@@ -1,0 +1,4 @@
+[pytest]
+
+DJANGO_SETTINGS_MODULE = proyecto.settings
+addopts = -v -s --cov=proyecto/account/test/ --no-cov-on-fail

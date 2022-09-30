@@ -1,27 +1,23 @@
-{% extends "base.html" %}
+{% extends "base_tablero.html" %}
 
 {% block title %} Tablero {% endblock %}
 
 {% block content %}
 <div class="body2">
-  <ul class="menu2">
+  <ul class="menu2" style="margin-top:-90px;">
+        <li style="--clr:#B3B6B7">
+          <a href="profile.html" data-text="&nbsp;Perfil">&nbsp;Perfil&nbsp;</a>
+        </li>
+        <li style="--clr:#B3B6B7">
+          <a href="{% url "list-projects" %}" data-text="&nbsp;Proyectos">&nbsp;Proyectos&nbsp;</a>
+        </li>
+      {% if request.user.is_superuser %}
+        <li style="--clr:#B3B6B7">
+          <a href="{% url "retrieve_user" %}" data-text="&nbsp;Usuarios">&nbsp;Usuarios&nbsp;</a>
+        </li>
 
-
-        <li style="--clr:#B3B6B7">
-          <a href="#" data-text="&nbsp;Perfil">&nbsp;Perfil&nbsp;</a>
-        </li>
-        <li style="--clr:#B3B6B7">
-          <a href="#" data-text="&nbsp;Proyecto">&nbsp;Proyectos&nbsp;</a>
-        </li>
-        <li style="--clr:#B3B6B7">
-          <a href="#" data-text="&nbsp;Backlog">&nbsp;Backlog&nbsp;</a>
-        </li>
-        <li style="--clr:#B3B6B7">
-          <a href="#" data-text="&nbsp;Sprint">&nbsp;Sprint&nbsp;</a>
-        </li>
-        <li style="--clr:#B3B6B7">
-          <a href="#" data-text="&nbsp;Kanban">&nbsp;Kanban&nbsp;</a>
-        </li>
+        <li style="--clr:#B3B6B7" hidden>
+      {% endif %}
       </ul>
 </div>
 {% endblock %}
