@@ -45,7 +45,7 @@
 
 
 {% if user.is_authenticated %}
-	<h1>Editar Tipo_US</h1>
+	<h1>Editar tipo de user story</h1>
 <br/><br/>
 
 {% if submitted %}
@@ -54,18 +54,19 @@
 
 	{% else %}
 	<div class="row">
-		<div class="col-6">
-		<form action="" method=POST>
+		<div class="col-5">
+		<form  style="margin-left:10px;" action="" method=POST>
 			{% csrf_token %}
 
 			{{ form.as_p }}
 
-			<input type="submit" value="Submit" class="btn btn-secondary">
+			<input type="submit" value="Actualizar" class="btn btn-secondary">
 
 		</form>
-		{% endif %}
-        </div>
+           </div>
 	</div>
+
+		{% endif %}
 
 
 <br/><br/>	

@@ -69,7 +69,6 @@
                       <th>Duracion</th>
                       <th>Capacidad</th>
                       <th>Fecha inicio</th>
-                      <th>Edit</th>
                     </tr>
                 </thead>
                 
@@ -90,7 +89,7 @@
                     {% endif %}
                     <td style="padding:10px;">{{p.fecha_inicio}}</td>
                     {% if 26 in out or request.user.is_superuser %}
-                    <td style="padding:10px;"><a href="{% url 'update-sprint' id_project p.pk %}">Edit</a></td>
+                    <td style="padding:10px;"><a href="{% url 'update-sprint' id_project p.pk %}">Editar</a></td>
                     {% endif %}
                 </tr>
 

@@ -69,7 +69,6 @@
                       <th>Estado</th>
                       <th>Proyecto</th>
                       <th>Gestionar Estados</th>
-                      <th>Edit</th>
                     </tr>
                 </thead>
                 
@@ -82,7 +81,7 @@
                     <td style="padding:10px;">{{p.id_proyecto}}</td>
                     <td style="padding:10px;"><a href="{% url 'estados-list' id_proyecto p.pk %}">Gestionar</a></td>
                     {% if 26 in out or request.user.is_superuser %}
-                    <td style="padding:10px;"><a href="{% url 'update-tipos_us' id_proyecto p.pk %}">Edit</a></td>
+                    <td style="padding:10px;"><a href="{% url 'update-tipos_us' id_proyecto p.pk %}">Editar</a></td>
                     {% endif %}
                 </tr>
 

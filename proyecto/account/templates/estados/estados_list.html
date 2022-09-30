@@ -44,15 +44,12 @@
 
 
 
-<body>
 
 <div style="margin-left: 3%;margin-top: 3%;">
-
 {% if 25 in out or request.user.is_superuser %}
- <p class="display-3" style="margin-left:550px;"><a class="button-create" href="{% url "add-estados" id_proyecto id_tipo_us %}">Agregar Estado</a></p>
-</div>
-
+ <p class="display-3" ><a class="button-create" href="{% url "add-estados" id_proyecto id_tipo_us %}">Agregar Estado</a></p>
     {% endif %}
+ </div>
     <div>
         <script>
             document.addEventListener("DOMContentLoaded", () => {
@@ -70,7 +67,6 @@
                       <th>Id</th>
                       <th>Nombre</th>
                       <th>Descripción</th>
-                      <th>Edit</th>
                     </tr>
                 </thead>
                 
@@ -81,10 +77,9 @@
                     <td style="padding:10px;">{{p.nombre_estado}} </a></td>
                     <td style="padding:10px;">{{p.id_tipo_user_story}}</td>
                     {% if 26 in out or request.user.is_superuser %}
-                    <td style="padding:10px;"><a href="{% url 'update-estados' id_proyecto id_tipo_us p.pk %}">Edit</a></td>
+                    <td style="padding:10px;"><a href="{% url 'update-estados' id_proyecto id_tipo_us p.pk %}">Editar</a></td>
                     {% endif %}
                 </tr>
-
 
             {% endfor %}
         </table>

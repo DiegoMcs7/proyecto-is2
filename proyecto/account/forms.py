@@ -205,15 +205,16 @@ class AddMembersSprintForm(ModelForm):
 class UserStoryForm(ModelForm):
     class Meta:
         model = UserStory
-        fields = ('nombre_us', 'desc_us', 'horas_estimadas', 'encargado', 'prioridad_us', 'id_sprint', 'id_proyecto')
+        fields = ('nombre_us', 'desc_us', 'horas_estimadas', 'encargado', 'prioridad_us', 'id_tipo_user_story', 'id_sprint', 'id_proyecto' )
         labels = {
             'nombre_us': 'Nombre',
             'desc_us': 'Descripción',
             'horas_estimadas': 'Horas estimadas',
             'encargado': 'Encargado',
             'prioridad_us': 'Prioridad',
-            'id_sprint': 'Sprint',
             'id_proyecto': 'Proyecto',
+            'id_tipo_user_story': 'Tipo de user story',
+            'id_sprint': 'Sprint',
 
         }
         widgets = {
@@ -222,6 +223,7 @@ class UserStoryForm(ModelForm):
             'horas_estimadas': forms.NumberInput(attrs={'class': 'form-control'}),
             'encargado': forms.Select(attrs={'class': 'form-control', 'placeholder': 'Encargado'}),
             'prioridad_us': forms.Select(attrs={'class': 'form-control', 'placeholder': 'Horas de trabajo por día'}),
+            'id_tipo_user_story': forms.Select(attrs={'class': 'form-control', 'placeholder': 'Tipo de user story'}),
             'id_sprint': forms.Select(attrs={'class': 'form-control', 'placeholder': 'Sprint'}),
             'id_proyecto': forms.HiddenInput(attrs={'class': 'form-control', 'placeholder': 'Sprint'}),
         }

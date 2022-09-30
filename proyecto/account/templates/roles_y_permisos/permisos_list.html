@@ -51,7 +51,7 @@
                 {% if project == i.proyecto and id_rol == i.id %}
                 <tr>
                     <td>  {% for permisos in i.permisos.all %}
-                        {% if 'content type' not in permisos.name and 'association' not in permisos.name and 'code' not in permisos.name and 'nonce' not in permisos.name and 'user social auth' not in permisos.name and 'partial' not in permisos.name and 'kanban' not in permisos.name and 'reportes' not in permisos.name and 'group' not in permisos.name and 'backlog' not in permisos.name and 'group' not in permisos.name and 'log entry' not in permisos.name and 'content type' not in permisos.name and 'profile' not in permisos.name and 'usuarios' not in permisos.name and 'session' not in permisos.name %}
+                        {% if 'content type' not in permisos.name and 'association' not in permisos.name and 'code' not in permisos.name and 'nonce' not in permisos.name and 'user social auth' not in permisos.name and 'partial' not in permisos.name and 'kanban' not in permisos.name and 'reportes' not in permisos.name and 'group' not in permisos.name and 'backlog' not in permisos.name and 'group' not in permisos.name and 'log entry' not in permisos.name and 'content type' not in permisos.name and 'profile' not in permisos.name and 'usuarios' not in permisos.name and 'session' not in permisos.name and 'reuniones' not in permisos.name and 'permission' not in permisos.name %}
                             <li style="padding:1px;">{{permisos}}</li>
                          {% endif %}
                     {% endfor %}</td>

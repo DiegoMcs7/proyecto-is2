@@ -33,6 +33,7 @@
                         <th>Fecha Fin</th>
                         <th></th>
                         <th></th>
+                        <th></th>
                     </tr>
                 </thead>
 
@@ -48,10 +49,11 @@
                       <td style="padding:10px;">{{i.fecha_inicio}}</td>
                       <td style="padding:10px;">{{i.fecha_fin}}</td>
                       {% if 14 in out or request.user.is_superuser %}
-                      <td style="padding:10px;"><a href="{% url 'update-project' i.pk %}">Edit</a></td>
+                      <td style="padding:10px;"><a href="{% url 'update-project' i.pk %}">Editar</a></td>
+                      <td style="padding:10px;"><a href="{% url 'inicializar_proyecto' i.pk %}">Inicializar</a></td>
                       {% endif %}
                       {% if request.user.is_superuser %}
-                      <td style="padding:10px;"><a href="{% url 'delete-project' i.pk %}">Delete</a></td>
+                      <td style="padding:10px;"><a href="{% url 'delete-project' i.pk %}">Eliminar</a></td>
                       {% endif %}
                   </tr>
                   {% endif %}

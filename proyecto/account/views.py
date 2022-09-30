@@ -130,11 +130,32 @@ def update_project(request, id):
 
     form = ProyectosForm(request.POST or None, instance=project)
 
+    a = Sprint.objects.filter(Q(id_proyecto_id=id),
+                              Q(estado_sprint="Iniciado") | Q(estado_sprint="Pendiente")).values_list('id')
+    out = [item for t in a for item in t]
+    print('HOASDLFASDF', out)
     if form.is_valid():
-        form.save()
-        return redirect('list-projects')
+        print(form['estado_proyecto'].value() )
+        if form['estado_proyecto'].value() == 'Cancelado' or form['estado_proyecto'].value() == 'Finalizado':
+            print('entra')
+            if len(out) == 0:
+                form.save()
+                return redirect('list-projects')
+            else:
+                messages.error(request, 'No puedes realizar la acción ya que hay sprints no finalizados.')
+        else:
+            form.save()
+            return redirect('list-projects')
 
     return render(request, 'project/update_project.html', {'project': project, 'form': form})
+
+
+def inicializar_proyecto(request, id):
+
+    project = Proyectos.objects.get(id=id)
+    project.estado_proyecto ='Iniciado'
+
+    return redirect('list-projects')
 
 
 def all_projects(request):
@@ -307,7 +328,7 @@ def add_sprint(request,id):
     x = project.id
     if request.method == "POST":
         form = SprintForm(request.POST, initial={'id_proyecto':x})
-        a = Sprint.objects.filter(Q(estado_sprint="Iniciado") | Q(estado_sprint="Pendiente")).values_list('id')
+        a = Sprint.objects.filter(Q(id_proyecto_id=id), Q(estado_sprint="Iniciado") | Q(estado_sprint="Pendiente")).values_list('id')
         out = [item for t in a for item in t]
 
         if form.is_valid() and len(out)==0:
@@ -477,11 +498,12 @@ def update_estados(request,id_proyecto,id_tipo_us,id_estado):
     '''
     project = Proyectos.objects.get(id=id_proyecto)
     tipous = Tipo_User_Story.objects.get(id=id_tipo_us)
+    nombre_estado = Estados.objects.get(id=id_estado)
     x = project.id
     y = id_tipo_us
-
-    form = EstadosForm(request.POST or None, instance=tipous, initial={'id_proyecto': id_proyecto,'id_tipo_user_story_id': id_tipo_us,'nombre_estado': id_estado})
+    form = EstadosForm(request.POST or None, instance=tipous, initial={'id_tipo_user_story': 1, 'nombre_estado': nombre_estado.nombre_estado})
     if form.is_valid():
+        print(form)
         form.save()
         return redirect('/estados/'+str(x)+'/'+str(y))
 

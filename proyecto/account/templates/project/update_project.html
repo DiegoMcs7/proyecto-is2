@@ -17,6 +17,14 @@
 			{% csrf_token %}
 
 			{{ form.as_p }}
+			{% for message in messages %}
+
+			<div class="alert alert-success">
+				<a class="close" href="#" data-dismiss="alert"></a>
+				{{ message }}
+			</div>
+
+			{% endfor %}
 
 			<input type="submit" value="Actualizar" class="btn btn-secondary">
 

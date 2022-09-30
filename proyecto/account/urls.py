@@ -15,6 +15,7 @@ urlpatterns = [
     path('add_project', views.add_project, name='add-project'),
     path('delete_rol/<int:id>', views.delete_proyecto, name='delete-project'),
     path('update_project/<int:id>', views.update_project, name='update-project'),
+    path('inicializar_proyecto/<int:id>', views.inicializar_proyecto, name='inicializar_proyecto'),
     path('update_members_project/<int:id_proyecto>/<int:id_miembro>', views.update_members_project, name='update-members_project'),
     path('update_members_sprint/<int:id_proyecto>/<int:id_sprint>/<int:id_usuario>', views.update_members_sprint, name='update-members_sprint'),
     path('roles/<int:id_proyecto>', views.all_roles, name="list-roles"),
