@@ -50,15 +50,24 @@ class Proyectos(models.Model):
     def __str__(self):
         return self.nombre_proyecto
 
+    @property
+    def project_exist(self):
+        return self.id_proyecto>0
+
 class Rol(models.Model):
 
-      rol = models.CharField(max_length=20,blank=True, null=True)
-      desc_rol = models.TextField()
-      permisos = models.ManyToManyField(Permission)
-      proyecto = models.ForeignKey("Proyectos", on_delete=models.CASCADE, null=True)
+    rol = models.CharField(max_length=20,blank=True, null=True)
+    desc_rol = models.TextField()
+    permisos = models.ManyToManyField(Permission)
+    proyecto = models.ForeignKey("Proyectos", on_delete=models.CASCADE, null=True)
 
-      def __str__(self):
+    def __str__(self):
         return self.rol
+    
+    @property
+    def rol_exist(self):
+        return self.id_rol>0
+
 
 
 class UserStory(models.Model):
@@ -83,6 +92,10 @@ class UserStory(models.Model):
     id_sprint = models.ForeignKey("Sprint", on_delete=models.CASCADE, null=True, blank=True)
     id_tipo_user_story = models.ForeignKey("Tipo_User_Story", on_delete=models.CASCADE, null=True, blank=True)
 
+    @property
+    def us_exist(self):
+        return self.id_user_story>0
+
 class Reuniones(models.Model):
     nombre_reunion = models.CharField(max_length=30)
     desc_reunion = models.TextField()
@@ -105,6 +118,10 @@ class Tipo_User_Story(models.Model):
 
     def __str__(self):
         return self.nombre_tipo_us
+    
+    @property
+    def tipo_us_exist(self):
+        return self.id_tipo_user_story_id>0
 
 class Estados(models.Model):
 
@@ -113,6 +130,10 @@ class Estados(models.Model):
 
     def __str__(self):
         return self.nombre_estado
+
+    @property
+    def estados_exist(self):
+        return self.id_estados>0
 
 # lista_default = {to do, doing, done}
 # Estados.objects.filter(id_estado__in_lista_default | id_tipo_user_story=id_tipo_user_story)
@@ -150,6 +171,10 @@ class Sprint(models.Model):
 
     def __str__(self):
         return self.nombre_sprint
+
+    @property
+    def sprint_exist(self):
+        return self.id_sprint>0
 
 class Miembro_Sprint (models.Model):
     usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)

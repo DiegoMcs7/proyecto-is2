@@ -1,4 +1,5 @@
 from datetime import datetime
+from gc import get_objects
 from urllib import response
 from urllib.request import Request
 from .models import Estados, Miembro_Sprint, Miembros, Profile, Proyectos, Rol, Sprint, Tipo_User_Story, UserStory
@@ -14,7 +15,7 @@ from django.contrib.auth.models import User
 from django.db.models import Q
 from django.http import HttpResponseForbidden
 
-@login_required()
+@login_required
 def tablero(request):
     '''
         Vistas
@@ -22,13 +23,14 @@ def tablero(request):
 
         Una función de visualización es una función de Python que toma una solicitud web y devuelve una respuesta web .
                Esta vista es la encargada de llamar al archivo tablero.html con el fin de mostrar en pantalla el menu
-               luego de la peticion correspondiente
+               luego de la peticion correspondient
     '''
+
     return render(request, 'account/tablero.html', {'section': 'tablero'})
 
 
 def register(request):
-    '''
+    '''  
         Registrar usuario
         fecha: 25/9/2022
 
@@ -133,7 +135,6 @@ def update_project(request, id):
     a = Sprint.objects.filter(Q(id_proyecto_id=id),
                               Q(estado_sprint="Iniciado") | Q(estado_sprint="Pendiente")).values_list('id')
     out = [item for t in a for item in t]
-    print('HOASDLFASDF', out)
     if form.is_valid():
         print(form['estado_proyecto'].value() )
         if form['estado_proyecto'].value() == 'Cancelado' or form['estado_proyecto'].value() == 'Finalizado':
@@ -149,15 +150,13 @@ def update_project(request, id):
 
     return render(request, 'project/update_project.html', {'project': project, 'form': form})
 
-
 def inicializar_proyecto(request, id):
 
-    project = Proyectos.objects.get(id=id)
-    project.estado_proyecto ='Iniciado'
+    Proyectos.objects.filter(id=id).update(estado_proyecto='Iniciado')
 
     return redirect('list-projects')
 
-
+@login_required
 def all_projects(request):
     '''
         Vista de todos los proyectos
@@ -166,6 +165,7 @@ def all_projects(request):
             Esta vista es la encargada de llamar al archivo project_list.html con el fin de mostrar en pantalla la lista
             de todos los proyectos registrados en el sistema.       
     '''
+
     project_list = Proyectos.objects.all()
     members = Miembros.objects.all()
     user = request.user.id
@@ -207,6 +207,7 @@ def update_members_project(request, id_proyecto, id_miembro):
 
     return render(request, 'project/update_members_project.html', {'project': project, 'members': members, 'form': form, 'roles': roles})
 
+@login_required
 def all_roles(request, id_proyecto):
     '''
         Vista de todos los roles y permisos
@@ -227,7 +228,7 @@ def all_roles(request, id_proyecto):
     out = [item for t in a for item in t]
 
     return render(request, 'roles_y_permisos/roles_list.html',
-                  {'roles_list': roles_list, 'out': out, 'id_proyecto': id_proyecto, 'project': project})
+                  {'roles_list': roles_list, 'out': out,'project': project})
 
 
 def list_permisos(request, id_proyecto, id_rol):
@@ -236,8 +237,7 @@ def list_permisos(request, id_proyecto, id_rol):
     project = Proyectos.objects.get(id=id_proyecto)
 
     return render(request, 'roles_y_permisos/permisos_list.html',
-                  {'roles_list': roles_list, 'id_proyecto': id_proyecto, 'project': project, 'id_rol': id_rol})
-
+                  {'roles_list': roles_list, 'project': project, 'id_rol': id_rol})
 
 def add_rol(request,id_proyecto):
     '''
@@ -262,7 +262,7 @@ def add_rol(request,id_proyecto):
         form = RolForm(initial={'proyecto': project})
 
 
-    return render(request, 'roles_y_permisos/add_rol.html', {'form': form, 'submitted': submitted,'id_proyecto':id_proyecto})
+    return render(request, 'roles_y_permisos/add_rol.html', {'form': form, 'submitted': submitted,'project':project})
 
 
 def update_rol(request, id,id_proyecto):
@@ -272,6 +272,7 @@ def update_rol(request, id,id_proyecto):
 
             Funcion en la cual se pueden editar roles y permisos a diferentes proyectos.        
     '''
+    project = Proyectos.objects.get(id=id_proyecto)
     role = Rol.objects.get(id=id)
     form = RolForm(request.POST or None, instance=role)
 
@@ -279,7 +280,7 @@ def update_rol(request, id,id_proyecto):
         form.save()
         return HttpResponseRedirect('/roles/%d'%id_proyecto)
 
-    return render(request, 'roles_y_permisos/update_rol.html', {'role': role, 'form': form, 'id_proyecto': id_proyecto})
+    return render(request, 'roles_y_permisos/update_rol.html', {'role': role, 'form': form, 'project': project})
 
 
 def delete_proyecto(request, id):
@@ -301,7 +302,7 @@ def delete_miembro_proyecto(request, id, id_proyecto):
 
 # CRUD para sprint
 
-
+@login_required
 def all_sprints(request,id):
     '''
         Vista de todos los sprints creados para cada proyecto
@@ -501,7 +502,7 @@ def update_estados(request,id_proyecto,id_tipo_us,id_estado):
     nombre_estado = Estados.objects.get(id=id_estado)
     x = project.id
     y = id_tipo_us
-    form = EstadosForm(request.POST or None, instance=tipous, initial={'id_tipo_user_story': 1, 'nombre_estado': nombre_estado.nombre_estado})
+    form = EstadosForm(request.POST or None, instance=tipous, initial={'id_tipo_user_story': id_tipo_us, 'nombre_estado': nombre_estado.nombre_estado})
     if form.is_valid():
         print(form)
         form.save()

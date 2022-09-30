@@ -16,16 +16,16 @@
               <a href="{% url "list-projects" %}">Proyectos</a>
               </li>
               <li>
-              <a href="{% url "tipos_us-list" id_proyecto %}">Tipo US</a></a>
+              <a href="{% url "tipos_us-list" project.id %}">Tipo US</a></a>
               </li>
               <li>
-              <a href="{% url "sprint-list" id_proyecto %}">Sprints</a>
+              <a href="{% url "sprint-list" project.id %}">Sprints</a>
               </li>
                <li>
-              <a href="{% url "user_story-list" id_proyecto %}">Product Backlog</a>
+              <a href="{% url "user_story-list" project.id %}">Product Backlog</a>
               </li>
                <li>
-              <a href="{% url "list-roles" id_proyecto %}">Roles</a>
+              <a href="{% url "list-roles" project.id %}">Roles</a>
               </li>
           </ul>
           {% endif %}

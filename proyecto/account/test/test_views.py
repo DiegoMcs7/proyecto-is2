@@ -1,16 +1,62 @@
-from django import urls
-from django.contrib.auth import get_user_model
+from urllib import request
+from django.test import RequestFactory
+from django.urls import reverse
+from django.contrib.auth.models import User
+from account.models import  Proyectos
+from account.views import all_projects,all_roles,all_sprints,all_estados,all_user_story
+from mixer.backend.django import mixer
 import pytest
 
-@pytest.mark.parametrize('param',[
+@pytest.mark.django_db
+class TestViews:
+    
+    def test_proyecto_authenticated(self):
 
-    #('login'),
-    ('tablero'),
-    #('logout'),
+        mixer.blend('account.Proyectos')
+        path = reverse('list-projects')
+        request = RequestFactory().get(path)
+        request.user = mixer.blend(User)
 
-])
-def test_render_views(client,param):
+        response = all_projects(request)
+        assert response.status_code == 200
 
-    temp_url = urls.reverse(param)
-    resp = client.get(temp_url)
-    assert resp.status_code == 200
+    def test_roles_authenticated(self):
+
+        mixer.blend('account.Rol')
+        path = reverse('list-roles',kwargs={'id_proyecto':4})
+        request = RequestFactory().get(path)
+        request.user = mixer.blend(User)
+
+        response = all_roles(request,id_proyecto=4)
+        assert response.status_code == 200
+
+    def test_sprint_authenticated(self):
+
+        mixer.blend('account.Sprint')
+        path = reverse('sprint-list',kwargs={'id':4})
+        request = RequestFactory().get(path)
+        request.user = mixer.blend(User)
+
+        response = all_sprints(request,id=4)
+        assert response.status_code == 200
+
+    def test_estados_authenticated(self):
+
+        mixer.blend('account.Estados')
+        path = reverse('estados-list',kwargs={'id_proyecto':4,'id_tipo_us':53})
+        request = RequestFactory().get(path)
+        request.user = mixer.blend(User)
+
+        response = all_estados(request,id_proyecto=4,id_tipo_us=53)
+        assert response.status_code == 200
+    
+    def test_us_authenticated(self):
+
+        mixer.blend('account.UserStory')
+        path = reverse('user_story-list',kwargs={'id':4})
+        request = RequestFactory().get(path)
+        request.user = mixer.blend(User)
+
+        response = all_user_story(request,id=4)
+        assert response.status_code == 200
+
