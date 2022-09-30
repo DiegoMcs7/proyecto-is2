@@ -196,6 +196,7 @@ def all_roles(request, id_proyecto):
     '''
     roles_list = Rol.objects.all()
     userid = request.user.id
+    project = Proyectos.objects.get(id=id_proyecto)
 
     b = Miembros.objects.filter(id_usuario=userid,id_proyecto_id=id_proyecto).values_list('id')
     out = [item for t in b for item in t]
@@ -204,7 +205,8 @@ def all_roles(request, id_proyecto):
     a = Rol.permisos.through.objects.filter(rol_id__in=out).values_list('permission_id')
     out = [item for t in a for item in t]
 
-    return render(request, 'roles_y_permisos/roles_list.html',{'roles_list': roles_list,'out':out,'id_proyecto':id_proyecto})
+    return render(request, 'roles_y_permisos/roles_list.html',
+                  {'roles_list': roles_list, 'out': out, 'id_proyecto': id_proyecto, 'project': project})
 
 def add_rol(request,id_proyecto):
     '''
@@ -218,20 +220,15 @@ def add_rol(request,id_proyecto):
     if request.method == "POST":
 
         form = RolForm(request.POST, initial={'proyecto': project})
-        print(project.id)
 
         if form.is_valid():
-
+            print('guardar')
             role = form.save()
             role.manager = request.user
             role.save()
             return HttpResponseRedirect('/roles/%d'%id_proyecto)
     else:
-
         form = RolForm(initial={'proyecto': project})
-
-
-        form = RolForm(initial={'proyecto':id_proyecto})
 
 
     return render(request, 'roles_y_permisos/add_rol.html', {'form': form, 'submitted': submitted,'id_proyecto':id_proyecto})
