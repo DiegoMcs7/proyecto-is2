@@ -39,7 +39,7 @@
                     <td style="padding:10px;">{{p.prioridad_us}}</td>
                     <td style="padding:10px;">{{p.encargado}}</td>
                     {% if 42 in out or request.user.is_superuser %}
-                    <td style="padding:10px;"><a href="{% url 'update-user_story' id_project p.id %}">Edit</a></td>
+                    <td style="padding:10px;"><a href="{% url 'update-user_story' id_project p.id %}">Editar</a></td>
                     {% endif %}
                 </tr>
 
