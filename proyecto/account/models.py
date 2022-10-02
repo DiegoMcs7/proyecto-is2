@@ -16,6 +16,12 @@ from pyexpat import model
 from django.db import models
 from django.conf import settings
 from django.contrib.auth.models import Permission
+# import os
+# import django
+#
+# os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'my_crazy_service.settings')
+# django.setup()
+
 # Create your models here.
 
 class Miembros(models.Model):
@@ -31,7 +37,8 @@ class Miembros(models.Model):
     id_usuario = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE)
     id_proyecto = models.ForeignKey("Proyectos",on_delete=models.CASCADE)
     id_rol = models.ManyToManyField("Rol")
-   
+
+
 class Usuarios(models.Model):
     '''
         Editar un proyecto
@@ -178,9 +185,11 @@ class Estados(models.Model):
         Modelo Estados
         fecha: 30/9/2022
 
+
              Se define el modelo que cuenta con los detalles de un estado para tipo de us, como su nombre y el tipo al que pertenece
             Este modelo es utilizado para definir los diferentes estados que pertencen para cada tipo de user story
     '''
+
     nombre_estado = models.CharField(max_length=30)
     id_tipo_user_story = models.ForeignKey("Tipo_User_Story", on_delete=models.CASCADE, null=True)
 
@@ -214,6 +223,7 @@ class Sprint(models.Model):
             Se define el modelo que cuenta con los detalles de un sprint, como su nombre, descripción, estado entre otros detalles
             Este modelo es utilizado para definir los diferentes sprints que pertencen para cada proyecto
     '''
+
     id = models.AutoField(primary_key=True)
     nombre_sprint = models.CharField(max_length=30)
     desc_sprint = models.TextField()

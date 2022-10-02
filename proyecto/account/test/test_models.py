@@ -7,7 +7,7 @@ import pytest
 class TestModels:
 
     def test_project_exist(self):
-        project = mixer.blend('account.Proyectos', id_proyecto=0)
+        project = mixer.blend('account.Proyectos', id_proyecto=1)
         assert project.project_exist == True
 
         warnings.warn(UserWarning("Test Proyecto "))
