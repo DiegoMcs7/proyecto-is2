@@ -19,17 +19,42 @@ from django.contrib.auth.models import Permission
 # Create your models here.
 
 class Miembros(models.Model):
+    '''
+        Miembros
+        fecha: 30/9/2022
+
+           El modelo es utilizado para la creación de los diferentes miembros por proyecto con sus respectivos roles
+
+            Se define el modelo que cuenta con los campos que referencian a
+    '''
+
     id_usuario = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE)
     id_proyecto = models.ForeignKey("Proyectos",on_delete=models.CASCADE)
     id_rol = models.ManyToManyField("Rol")
    
 class Usuarios(models.Model):
+    '''
+        Editar un proyecto
+        fecha: 25/9/2022
+
+            Funcion en la cual se pueden editar proyectos.
+    '''
+
     id = models.AutoField(primary_key=True)
     nombre_usuario = models.CharField(max_length=15)
     contrasena_usuario = models.CharField(max_length=10)
     estado_usuario = models.CharField(max_length=30)
 
 class Proyectos(models.Model):
+    '''
+        Modelo Proyecto
+        fecha: 30/9/2022
+
+           El modelo es utilizado para la creación de los diferentes proyectos con sus respectivas configuraciones
+
+             Se define el modelo que cuenta con los detalles de un proyecto, como estados que puede tener, nombre,
+             descripción, fechas y el scrum master asignado para el proyecto
+    '''
 
     estados = [
 
@@ -55,7 +80,14 @@ class Proyectos(models.Model):
         return self.id_proyecto>0
 
 class Rol(models.Model):
+    '''
+        Roles
+        fecha: 30/9/2022
 
+
+             Se define el modelo que cuenta con los detalles del rol, como su nombre, descripción, permisos que contendrá
+             el permiso, y el rol al que pertenece el proyecto
+    '''
     rol = models.CharField(max_length=20,blank=True, null=True)
     desc_rol = models.TextField()
     permisos = models.ManyToManyField(Permission)
@@ -71,6 +103,16 @@ class Rol(models.Model):
 
 
 class UserStory(models.Model):
+    '''
+        Modelo User Story
+        fecha: 30/9/2022
+
+            El modelo es utilizado para la creación de los diferentes user story por proyecto
+
+             Se define el modelo que cuenta con los detalles del user story, como su nombre, descripción, las horas estimadas
+             el encargado del user story, prioridad entre otros detalles
+    '''
+
     id = models.AutoField(primary_key=True)
     nombre_us = models.CharField(max_length=30)
     # tipo_us = models.CharField(max_length=30, default='si')
@@ -111,6 +153,14 @@ class Permisos(models.Model):
     desc_permisos = models.TextField()
 
 class Tipo_User_Story(models.Model):
+    '''
+        Modelo Tipo de user story
+        fecha: 30/9/2022
+
+            El modelo es utilizado para la creación de los diferentes tipos de US por proyecto
+             Se define el modelo que cuenta con los detalles del rol, como su nombre, descripción, permisos que contendrá
+             el permiso, y el rol al que pertenece el proyecto
+    '''
 
     nombre_tipo_us = models.CharField(max_length=30)
     id_estado = models.ForeignKey("Estados",on_delete=models.CASCADE, null=True, blank=True)
@@ -124,7 +174,13 @@ class Tipo_User_Story(models.Model):
         return self.id_tipo_user_story_id>0
 
 class Estados(models.Model):
+    '''
+        Modelo Estados
+        fecha: 30/9/2022
 
+             Se define el modelo que cuenta con los detalles de un estado para tipo de us, como su nombre y el tipo al que pertenece
+            Este modelo es utilizado para definir los diferentes estados que pertencen para cada tipo de user story
+    '''
     nombre_estado = models.CharField(max_length=30)
     id_tipo_user_story = models.ForeignKey("Tipo_User_Story", on_delete=models.CASCADE, null=True)
 
@@ -151,6 +207,13 @@ class Kanban(models.Model):
     #tabla_kanban = models.ListField()
 
 class Sprint(models.Model):
+    '''
+        Modelo Sprint
+        fecha: 30/9/2022
+
+            Se define el modelo que cuenta con los detalles de un sprint, como su nombre, descripción, estado entre otros detalles
+            Este modelo es utilizado para definir los diferentes sprints que pertencen para cada proyecto
+    '''
     id = models.AutoField(primary_key=True)
     nombre_sprint = models.CharField(max_length=30)
     desc_sprint = models.TextField()

@@ -233,6 +233,8 @@ class UserStoryForm(ModelForm):
         print(self._pwd)
         super().__init__(*args, **kwargs)
         self.fields['encargado'].queryset = User.objects.filter(miembros__id_proyecto=self._pwd)
+        self.fields['id_tipo_user_story'].queryset = Tipo_User_Story.objects.filter(id_proyecto_id=self._pwd)
+        self.fields['id_sprint'].queryset = Sprint.objects.filter(id_proyecto_id=self._pwd)
 
 class TipoUsForm(ModelForm):
     class Meta:

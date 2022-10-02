@@ -90,6 +90,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'social_django',
     'django_extensions',
+    'import_export',
+    'reports',
 ]
 
 MIDDLEWARE = [
@@ -209,3 +211,5 @@ SOCIAL_AUTH_PIPELINE = (
     'social_core.pipeline.user.user_details',
 )
 STATIC_ROOT = os.path.join(BASE_DIR, "static/")
+
+IMPORT_EXPORT_USE_TRANSACTIONS = True

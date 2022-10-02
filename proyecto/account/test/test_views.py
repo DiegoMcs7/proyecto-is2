@@ -1,5 +1,6 @@
 from urllib import request
 from django.test import RequestFactory
+import warnings
 from django.urls import reverse
 from django.contrib.auth.models import User
 from account.models import  Proyectos
@@ -19,16 +20,7 @@ class TestViews:
 
         response = all_projects(request)
         assert response.status_code == 200
-
-    def test_roles_authenticated(self):
-
-        mixer.blend('account.Rol')
-        path = reverse('list-roles',kwargs={'id_proyecto':4})
-        request = RequestFactory().get(path)
-        request.user = mixer.blend(User)
-
-        response = all_roles(request,id_proyecto=4)
-        assert response.status_code == 200
+        warnings.warn(UserWarning("Test Proyecto autenticado"))
 
     def test_sprint_authenticated(self):
 
@@ -39,6 +31,7 @@ class TestViews:
 
         response = all_sprints(request,id=4)
         assert response.status_code == 200
+        warnings.warn(UserWarning("Test Sprint autenticado"))
 
     def test_estados_authenticated(self):
 
@@ -49,6 +42,7 @@ class TestViews:
 
         response = all_estados(request,id_proyecto=4,id_tipo_us=53)
         assert response.status_code == 200
+        warnings.warn(UserWarning("Test Estado autenticado"))
     
     def test_us_authenticated(self):
 
@@ -59,4 +53,5 @@ class TestViews:
 
         response = all_user_story(request,id=4)
         assert response.status_code == 200
+        warnings.warn(UserWarning("Test user story autenticado"))
 

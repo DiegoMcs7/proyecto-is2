@@ -43,7 +43,9 @@
   {% if 45 in out or request.user.is_superuser %}
 
         <div style="margin-left: 3%;margin-top: 3%;">
-            <a class="button-create" href="{% url "add-rol" project.id %}">Agregar Rol</a></p>
+            <a class="button-create" href="{% url "add-rol" project.id %}">Agregar Rol</a>
+            <a class="button-create" href="{% url "exportar-roles" project.id %}">Exportar Rol</a>
+            <a class="button-create" href="{% url "importar-roles" project.id %}">Importar Rol</a></p>
         </div>
      {% endif %}
 

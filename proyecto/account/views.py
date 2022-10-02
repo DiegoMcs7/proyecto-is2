@@ -7,12 +7,15 @@ from django.shortcuts import render, redirect
 from .forms import AddMembersForm, AddMembersSprintForm, EstadosForm, ProyectosForm, RolForm, TipoUsForm, UserEditForm, UserRegistrationForm, \
     SprintForm, UserStoryForm
 from django.contrib.auth.decorators import login_required
+from tablib import Dataset
 from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.http import HttpResponseRedirect
 from django.contrib.auth.models import Permission
+from django.http import HttpResponse
 from django.contrib.auth.models import User
 from django.db.models import Q
+from .sources import *
 from django.http import HttpResponseForbidden
 
 @login_required
@@ -92,7 +95,7 @@ def add_project(request):
             project.manager = request.user
             project.save()
             #Creacion de los roles por defecto
-            project_member = Proyectos.objects.filter(scrum_master=request.user.id).last()
+            project_member = Proyectos.objects.filter(scrum_master=project.scrum_master.id).last()
             permisos= Permission.objects.all()
             permisos_prodOwner = permisos.filter(Q(content_type_id=1) | Q(content_type_id=9) | Q(content_type_id=11) | Q(codename__icontains="view"))
             permisos_miembros = permisos.filter(codename__icontains="view")
@@ -106,7 +109,7 @@ def add_project(request):
             rol_member1.save()
             rol_member2.save()
             rol_member3.save()
-            user_member = request.user
+            user_member = project.scrum_master
             miembro= Miembros.objects.create(id_usuario=user_member, id_proyecto=project_member)
             miembro.id_rol.add(rol_member1)
             miembro.save()
@@ -227,6 +230,7 @@ def all_roles(request, id_proyecto):
     a = Rol.permisos.through.objects.filter(rol_id__in=out).values_list('permission_id')
     out = [item for t in a for item in t]
 
+
     return render(request, 'roles_y_permisos/roles_list.html',
                   {'roles_list': roles_list, 'out': out,'project': project})
 
@@ -239,6 +243,7 @@ def list_permisos(request, id_proyecto, id_rol):
     return render(request, 'roles_y_permisos/permisos_list.html',
                   {'roles_list': roles_list, 'project': project, 'id_rol': id_rol})
 
+
 def add_rol(request,id_proyecto):
     '''
         Agregar rol a un proyecto
@@ -246,8 +251,8 @@ def add_rol(request,id_proyecto):
 
             Funcion en la cual se pueden agregar roles y permisos a diferentes proyectos.        
     '''
-    project = Proyectos.objects.get(id=id_proyecto)
     submitted = False
+    project = Proyectos.objects.get(id=id_proyecto)
     if request.method == "POST":
 
         form = RolForm(request.POST, initial={'proyecto': project})
@@ -260,10 +265,10 @@ def add_rol(request,id_proyecto):
             return HttpResponseRedirect('/roles/%d'%id_proyecto)
     else:
         form = RolForm(initial={'proyecto': project})
-
+        if 'submitted' in request.GET:
+            submitted = True
 
     return render(request, 'roles_y_permisos/add_rol.html', {'form': form, 'submitted': submitted,'project':project})
-
 
 def update_rol(request, id,id_proyecto):
     '''
@@ -275,6 +280,7 @@ def update_rol(request, id,id_proyecto):
     project = Proyectos.objects.get(id=id_proyecto)
     role = Rol.objects.get(id=id)
     form = RolForm(request.POST or None, instance=role)
+    project = Proyectos.objects.get(id=id_proyecto)
 
     if form.is_valid():
         form.save()
@@ -299,6 +305,72 @@ def delete_miembro_proyecto(request, id, id_proyecto):
     m = Miembros.objects.get(id=id)
     m.delete()
     return HttpResponseRedirect('/add_members/%d' % id_proyecto)
+
+def export_roles(request, id_proyecto):
+    if request.method == 'POST':
+        # Get selected option from form
+        file_format = request.POST['file-format']
+        rol_resource = RolResource()
+        dataset = rol_resource.export(queryset=Rol.objects.filter(proyecto_id=id_proyecto))
+        if file_format == 'CSV':
+            response = HttpResponse(dataset.csv, content_type='text/csv')
+            response['Content-Disposition'] = 'attachment; filename="exported_data.csv"'
+            return response
+        elif file_format == 'JSON':
+            response = HttpResponse(dataset.json, content_type='application/json')
+            response['Content-Disposition'] = 'attachment; filename="exported_data.json"'
+            return response
+        elif file_format == 'XLS (Excel)':
+            response = HttpResponse(dataset.xls, content_type='application/vnd.ms-excel')
+            response['Content-Disposition'] = 'attachment; filename="exported_data.xls"'
+            return response
+
+    return render(request, 'import_export/export.html', {'proyecto': id_proyecto})
+
+def import_roles(request,id_proyecto):
+    if request.method == 'POST':
+        file_format = request.POST['file-format']
+        rol_resource = RolResource()
+        dataset = Dataset()
+        new_roles = request.FILES['importData']
+        if file_format == 'CSV':
+            imported_data = dataset.load(new_roles.read().decode('utf-8'),format='csv')
+            result = rol_resource.import_data(dataset, dry_run=True)
+            print(imported_data)
+            if not result.has_errors():
+                # Import now
+                for i in range(imported_data.height):
+                    r = imported_data.pop()
+                    rol_nuevo = Rol.objects.create(rol=r[1], desc_rol=r[2], proyecto=Proyectos.objects.get(id=id_proyecto))
+                    perm = list(r[3].split(","))
+                    perm1= []
+                    for x in perm:
+                        perm1.append(int(x))
+                    perm_tuple= tuple(perm1)
+                    p = Permission.objects.filter(id__in= perm_tuple)
+                    rol_nuevo.permisos.set(p)
+                    rol_nuevo.save()
+        elif file_format == 'JSON':
+            imported_data = dataset.load(new_roles.read().decode('utf-8'),format='json')
+            # Testing data import
+            result = rol_resource.import_data(dataset, dry_run=True)
+            if not result.has_errors():
+                # Import now
+                for i in range(imported_data.height):
+                    r = imported_data.pop()
+                    rol_nuevo = Rol.objects.create(rol=r[1], desc_rol=r[2], proyecto=Proyectos.objects.get(id=id_proyecto))
+                    perm = list(r[3].split(","))
+                    perm1 = []
+                    for x in perm:
+                        perm1.append(int(x))
+                    perm_tuple = tuple(perm1)
+                    p = Permission.objects.filter(id__in=perm_tuple)
+                    rol_nuevo.permisos.set(p)
+                    rol_nuevo.save()
+            print(result)
+
+    return render(request, 'import_export/import.html', {'proyecto': id_proyecto})
+
 
 # CRUD para sprint
 
@@ -336,6 +408,14 @@ def add_sprint(request,id):
             sprint = form.save()
             sprint.manager = request.user
             sprint.save()
+            estado1 = Estados.objects.create(nombre_estado="To Do")
+            estado2 = Estados.objects.create(nombre_estado="Doing")
+            estado3 = Estados.objects.create(nombre_estado="Done")
+
+            estado1.save()
+            estado2.save()
+            estado3.save()
+
             return HttpResponseRedirect('/sprint/%d'%id)
         else:
             messages.error(request, 'Sprints no finalizados.')
@@ -380,7 +460,7 @@ def add_members_sprint(request, id_proyecto, id_sprint):
     y = id_sprint
     print(form['horas_trabajo'].value())
     if form.is_valid():
-        sprint.capacidad = sprint.capacidad + form['horas_trabajo'].value()
+        sprint.capacidad = sprint.capacidad + int(form['horas_trabajo'].value())
         new_user = form.save()
         new_user.save()
         return redirect('/add_members_sprint/'+str(x)+'/'+str(y))
@@ -398,20 +478,21 @@ def all_user_story(request, id):
 def all_user_story_sprint_backlog(request, id):
 
     user_story = UserStory.objects.all()
+    s= Sprint.objects.get(id=id)
 
     return render(request, 'user_story/user_story_list_sprint_backlog.html',
-                  {'user_story_list': user_story, 'id_sprint': id})
+                  {'user_story_list': user_story, 'id_sprint': id, 'id_proyecto': s.id_proyecto_id})
 
 
 def add_user_story(request, id_proyecto):
     user_story = UserStory.objects.all()
     form = UserStoryForm(request.POST or None, pwd=id_proyecto, initial={'id_proyecto': id_proyecto})
-
     if form.is_valid():
 
         new_user_story = form.save()
         new_user_story.save()
         return HttpResponseRedirect('/user_story/%d'%id_proyecto)
+
     return render(request, 'user_story/add_user_story.html',
                   {'user_story': user_story, 'form': form, 'id_proyecto': id_proyecto})
 
@@ -419,7 +500,7 @@ def add_user_story(request, id_proyecto):
 def update_user_story(request, id_proyecto, id_user_story):
 
     user_story = UserStory.objects.get(id=id_user_story)
-    form = UserStoryForm(request.POST or None, instance=user_story, pwd=id_proyecto, initial={'id_proyecto': id_proyecto})
+    form = UserStoryForm(request.POST or None, instance=user_story, pwd=id_proyecto, initial={'id_proyecto_id': id_proyecto})
     if form.is_valid():
         form.save()
         return redirect('/user_story/%d'%id_proyecto)
@@ -464,10 +545,10 @@ def all_estados(request,id_proyecto,id_tipo_us):
 
 def add_estados(request,id_proyecto,id_tipo_us):
     '''
-        Agregar sprint a un proyecto
+        Agregar estados a un proyecto
         fecha: 25/9/2022
 
-            Funcion en la cual se pueden agregar sprint para diferentes proyectos.        
+            Funcion en la cual se pueden agregar estados para diferentes proyectos.
     '''
     submitted = False
     project = Proyectos.objects.get(id=id_proyecto)
@@ -492,10 +573,10 @@ def add_estados(request,id_proyecto,id_tipo_us):
 
 def update_estados(request,id_proyecto,id_tipo_us,id_estado):
     '''
-        Editar sprint de un proyecto
+        Editar estados de un proyecto
         fecha: 25/9/2022
 
-            Funcion en la cual se pueden editar sprint a diferentes proyectos.        
+            Funcion en la cual se pueden editar estados a diferentes proyectos.
     '''
     project = Proyectos.objects.get(id=id_proyecto)
     tipous = Tipo_User_Story.objects.get(id=id_tipo_us)
@@ -514,11 +595,11 @@ def update_estados(request,id_proyecto,id_tipo_us,id_estado):
 
 def all_tipos_us(request,id_proyecto):
     '''
-        Vista de todos los estados creados para cada proyecto
+        Vista de todos los tipo de user story para cada proyecto
         fecha: 25/9/2022
 
-            Esta vista es la encargada de llamar al archivo sprint_list.html con el fin de mostrar en pantalla la lista
-            de todos los sprints creados para cada proyecto.       
+            Esta vista es la encargada de llamar al archivo tipos_us_list.html con el fin de mostrar en pantalla la lista
+            de todos los tipos de user story creados para cada proyecto.
     '''
     tipos_us_list = Tipo_User_Story.objects.all()
                                                              
@@ -527,10 +608,10 @@ def all_tipos_us(request,id_proyecto):
 
 def add_tipos_us(request,id):
     '''
-        Agregar sprint a un proyecto
+        Agregar tipo de user story a un proyecto
         fecha: 25/9/2022
 
-            Funcion en la cual se pueden agregar sprint para diferentes proyectos.        
+            Funcion en la cual se pueden agregar tipo de user story para diferentes proyectos.
     '''
     submitted = False
     project = Proyectos.objects.get(id=id)
@@ -548,15 +629,15 @@ def add_tipos_us(request,id):
         if 'submitted' in request.GET:
             submitted = True
 
-    return render(request, 'tipos_us/add_tipos_us.html', {'form': form, 'submitted': submitted,'id_proyecto': id})
+    return render(request, 'tipos_us/add_tipos_us.html', {'form': form, 'submitted': submitted, 'id_proyecto': id})
 
 
 def update_tipos_us(request,id_proyecto,id_tipo_us):
     '''
-        Editar sprint de un proyecto
+        Editar tipo de user de un proyecto
         fecha: 25/9/2022
 
-            Funcion en la cual se pueden editar sprint a diferentes proyectos.        
+            Funcion en la cual se pueden editar tipo de user a diferentes proyectos.
     '''
     tipous = Tipo_User_Story.objects.get(id=id_tipo_us)
 
