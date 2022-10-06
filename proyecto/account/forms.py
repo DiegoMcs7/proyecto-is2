@@ -99,7 +99,7 @@ class ProyectosForm(ModelForm):
         widgets = {
             'nombre_proyecto': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nombre del Proyecto'}),
             'desc_proyecto': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Descripcion del Proyecto', 'style': 'height: 30%;'}),
-            'estado_proyecto': forms.Select(attrs={'class': 'form-select', 'placeholder': 'Estado del Proyecto'}),
+            'estado_proyecto': forms.HiddenInput(attrs={'class': 'form-select', 'placeholder': 'Estado del Proyecto'}),
             'fecha_inicio': forms.DateInput(attrs={'type': 'date', 'class': 'form-control', 'placeholder': 'Fecha Inicio'}),
             'fecha_fin': forms.DateInput(attrs={'type': 'date', 'class': 'form-control', 'placeholder': 'Fecha Fin'}),
             'scrum_master': forms.Select(attrs={'class': 'form-select', 'placeholder': 'Scrum Master'}),
@@ -173,7 +173,7 @@ class SprintForm(ModelForm):
         widgets = {
             'nombre_sprint': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nombre del sprint'}),
             'desc_sprint': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Descripcion del sprint', 'style': 'height: 30%;'}),
-            'estado_sprint': forms.Select(attrs={'class': 'form-select', 'placeholder': 'Estado del sprint'}),
+            'estado_sprint': forms.HiddenInput(attrs={'class': 'form-select', 'placeholder': 'Estado del sprint'}),
             'duracion_dias': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Duración en días hábiles'}),
             'capacidad': forms.HiddenInput(attrs={'class': 'form-control', 'placeholder': 'Duración en días hábiles'}),
             'id_proyecto': forms.HiddenInput(attrs={'class': 'form-control', 'placeholder': 'Proyecto'}),
@@ -219,7 +219,7 @@ class UserStoryForm(ModelForm):
         }
         widgets = {
             'nombre_us': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nombre del user story'}),
-            'desc_us': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Descripcion del user story', 'style': 'height: 30%;'}),
+            'desc_us': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Descripcion del user story', 'style': 'height: 20%;'}),
             'horas_estimadas': forms.NumberInput(attrs={'class': 'form-control'}),
             'encargado': forms.Select(attrs={'class': 'form-control', 'placeholder': 'Encargado'}),
             'prioridad_us': forms.Select(attrs={'class': 'form-control', 'placeholder': 'Horas de trabajo por día'}),

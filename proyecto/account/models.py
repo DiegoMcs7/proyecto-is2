@@ -236,7 +236,7 @@ class Sprint(models.Model):
         
 
     ]
-    estado_sprint = models.CharField(choices=estado, default='Iniciado', max_length=12)
+    estado_sprint = models.CharField(choices=estado, default='Planificado', max_length=12)
     fecha_inicio = models.DateField(auto_now=True,blank=True,null=True)
     duracion_dias = models.IntegerField(null=True) #Duracion en dias habiles
     capacidad = models.IntegerField(default=0) #Capacidad de produccion

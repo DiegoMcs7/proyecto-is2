@@ -132,22 +132,18 @@ def update_project(request, id):
             Funcion en la cual se pueden editar proyectos.        
     '''
     project = Proyectos.objects.get(id=id)
-
     form = ProyectosForm(request.POST or None, instance=project)
 
-    a = Sprint.objects.filter(Q(id_proyecto_id=id),
-                              Q(estado_sprint="Iniciado") | Q(estado_sprint="Pendiente")).values_list('id')
-    out = [item for t in a for item in t]
-    if form.is_valid():
-        print(form['estado_proyecto'].value() )
-        if form['estado_proyecto'].value() == 'Cancelado' or form['estado_proyecto'].value() == 'Finalizado':
-            print('entra')
-            if len(out) == 0:
-                form.save()
-                return redirect('list-projects')
-            else:
-                messages.error(request, 'No puedes realizar la acción ya que hay sprints no finalizados.')
-        else:
+    # a = Sprint.objects.filter(Q(id_proyecto_id=id),
+    #                           Q(estado_sprint="Iniciado") | Q(estado_sprint="Iniciado")).values_list('id')
+    # out = [item for t in a for item in t]
+    project_state = Proyectos.objects.get(id=id).values_list('estado_proyecto')
+    if project_state == 'Cancelado':
+        messages.error(request, 'No puedes realizar la acción ya que el proyecto ha sido cancelado')
+    elif project_state == 'Finalizado':
+        messages.error(request, 'No puedes realizar la acción ya que el proyecto ha sido finalizado')
+    else:
+        if form.is_valid():
             form.save()
             return redirect('list-projects')
 
@@ -229,7 +225,10 @@ def all_roles(request, id_proyecto):
     out = [item for t in a for item in t]
     a = Rol.permisos.through.objects.filter(rol_id__in=out).values_list('permission_id')
     out = [item for t in a for item in t]
-
+    # a = Permission.objects.filter(permission_id__in=out).values_list('name')
+    # out = [item for t in a for item in t]
+    # En linea 60 de roles_list utilizar los nombres de los permisos Ejempo:'can view rol' en vez del id 45
+    # en otras metodos no se utiliza out pero en los templates si se utiliza?
 
     return render(request, 'roles_y_permisos/roles_list.html',
                   {'roles_list': roles_list, 'out': out,'project': project})
@@ -269,6 +268,7 @@ def add_rol(request,id_proyecto):
             submitted = True
 
     return render(request, 'roles_y_permisos/add_rol.html', {'form': form, 'submitted': submitted,'project':project})
+
 
 def update_rol(request, id,id_proyecto):
     '''
@@ -384,9 +384,11 @@ def all_sprints(request,id):
             de todos los sprints creados para cada proyecto.       
     '''
     sprint_list = Sprint.objects.all()
+    project = Proyectos.objects.get(id=id)
+
                                                              
     return render(request, 'sprint/sprint_list.html',
-                  {'sprint_list': sprint_list,'id_project': id})
+                  {'sprint_list': sprint_list,'id_project': id, 'project': project})
 
 
 def add_sprint(request,id):
@@ -401,7 +403,7 @@ def add_sprint(request,id):
     x = project.id
     if request.method == "POST":
         form = SprintForm(request.POST, initial={'id_proyecto':x})
-        a = Sprint.objects.filter(Q(id_proyecto_id=id), Q(estado_sprint="Iniciado") | Q(estado_sprint="Pendiente")).values_list('id')
+        a = Sprint.objects.filter(Q(id_proyecto_id=id), Q(estado_sprint="Iniciado")).values_list('id')
         out = [item for t in a for item in t]
 
         if form.is_valid() and len(out)==0:
@@ -426,7 +428,7 @@ def add_sprint(request,id):
         if 'submitted' in request.GET:
             submitted = True
 
-    return render(request, 'sprint/add_sprint.html', {'form': form, 'submitted': submitted, 'id_proyecto': id})
+    return render(request, 'sprint/add_sprint.html', {'form': form, 'submitted': submitted, 'id_proyecto': id, 'project': project})
 
 
 def update_sprint(request, id_proyecto, id_sprint):
@@ -437,13 +439,15 @@ def update_sprint(request, id_proyecto, id_sprint):
             Funcion en la cual se pueden editar sprint a diferentes proyectos.        
     '''
     sprint = Sprint.objects.get(id=id_sprint)
+    project = Proyectos.objects.get(id=id_proyecto)
+
 
     form = SprintForm(request.POST or None, instance=sprint, initial={'id_proyecto': id_proyecto})
     if form.is_valid():
         form.save()
         return redirect('/sprint/%d' %id_proyecto)
 
-    return render(request, 'sprint/update_sprint.html', {'sprint': sprint, 'form': form, 'id_proyecto': id_proyecto})
+    return render(request, 'sprint/update_sprint.html', {'sprint': sprint, 'form': form, 'id_proyecto': id_proyecto, 'project': project})
 
 
 def add_members_sprint(request, id_proyecto, id_sprint):
@@ -454,6 +458,7 @@ def add_members_sprint(request, id_proyecto, id_sprint):
             Funcion en la cual se pueden agregar miembros a diferentes sprints.        
     '''
     sprint = Sprint.objects.get(id=id_sprint)
+    project = Proyectos.objects.get(id=id_proyecto)
     members_sprint = Miembro_Sprint.objects.all()
     form = AddMembersSprintForm(request.POST or None, pwd=id_proyecto, initial={'id': id_sprint,'sprint':id_sprint})
     x = id_proyecto
@@ -464,28 +469,31 @@ def add_members_sprint(request, id_proyecto, id_sprint):
         new_user = form.save()
         new_user.save()
         return redirect('/add_members_sprint/'+str(x)+'/'+str(y))
-    return render(request, 'sprint/add_members_sprint.html',{'sprint': sprint, 'form': form, 'id_sprint': id_sprint, 'members_sprint': members_sprint, 'id_proyecto': id_proyecto})
+    return render(request, 'sprint/add_members_sprint.html',{'sprint': sprint, 'form': form, 'id_sprint': id_sprint, 'members_sprint': members_sprint, 'id_proyecto': id_proyecto, 'project': project})
 
 
 def all_user_story(request, id):
 
     user_story = UserStory.objects.all()
+    project = Proyectos.objects.get(id=id)
 
     return render(request, 'user_story/user_story_list.html',
-                  {'user_story_list': user_story, 'id_project': id})
+                  {'user_story_list': user_story, 'id_project': id, 'project': project})
 
 
 def all_user_story_sprint_backlog(request, id):
 
     user_story = UserStory.objects.all()
     s= Sprint.objects.get(id=id)
+    project = Proyectos.objects.get(id=s.id_proyecto_id)
 
     return render(request, 'user_story/user_story_list_sprint_backlog.html',
-                  {'user_story_list': user_story, 'id_sprint': id, 'id_proyecto': s.id_proyecto_id})
+                  {'user_story_list': user_story, 'id_sprint': id, 'id_proyecto': s.id_proyecto_id, 'project': project})
 
 
 def add_user_story(request, id_proyecto):
     user_story = UserStory.objects.all()
+    project = Proyectos.objects.get(id=id_proyecto)
     form = UserStoryForm(request.POST or None, pwd=id_proyecto, initial={'id_proyecto': id_proyecto})
     if form.is_valid():
 
@@ -494,18 +502,19 @@ def add_user_story(request, id_proyecto):
         return HttpResponseRedirect('/user_story/%d'%id_proyecto)
 
     return render(request, 'user_story/add_user_story.html',
-                  {'user_story': user_story, 'form': form, 'id_proyecto': id_proyecto})
+                  {'user_story': user_story, 'form': form, 'id_proyecto': id_proyecto, 'project': project})
 
 
 def update_user_story(request, id_proyecto, id_user_story):
 
     user_story = UserStory.objects.get(id=id_user_story)
+    project = Proyectos.objects.get(id=id_proyecto)
     form = UserStoryForm(request.POST or None, instance=user_story, pwd=id_proyecto, initial={'id_proyecto_id': id_proyecto})
     if form.is_valid():
         form.save()
         return redirect('/user_story/%d'%id_proyecto)
 
-    return render(request, 'user_story/update_user_story.html', {'user_story': user_story, 'form': form, 'id_proyecto': id_proyecto})
+    return render(request, 'user_story/update_user_story.html', {'user_story': user_story, 'form': form, 'id_proyecto': id_proyecto, 'project': project})
 
 #Edit de miembros del Equipo Proyecto y Sprint
 
@@ -519,14 +528,15 @@ def update_members_sprint(request, id_proyecto, id_sprint,id_usuario):
             Funcion en la cual se pueden editar miembros de un sprint.        
     '''
     members = Miembro_Sprint.objects.get(id=id_usuario)
-    form = AddMembersSprintForm(request.POST or None, instance=members, initial={'usuario':id_usuario,'id_proyecto': id_proyecto,'sprint': id_sprint,})
+    project = Proyectos.objects.get(id=id_proyecto)
+    form = AddMembersSprintForm(request.POST or None, instance=members, initial={'usuario':id_usuario,'id_proyecto': id_proyecto,'sprint': id_sprint})
     x = id_proyecto
     y = id_sprint
     if form.is_valid():
         form.save()
         return redirect('/add_members_sprint/'+str(x)+'/'+str(y))
 
-    return render(request, 'project/update_members_sprint.html', {'id_proyecto': id_proyecto,'members': members, 'form': form})
+    return render(request, 'project/update_members_sprint.html', {'id_proyecto': id_proyecto, 'members': members, 'form': form, 'project': project})
 
 #CRUD ESTADOS
 
@@ -538,10 +548,12 @@ def all_estados(request,id_proyecto,id_tipo_us):
             Esta vista es la encargada de llamar al archivo sprint_list.html con el fin de mostrar en pantalla la lista
             de todos los sprints creados para cada proyecto.       
     '''
-    estados_list = Estados.objects.all()
+    estados_list = Estados.objects.filter(id_tipo_user_story=id_tipo_us)
+    project = Proyectos.objects.get(id=id_proyecto)
+
                                                              
     return render(request, 'estados/estados_list.html',
-                  {'estados_list': estados_list,'id_proyecto': id_proyecto,'id_tipo_us': id_tipo_us})
+                  {'estados_list': estados_list,'id_proyecto': id_proyecto,'id_tipo_us': id_tipo_us, 'project': project})
 
 def add_estados(request,id_proyecto,id_tipo_us):
     '''
@@ -568,7 +580,7 @@ def add_estados(request,id_proyecto,id_tipo_us):
         if 'submitted' in request.GET:
             submitted = True
 
-    return render(request, 'estados/add_estados.html', {'form': form,'id_proyecto': id_proyecto, 'submitted': submitted})
+    return render(request, 'estados/add_estados.html', {'form': form,'id_proyecto': id_proyecto, 'submitted': submitted, 'project': project})
 
 
 def update_estados(request,id_proyecto,id_tipo_us,id_estado):
@@ -589,7 +601,7 @@ def update_estados(request,id_proyecto,id_tipo_us,id_estado):
         form.save()
         return redirect('/estados/'+str(x)+'/'+str(y))
 
-    return render(request, 'estados/update_estados.html', {'id_proyecto': id_proyecto,'tipous': tipous, 'form': form})
+    return render(request, 'estados/update_estados.html', {'id_proyecto': id_proyecto,'tipous': tipous, 'form': form, 'project': project})
 
 #CRUD TIPOS_US
 
@@ -602,9 +614,11 @@ def all_tipos_us(request,id_proyecto):
             de todos los tipos de user story creados para cada proyecto.
     '''
     tipos_us_list = Tipo_User_Story.objects.all()
+    project = Proyectos.objects.get(id=id_proyecto)
+
                                                              
     return render(request, 'tipos_us/tipos_us_list.html',
-                  {'tipos_us_list': tipos_us_list,'id_proyecto': id_proyecto})
+                  {'tipos_us_list': tipos_us_list,'id_proyecto': id_proyecto, 'project': project})
 
 def add_tipos_us(request,id):
     '''
@@ -629,7 +643,7 @@ def add_tipos_us(request,id):
         if 'submitted' in request.GET:
             submitted = True
 
-    return render(request, 'tipos_us/add_tipos_us.html', {'form': form, 'submitted': submitted, 'id_proyecto': id})
+    return render(request, 'tipos_us/add_tipos_us.html', {'form': form, 'submitted': submitted, 'id_proyecto': id, 'project': project})
 
 
 def update_tipos_us(request,id_proyecto,id_tipo_us):
@@ -640,12 +654,13 @@ def update_tipos_us(request,id_proyecto,id_tipo_us):
             Funcion en la cual se pueden editar tipo de user a diferentes proyectos.
     '''
     tipous = Tipo_User_Story.objects.get(id=id_tipo_us)
+    project = Proyectos.objects.get(id=id_proyecto)
 
     form = TipoUsForm(request.POST or None, instance=tipous, initial={'id_proyecto': id_proyecto})
     if form.is_valid():
         form.save()
         return redirect('/tipos_us/%d' %id_proyecto)
 
-    return render(request, 'tipos_us/update_tipos_us.html', {'tipous': tipous, 'form': form,'id_proyecto': id_proyecto})
+    return render(request, 'tipos_us/update_tipos_us.html', {'tipous': tipous, 'form': form,'id_proyecto': id_proyecto, 'project': project})
 
 
