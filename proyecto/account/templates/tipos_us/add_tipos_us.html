@@ -65,7 +65,6 @@
 
 	Tipo_US creado correctamente.
 	<a href="{% url 'tipos_us-list' id_proyecto %}"> Atras</a>
-	
 	{% else %}
 	<div class="row">
 		<div class="col-5">
@@ -73,9 +72,10 @@
 				{% csrf_token %}
 				
 				{{ form.as_p }}
-				
-				<input type="submit" value="Crear">
-
+                <div style="display: flex;">
+                    <input type="submit" value="Crear">
+                    <a class="button" href="{% url "tipos_us-list" id_proyecto %}" style="margin-left: 10px; text-decoration: none; font-family: Arial, Helvetica, sans-serif; background-color: slategray;">Cancelar</a>
+                </div>
 			</form>
 		</div>
 	</div>

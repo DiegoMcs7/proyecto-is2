@@ -137,10 +137,10 @@ def update_project(request, id):
     # a = Sprint.objects.filter(Q(id_proyecto_id=id),
     #                           Q(estado_sprint="Iniciado") | Q(estado_sprint="Iniciado")).values_list('id')
     # out = [item for t in a for item in t]
-    project_state = Proyectos.objects.get(id=id).values_list('estado_proyecto')
-    if project_state == 'Cancelado':
+    project_state = Proyectos.objects.get(id=id)
+    if project_state.estado_proyecto == 'Cancelado':
         messages.error(request, 'No puedes realizar la acción ya que el proyecto ha sido cancelado')
-    elif project_state == 'Finalizado':
+    elif project_state.estado_proyecto == 'Finalizado':
         messages.error(request, 'No puedes realizar la acción ya que el proyecto ha sido finalizado')
     else:
         if form.is_valid():
@@ -580,7 +580,7 @@ def add_estados(request,id_proyecto,id_tipo_us):
         if 'submitted' in request.GET:
             submitted = True
 
-    return render(request, 'estados/add_estados.html', {'form': form,'id_proyecto': id_proyecto, 'submitted': submitted, 'project': project})
+    return render(request, 'estados/add_estados.html', {'form': form,'id_proyecto': id_proyecto,'id_tipo_us': id_tipo_us, 'submitted': submitted, 'project': project})
 
 
 def update_estados(request,id_proyecto,id_tipo_us,id_estado):

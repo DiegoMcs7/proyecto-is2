@@ -99,7 +99,7 @@ class ProyectosForm(ModelForm):
         widgets = {
             'nombre_proyecto': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nombre del Proyecto'}),
             'desc_proyecto': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Descripcion del Proyecto', 'style': 'height: 30%;'}),
-            'estado_proyecto': forms.HiddenInput(attrs={'class': 'form-select', 'placeholder': 'Estado del Proyecto'}),
+            'estado_proyecto': forms.Select(attrs={'class': 'form-select', 'placeholder': 'Estado del Proyecto'}),
             'fecha_inicio': forms.DateInput(attrs={'type': 'date', 'class': 'form-control', 'placeholder': 'Fecha Inicio'}),
             'fecha_fin': forms.DateInput(attrs={'type': 'date', 'class': 'form-control', 'placeholder': 'Fecha Fin'}),
             'scrum_master': forms.Select(attrs={'class': 'form-select', 'placeholder': 'Scrum Master'}),
@@ -249,7 +249,7 @@ class TipoUsForm(ModelForm):
         widgets = {
             'nombre_tipo_us': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nombre del Tipo_US'}),
             'id_estado': forms.Select(attrs={'class': 'form-control', 'placeholder': 'Estado'}),
-            'id_proyecto': forms.Select(attrs={'class': 'form-control', 'placeholder': 'Proyecto'}),
+            'id_proyecto': forms.HiddenInput(attrs={'class': 'form-control', 'placeholder': 'Proyecto'}),
         }
 
 
@@ -264,6 +264,6 @@ class EstadosForm(ModelForm):
         }
         widgets = {
             'nombre_estado': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nombre del Estados'}),
-            'id_tipo_user_story': forms.Select(attrs={'class': 'form-control', 'placeholder': 'Tipo User Story'}),
+            'id_tipo_user_story': forms.HiddenInput(attrs={'class': 'form-control', 'placeholder': 'Tipo User Story'}),
         }
 
