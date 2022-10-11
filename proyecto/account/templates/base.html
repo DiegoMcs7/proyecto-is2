@@ -2,9 +2,10 @@
 
 <html lang="en">
 <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Secular+One&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@500&display=swap" rel="stylesheet">
+
 
     <title>Menu</title>
     <link rel="stylesheet" type="text/css" href="{% static "css/base.css" %}" rel="stylesheet">
@@ -13,14 +14,15 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css"/>
     <style>
         a{
-        font-family: 'Secular One', sans-serif;
+            font-size: 1.10em;
+            font-family: 'Noto Sans', sans-serif;
         }
     </style>
 </head>
 <body style="overflow: overlay;">
     <div id="header">
 
-        <a href="{% url "tablero" %}"><span class="logo" style="color:#df8a3d; margin-left:-7%; letter-spacing :-1px; font-family: 'Bungee Spice', cursive;">Gestor de Proyectos</span></a>
+        <a href="{% url "tablero" %}"><span class="logo"style="color:#df8a3d; margin-left:-7%; letter-spacing :-1px;font-family: 'Noto Sans', sans-serif; font-size: 1.300em;">Gestor de Proyectos</span></a>
         {% if request.user.is_authenticated %}
           <ul class="menu">
               <li>
