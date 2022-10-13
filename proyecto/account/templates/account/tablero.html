@@ -11,7 +11,7 @@
         <li style="--clr:#B3B6B7">
           <a href="{% url "list-projects" %}" data-text="&nbsp;Proyectos">&nbsp;Proyectos&nbsp;</a>
         </li>
-      {% if request.user.is_superuser %}
+      {% if 'Can add user' in out or request.user.is_superuser %}
         <li style="--clr:#B3B6B7">
           <a href="{% url "retrieve_user" %}" data-text="&nbsp;Usuarios">&nbsp;Usuarios&nbsp;</a>
         </li>

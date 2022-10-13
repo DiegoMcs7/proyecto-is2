@@ -225,8 +225,8 @@ def all_roles(request, id_proyecto):
     out = [item for t in a for item in t]
     a = Rol.permisos.through.objects.filter(rol_id__in=out).values_list('permission_id')
     out = [item for t in a for item in t]
-    # a = Permission.objects.filter(permission_id__in=out).values_list('name')
-    # out = [item for t in a for item in t]
+    a = Permission.objects.filter(id__in=out).values_list('name')
+    out = [item for t in a for item in t]
     # En linea 60 de roles_list utilizar los nombres de los permisos Ejempo:'can view rol' en vez del id 45
     # en otras metodos no se utiliza out pero en los templates si se utiliza?
 

@@ -56,7 +56,7 @@
           </span>
     </div>
 
-  {% if 45 in out or request.user.is_superuser %}
+  {% if 'Can add rol' in out or request.user.is_superuser %}
 
         <div style="margin-left: 3%;margin-top: 3%;">
             <a style="width:100px;" class="button-create" href="{% url "add-rol" project.id %}">Agregar Rol</a>
