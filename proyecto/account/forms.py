@@ -236,6 +236,7 @@ class UserStoryForm(ModelForm):
         self.fields['id_tipo_user_story'].queryset = Tipo_User_Story.objects.filter(id_proyecto_id=self._pwd)
         self.fields['id_sprint'].queryset = Sprint.objects.filter(id_proyecto_id=self._pwd)
 
+
 class TipoUsForm(ModelForm):
     class Meta:
         model = Tipo_User_Story
@@ -248,9 +249,32 @@ class TipoUsForm(ModelForm):
         }
         widgets = {
             'nombre_tipo_us': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nombre del Tipo_US'}),
-            'id_estado': forms.Select(attrs={'class': 'form-control', 'placeholder': 'Estado'}),
+            'id_estado': forms.HiddenInput(attrs={'class': 'form-control', 'placeholder': 'Estado'}),
             'id_proyecto': forms.HiddenInput(attrs={'class': 'form-control', 'placeholder': 'Proyecto'}),
         }
+
+
+class AsignarEstadosTipoUsForm(ModelForm):
+    class Meta:
+        model = Tipo_User_Story
+        fields = ('nombre_tipo_us', 'id_estado', 'id_proyecto')
+        labels = {
+            'nombre_tipo_us': '',
+            'id_estado': 'Estados',
+            'id_proyecto': '',
+
+        }
+        widgets = {
+            'nombre_tipo_us': forms.HiddenInput(attrs={'class': 'form-control', 'placeholder': 'Nombre del Tipo_US'}),
+            'id_estado': forms.CheckboxSelectMultiple(attrs={'class': 'form-check', 'placeholder': 'Estado', 'style': 'padding-left: 0.4em;' }),
+            'id_proyecto': forms.HiddenInput(attrs={'class': 'form-control', 'placeholder': 'Proyecto'}),
+        }
+    def __init__(self, *args, **kwargs):
+        self._pwd = kwargs.pop('pwd', None)
+        print(self._pwd)
+        super().__init__(*args, **kwargs)
+        self.fields['id_estado'].queryset = Estados.objects.filter(id_tipo_user_story=self._pwd)
+
 
 
 class EstadosForm(ModelForm):

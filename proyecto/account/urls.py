@@ -37,6 +37,7 @@ urlpatterns = [
     path('tipos_us/<int:id_proyecto>', views.all_tipos_us, name="tipos_us-list"),
     path('add_tipos_us/<int:id>', views.add_tipos_us, name='add-tipos_us'),
     path('update_tipos_us/<int:id_proyecto>/<int:id_tipo_us>', views.update_tipos_us, name='update-tipos_us'),
+    path('asignar_estados_tipos_us/<int:id_proyecto>/<int:id_tipo_us>', views.asignar_estados_tipos_us, name='asignar-estados-tipos-us'),
     path('estados/<int:id_proyecto>/<int:id_tipo_us>', views.all_estados, name="estados-list"),
     path('add_estados/<int:id_proyecto>/<int:id_tipo_us>', views.add_estados, name='add-estados'),
     path('update_estados/<int:id_proyecto>/<int:id_tipo_us>/<int:id_estado>', views.update_estados, name='update-estados'),

@@ -170,7 +170,7 @@ class Tipo_User_Story(models.Model):
     '''
 
     nombre_tipo_us = models.CharField(max_length=30)
-    id_estado = models.ForeignKey("Estados",on_delete=models.CASCADE, null=True, blank=True)
+    id_estado = models.ManyToManyField("Estados", blank=True, db_table='estados_tipo_us')
     id_proyecto = models.ForeignKey("Proyectos",on_delete=models.CASCADE, null=True, blank=True)
 
     def __str__(self):

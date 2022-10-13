@@ -4,8 +4,9 @@ from urllib import response
 from urllib.request import Request
 from .models import Estados, Miembro_Sprint, Miembros, Profile, Proyectos, Rol, Sprint, Tipo_User_Story, UserStory
 from django.shortcuts import render, redirect
-from .forms import AddMembersForm, AddMembersSprintForm, EstadosForm, ProyectosForm, RolForm, TipoUsForm, UserEditForm, UserRegistrationForm, \
-    SprintForm, UserStoryForm
+from .forms import AddMembersForm, AddMembersSprintForm, EstadosForm, ProyectosForm, RolForm, TipoUsForm, UserEditForm, \
+    UserRegistrationForm, \
+    SprintForm, UserStoryForm, AsignarEstadosTipoUsForm
 from django.contrib.auth.decorators import login_required
 from tablib import Dataset
 from django.contrib import messages
@@ -410,13 +411,6 @@ def add_sprint(request,id):
             sprint = form.save()
             sprint.manager = request.user
             sprint.save()
-            estado1 = Estados.objects.create(nombre_estado="To Do")
-            estado2 = Estados.objects.create(nombre_estado="Doing")
-            estado3 = Estados.objects.create(nombre_estado="Done")
-
-            estado1.save()
-            estado2.save()
-            estado3.save()
 
             return HttpResponseRedirect('/sprint/%d'%id)
         else:
@@ -550,10 +544,14 @@ def all_estados(request,id_proyecto,id_tipo_us):
     '''
     estados_list = Estados.objects.filter(id_tipo_user_story=id_tipo_us)
     project = Proyectos.objects.get(id=id_proyecto)
+    all_estados = Estados.objects.all()
+    estados = Tipo_User_Story.id_estado.through.objects.filter(tipo_user_story_id=id_tipo_us).values_list('estados_id')
+    out = [item for t in estados for item in t]
+    print(out)
 
                                                              
     return render(request, 'estados/estados_list.html',
-                  {'estados_list': estados_list,'id_proyecto': id_proyecto,'id_tipo_us': id_tipo_us, 'project': project})
+                  {'estados_list': estados_list,'id_proyecto': id_proyecto,'id_tipo_us': id_tipo_us, 'project': project, 'all_estados': all_estados, 'out': out})
 
 def add_estados(request,id_proyecto,id_tipo_us):
     '''
@@ -636,6 +634,13 @@ def add_tipos_us(request,id):
             sprint = form.save()
             sprint.manager = request.user
             sprint.save()
+            estado1 = Estados.objects.create(nombre_estado="To Do", id_tipo_user_story=Tipo_User_Story.objects.last())
+            estado2 = Estados.objects.create(nombre_estado="Doing", id_tipo_user_story=Tipo_User_Story.objects.last())
+            estado3 = Estados.objects.create(nombre_estado="Done", id_tipo_user_story=Tipo_User_Story.objects.last())
+            estado1.save()
+            estado2.save()
+            estado3.save()
+
             return HttpResponseRedirect('/tipos_us/%d'%id)
     else:
 
@@ -663,4 +668,23 @@ def update_tipos_us(request,id_proyecto,id_tipo_us):
 
     return render(request, 'tipos_us/update_tipos_us.html', {'tipous': tipous, 'form': form,'id_proyecto': id_proyecto, 'project': project})
 
+
+def asignar_estados_tipos_us(request,id_proyecto,id_tipo_us):
+    '''
+        Asignar estados a cada tipo de user story
+        fecha: 12/9/2022
+
+            vista que permite asignar los estados a cada tipo de user story
+    '''
+    tipous = Tipo_User_Story.objects.get(id=id_tipo_us)
+    project = Proyectos.objects.get(id=id_proyecto)
+    x = id_proyecto
+    y = id_tipo_us
+
+    form = AsignarEstadosTipoUsForm(request.POST or None, instance=tipous, pwd=id_tipo_us, initial={'id_proyecto': id_proyecto})
+    if form.is_valid():
+        form.save()
+        return redirect('/estados/'+str(x)+'/'+str(y))
+
+    return render(request, 'tipos_us/asignar_estados_tipo_us.html', {'tipous': tipous, 'form': form,'id_proyecto': id_proyecto, 'project': project})
 
