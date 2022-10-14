@@ -35,6 +35,7 @@
                         <th></th>
                         <th></th>
                         <th></th>
+                        <th></th>
                     </tr>
                 </thead>
                   {% for i in project_list %}
@@ -52,6 +53,9 @@
                         {% if 14 in out or request.user.is_superuser %}
                         <button type="button" class="btn btn-warning" ><a href="{% url 'update-project' i.pk %}"  style="color:#ffff; margin-left:-7%; margin-top:7px; text-decoration: none;" >Editar</a></button>
                         <button type="button" class="btn btn-success" ><a href="{% url 'inicializar_proyecto' i.pk %}"style="color:#ffff; margin-left:-7%; margin-top:7px; text-decoration: none;" >Inicializar</a></button>
+                        {% endif %}
+                        {% if request.user.is_superuser %}
+                        <button type="button" class="btn btn-danger" ><a href="{% url 'finalizar_proyecto' i.pk %}"style="color:#ffff; margin-left:-7%; margin-top:7px; text-decoration: none;">Finalizar</a></button>
                         {% endif %}
                         {% if request.user.is_superuser %}
                         <button type="button" class="btn btn-danger" ><a href="{% url 'delete-project' i.pk %}"style="color:#ffff; margin-left:-7%; margin-top:7px; text-decoration: none;">Eliminar</a></button>
@@ -75,7 +79,10 @@
                         <button type="button" class="btn btn-success" ><a href="{% url 'inicializar_proyecto' i.pk %}"style="color:#ffff; margin-left:-7%; margin-top:7px; text-decoration: none;" >Inicializar</a></button>
                         {% endif %}
                         {% if request.user.is_superuser %}
-                        <button type="button" class="btn btn-danger" ><a href="{% url 'delete-project' i.pk %}"style="color:#ffff; margin-left:-7%; margin-top:7px; text-decoration: none;">Eliminar</a></button>
+                        <button type="button" class="btn btn-danger" ><a href="{% url 'finalizar_proyecto' i.pk %}"style="color:#ffff; margin-left:-7%; margin-top:7px; text-decoration: none;">Finalizar</a></button>
+                        {% endif %}
+                        {% if request.user.is_superuser %}
+                        <button type="button" class="btn btn-danger" ><a href="{% url 'delete-project' i.pk %}"style="color:black; margin-left:-7%; margin-top:7px; text-decoration: none;">Eliminar</a></button>
                         {% endif %}
                       </td>
                 </tr>

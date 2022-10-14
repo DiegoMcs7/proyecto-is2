@@ -32,6 +32,10 @@ def tablero(request):
 
     return render(request, 'account/tablero.html', {'section': 'tablero'})
 
+def kanban(request):
+
+    return render(request, 'kanban/index.html')
+
 
 def register(request):
     '''  
@@ -156,6 +160,12 @@ def inicializar_proyecto(request, id):
 
     return redirect('list-projects')
 
+def finalizar_proyecto(request, id):
+
+    Proyectos.objects.filter(id=id).update(estado_proyecto='Finalizado')
+
+    return redirect('list-projects')
+
 @login_required
 def all_projects(request):
     '''
@@ -189,6 +199,24 @@ def add_members(request, id):
         new_user.save()
         return redirect('/add_members/%d'%project.id)
     return render(request, 'project/add_members.html', {'project': project, 'form': form, 'members': members, 'roles': roles})
+
+def add_miembros(request, id):
+    '''
+        Agregar mimembro a un proyecto
+        fecha: 25/9/2022
+
+            Funcion en la cual se pueden agregar miembros a diferentes proyectos.        
+    '''
+    project = Proyectos.objects.get(id=id)
+    members = Miembros.objects.all()
+    roles = Rol.objects.all()
+    form = AddMembersForm(request.POST or None, pwd=project.id, initial={'id_proyecto': id})
+    
+    if form.is_valid():
+        new_user = form.save()
+        new_user.save()
+        return redirect('/add_members/%d'%project.id)
+    return render(request, 'project/add_miembro.html', {'project': project, 'form': form, 'members': members, 'roles': roles})
 
 def update_members_project(request, id_proyecto, id_miembro):
     '''
@@ -465,6 +493,27 @@ def add_members_sprint(request, id_proyecto, id_sprint):
         return redirect('/add_members_sprint/'+str(x)+'/'+str(y))
     return render(request, 'sprint/add_members_sprint.html',{'sprint': sprint, 'form': form, 'id_sprint': id_sprint, 'members_sprint': members_sprint, 'id_proyecto': id_proyecto, 'project': project})
 
+def add_miembros_sprint(request, id_proyecto, id_sprint):
+    '''
+        Agregar mimembro a un sprint
+        fecha: 25/9/2022
+
+            Funcion en la cual se pueden agregar miembros a diferentes sprints.        
+    '''
+    sprint = Sprint.objects.get(id=id_sprint)
+    project = Proyectos.objects.get(id=id_proyecto)
+    members_sprint = Miembro_Sprint.objects.all()
+    form = AddMembersSprintForm(request.POST or None, pwd=id_proyecto, initial={'id': id_sprint,'sprint':id_sprint})
+    x = id_proyecto
+    y = id_sprint
+    print(form['horas_trabajo'].value())
+    if form.is_valid():
+        sprint.capacidad = sprint.capacidad + int(form['horas_trabajo'].value())
+        new_user = form.save()
+        new_user.save()
+        return redirect('/add_members_sprint/'+str(x)+'/'+str(y))
+    return render(request, 'sprint/add_miembros_sprint.html',{'sprint': sprint, 'form': form, 'id_sprint': id_sprint, 'members_sprint': members_sprint, 'id_proyecto': id_proyecto, 'project': project})
+
 
 def all_user_story(request, id):
 
@@ -547,9 +596,7 @@ def all_estados(request,id_proyecto,id_tipo_us):
     all_estados = Estados.objects.all()
     estados = Tipo_User_Story.id_estado.through.objects.filter(tipo_user_story_id=id_tipo_us).values_list('estados_id')
     out = [item for t in estados for item in t]
-    print(out)
-
-                                                             
+                                                       
     return render(request, 'estados/estados_list.html',
                   {'estados_list': estados_list,'id_proyecto': id_proyecto,'id_tipo_us': id_tipo_us, 'project': project, 'all_estados': all_estados, 'out': out})
 
