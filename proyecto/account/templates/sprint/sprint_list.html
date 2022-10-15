@@ -53,13 +53,12 @@
     </div>
 
 
-
-
-{% if 25 in out or request.user.is_superuser %}
+{% if 'Can add sprint' in out or request.user.is_superuser %}
         <div style="margin-left: 3%;margin-top: 3%;">
             <p class="display-3"><a class="button-create" href="{% url "add-sprint" id_project %}">Agregar Sprint</a></p>
         </div>
 {% endif %}
+
     <div>
         <script>
             document.addEventListener("DOMContentLoaded", () => {

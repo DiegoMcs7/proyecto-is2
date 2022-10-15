@@ -2,6 +2,7 @@ from datetime import datetime
 from gc import get_objects
 from urllib import response
 from urllib.request import Request
+from .permisos import permisos
 from .models import Estados, Miembro_Sprint, Miembros, Profile, Proyectos, Rol, Sprint, Tipo_User_Story, UserStory
 from django.shortcuts import render, redirect
 from .forms import AddMembersForm, AddMembersSprintForm, EstadosForm, ProyectosForm, RolForm, TipoUsForm, UserEditForm, \
@@ -160,9 +161,21 @@ def inicializar_proyecto(request, id):
 
     return redirect('list-projects')
 
+def cancelar_proyecto(request, id):
+
+    Proyectos.objects.filter(id=id).update(estado_proyecto='Cancelado')
+
+    return redirect('list-projects')
+
+
 def finalizar_proyecto(request, id):
 
     Proyectos.objects.filter(id=id).update(estado_proyecto='Finalizado')
+    project_state = Proyectos.objects.get(id=id)
+    if project_state.estado_proyecto == 'Cancelado':
+        messages.error(request, 'No puedes realizar la acción ya que el proyecto ha sido cancelado')
+    elif project_state.estado_proyecto == 'Finalizado':
+        messages.error(request, 'No puedes realizar la acción ya que el proyecto ha sido finalizado')
 
     return redirect('list-projects')
 
@@ -179,8 +192,15 @@ def all_projects(request):
     project_list = Proyectos.objects.all()
     members = Miembros.objects.all()
     user = request.user.id
+
+    list_p = []
+
+    for project_id in project_list:
+        out = permisos(request.user.id,project_id.id)
+        list_p.append(out)
+
     return render(request, 'project/project_list.html',
-                  {'project_list': project_list,'members': members,'user': user})
+                  {'project_list': project_list,'members': members,'user': user,'list_p': list_p})
 
 def add_members(request, id):
     '''
@@ -415,9 +435,10 @@ def all_sprints(request,id):
     sprint_list = Sprint.objects.all()
     project = Proyectos.objects.get(id=id)
 
+    out = permisos(request.user.id,id)
                                                              
     return render(request, 'sprint/sprint_list.html',
-                  {'sprint_list': sprint_list,'id_project': id, 'project': project})
+                  {'sprint_list': sprint_list,'id_project': id, 'project': project, 'out': out})
 
 
 def add_sprint(request,id):

@@ -17,6 +17,7 @@ urlpatterns = [
     path('delete_proyecto/<int:id>', views.delete_proyecto, name='delete-project'),
     path('update_project/<int:id>', views.update_project, name='update-project'),
     path('inicializar_proyecto/<int:id>', views.inicializar_proyecto, name='inicializar_proyecto'),
+    path('cancelar_proyecto/<int:id>', views.cancelar_proyecto, name='cancelar_proyecto'),
     path('finalizar_proyecto/<int:id>', views.finalizar_proyecto, name='finalizar_proyecto'),
     path('update_members_project/<int:id_proyecto>/<int:id_miembro>', views.update_members_project, name='update-members_project'),
     path('update_members_sprint/<int:id_proyecto>/<int:id_sprint>/<int:id_usuario>', views.update_members_sprint, name='update-members_sprint'),

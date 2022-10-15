@@ -24,8 +24,8 @@
 </head>
 <body style="overflow: overlay;">
     <div id="header">
-        <a href="{% url "tablero" %}"><span class="logo" style="color:#df8a3d; margin-left:-7%; margin-top:7px"> <i class="bi bi-grid-3x3-gap-fill"></i></span></a>
-       <a href="{% url "tablero" %}"><span class="logo" style="color:#df8a3d; margin-left:-7%; font-family: 'Noto Sans', sans-serif; font-size: 1.500em;"> {{ project.nombre_proyecto }}</span></a>
+        <a href="{% url "tablero" %}"><span class="logo" style="color:#df8a3d; margin-left:-5%; margin-top:7px"> <i class="bi bi-grid-3x3-gap-fill"></i></span></a>
+       <a href="{% url "tablero" %}"><span class="logo" style="color:#df8a3d; margin-left:-5%; font-family: 'Noto Sans', sans-serif; font-size: 1.500em;"> {{ project.nombre_proyecto }}</span></a>
 
         {% if request.user.is_authenticated %}
           <ul class="menu">
@@ -56,14 +56,17 @@
           </span>
     </div>
 
-  {% if 'Can add rol' in out or request.user.is_superuser %}
+    {% if 'Can add rol' in out or request.user.is_superuser %}
 
         <div style="margin-left: 3%;margin-top: 3%;">
             <a style="width:100px;" class="button-create" href="{% url "add-rol" project.id %}">Agregar Rol</a>
             <a class="button-create" href="{% url "exportar-roles" project.id %}">Exportar Rol</a>
             <a class="button-create" href="{% url "importar-roles" project.id %}">Importar Rol</a></p>
         </div>
-     {% endif %}
+    {% endif %}
+     <div id="content" style="margin-top:20px; margin-bottom:20px;">
+    </div>
+  <div>
 
         <div>
         <table class="table table-striped table-hover" border="5px solid #000;" >
