@@ -52,11 +52,7 @@
           </span>
     </div>
 
-
-
-
-
-{% if 25 in out or request.user.is_superuser %}
+{% if 'Can add tipo_ user_ story ' in out or request.user.is_superuser %}
 <div style="margin-left: 3%;margin-top: 3%;">
 
      <p class="display-3" s><a class="button-create" href="{% url "add-tipos_us" id_proyecto  %}">Agregar Tipo de User Story</a></p>

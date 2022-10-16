@@ -188,20 +188,36 @@ def all_projects(request):
             Esta vista es la encargada de llamar al archivo project_list.html con el fin de mostrar en pantalla la lista
             de todos los proyectos registrados en el sistema.       
     '''
-
     project_list = Proyectos.objects.all()
     members = Miembros.objects.all()
     user = request.user.id
 
     list_p = []
 
+    list_pro = []
+
     for project_id in project_list:
         out = permisos(request.user.id,project_id.id)
         list_p.append(out)
 
-    return render(request, 'project/project_list.html',
-                  {'project_list': project_list,'members': members,'user': user,'list_p': list_p})
+    first_proyecto = Proyectos.objects.all().first()
+    id_first_proyecto = first_proyecto.id
 
+    for indice, valor in enumerate(project_list):
+        list_pro.append(proyecto_iterador(valor.id,indice) )
+
+    return render(request, 'project/project_list.html',
+                  {'project_list': project_list,'members': members,'user': user,'list_p': list_p,'id_first_proyecto': id_first_proyecto,'list_pro':list_pro})
+
+class proyecto_iterador:
+
+    list_id = 0
+    indice_permiso = 0
+
+    def __init__(self, list_id, indice_permiso): 
+        self.list_id = list_id 
+        self.indice_permiso = indice_permiso
+    
 def add_members(request, id):
     '''
         Agregar mimembro a un proyecto
@@ -213,12 +229,14 @@ def add_members(request, id):
     members = Miembros.objects.all()
     roles = Rol.objects.all()
     form = AddMembersForm(request.POST or None, pwd=project.id, initial={'id_proyecto': id})
+
+    out = permisos(request.user.id,id)
     
     if form.is_valid():
         new_user = form.save()
         new_user.save()
         return redirect('/add_members/%d'%project.id)
-    return render(request, 'project/add_members.html', {'project': project, 'form': form, 'members': members, 'roles': roles})
+    return render(request, 'project/add_members.html', {'project': project, 'form': form, 'members': members, 'roles': roles, 'out': out})
 
 def add_miembros(request, id):
     '''
@@ -231,12 +249,14 @@ def add_miembros(request, id):
     members = Miembros.objects.all()
     roles = Rol.objects.all()
     form = AddMembersForm(request.POST or None, pwd=project.id, initial={'id_proyecto': id})
+
+    out = permisos(request.user.id,id)
     
     if form.is_valid():
         new_user = form.save()
         new_user.save()
         return redirect('/add_members/%d'%project.id)
-    return render(request, 'project/add_miembro.html', {'project': project, 'form': form, 'members': members, 'roles': roles})
+    return render(request, 'project/add_miembro.html', {'project': project, 'form': form, 'members': members, 'roles': roles, 'out': out})
 
 def update_members_project(request, id_proyecto, id_miembro):
     '''
@@ -696,6 +716,7 @@ def add_tipos_us(request,id):
     submitted = False
     project = Proyectos.objects.get(id=id)
     x = project.id
+    out = permisos(request.user.id,id)
     if request.method == "POST":
         form = TipoUsForm(request.POST, initial={'id_proyecto':x})
         if form.is_valid():
@@ -716,7 +737,7 @@ def add_tipos_us(request,id):
         if 'submitted' in request.GET:
             submitted = True
 
-    return render(request, 'tipos_us/add_tipos_us.html', {'form': form, 'submitted': submitted, 'id_proyecto': id, 'project': project})
+    return render(request, 'tipos_us/add_tipos_us.html', {'form': form, 'submitted': submitted, 'id_proyecto': id, 'project': project,'out': out,})
 
 
 def update_tipos_us(request,id_proyecto,id_tipo_us):
