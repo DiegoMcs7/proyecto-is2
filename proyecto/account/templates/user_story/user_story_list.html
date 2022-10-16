@@ -22,7 +22,7 @@
 <body style="overflow: overlay;">
     <div id="header">
              <a href="{% url "tablero" %}"><span class="logo" style="color:#df8a3d; margin-left:-5%; margin-top:7px"> <i class="bi bi-grid-3x3-gap-fill"></i></span></a>
-       <a href="{% url "tablero" %}"><span class="logo" style="color:#df8a3d; margin-left:-5%; font-family: 'Noto Sans', sans-serif; font-size: 1.500em;"> {{ project.nombre_proyecto }}</span></a>
+       <a href="{% url "tablero" %}"><span class="logo" style="color:#df8a3d; margin-left:-8%; font-family: 'Noto Sans', sans-serif; font-size: 1.500em;"> {{ project.nombre_proyecto }}</span></a>
 
         {% if request.user.is_authenticated %}
           <ul class="menu">
@@ -60,7 +60,9 @@
 
 {% if 41 in out or request.user.is_superuser %}
 <div style="margin-left: 3%;margin-top: 3%;">
-<p class="display-3"><a class="button-create" href="{% url 'add-user_story' id_project %}">Agregar User Story</a></p>
+<a class="button-create" href="{% url 'add-user_story' id_project %}">Agregar User Story</a>
+    <a class="button" href="{% url "add-members" id_project %}" style="margin-left: 15px; text-decoration: none; font-family: Arial, Helvetica, sans-serif; background-color: slategray;">Volver</a>
+
 </div>
 {% endif %}
 <div>

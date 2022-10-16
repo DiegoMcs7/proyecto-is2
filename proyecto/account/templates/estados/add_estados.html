@@ -22,7 +22,7 @@
 <body style="overflow: overlay;">
     <div id="header">
          <a href="{% url "tablero" %}"><span class="logo" style="color:#df8a3d; margin-left:-5%; margin-top:7px"> <i class="bi bi-grid-3x3-gap-fill"></i></span></a>
-       <a href="{% url "tablero" %}"><span class="logo" style="color:#df8a3d; margin-left:-5%; font-family: 'Noto Sans', sans-serif; font-size: 1.500em;"> {{ project.nombre_proyecto }}</span></a>
+       <a href="{% url "tablero" %}"><span class="logo" style="color:#df8a3d; margin-left:-8%; font-family: 'Noto Sans', sans-serif; font-size: 1.500em;"> {{ project.nombre_proyecto }}</span></a>
         {% if request.user.is_authenticated %}
           <ul class="menu">
               <li>

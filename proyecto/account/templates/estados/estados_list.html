@@ -22,7 +22,7 @@
 <body style="overflow: overlay;">
     <div id="header">
        <a href="{% url "tablero" %}"><span class="logo" style="color:#df8a3d; margin-left:-5%; margin-top:7px"> <i class="bi bi-grid-3x3-gap-fill"></i></span></a>
-       <a href="{% url "tablero" %}"><span class="logo" style="color:#df8a3d; margin-left:-5%; font-family: 'Noto Sans', sans-serif; font-size: 1.500em;"> {{ project.nombre_proyecto }}</span></a>
+       <a href="{% url "tablero" %}"><span class="logo" style="color:#df8a3d; margin-left:-8%; font-family: 'Noto Sans', sans-serif; font-size: 1.500em;"> {{ project.nombre_proyecto }}</span></a>
         {% if request.user.is_authenticated %}
           <ul class="menu">
               <li>
@@ -62,6 +62,8 @@
     <div style="display:flex;">
          <p class="display-3" ><a class="button-create" style="margin-right:10px;" href="{% url "asignar-estados-tipos-us" id_proyecto id_tipo_us %}">Asignar Estado</a></p>
         <p class="display-3" ><a class="button-create" href="{% url "add-estados" id_proyecto id_tipo_us %}">Crear Estado</a></p>
+        <p class="display-3" > <a class="button" href="{% url "tipos_us-list" id_proyecto %}" style="margin-left: 15px; text-decoration: none; font-family: Arial, Helvetica, sans-serif; background-color: slategray;">Volver</a></p>
+
     </div>
     {% endif %}
  </div>
@@ -98,7 +100,6 @@
                   {% endif %}
             {% endfor %}
         </table>
-            <a class="button" href="{% url "tipos_us-list" id_proyecto %}" style="margin-left: 15px; text-decoration: none; font-family: Arial, Helvetica, sans-serif; background-color: slategray;">Volver</a>
     </div>
 </body>
 </html>

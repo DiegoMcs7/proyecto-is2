@@ -39,8 +39,6 @@
                     </tr>
                 </thead>
                   {% for i in project_list %}
-                  {% for p in list_pro %}
-                  {% if i.id == p.list_id %}
                   {% if not request.user.is_superuser %}
                   {% for member in members %}
                   {% if member.id_proyecto_id == i.id and user == member.id_usuario_id%}
@@ -50,25 +48,8 @@
                       <td style="padding:10px;">{{i.desc_proyecto}}</td>
                       <td style="padding:10px;">{{i.estado_proyecto}}</td>
                       <td style="padding:10px;">{{i.fecha_inicio}}</td>
-                      <td style="padding:10px;">{{i.fecha_fin}}</td>  
-                      <td class="btn-group" role="group" aria-label="Basic mixed styles example">
-                        {% if 'Can change proyectos' in list_p.p.indice_permiso or request.user.is_superuser %}
-                        <button type="button" class="btn btn-se condary" ><a href="{% url 'update-project' i.pk %}"  style="color:#ffff; margin-left:-7%; margin-top:7px; text-decoration: none;" >Editar</a></button>
-                        {% endif %}
-                        {% if i.estado_proyecto != 'Iniciado' and i.estado_proyecto != 'Cancelado' and i.estado_proyecto != 'Finalizado'%}
-                        <button type="button" class="btn btn-success" ><a href="{% url 'inicializar_proyecto' i.pk %}"style="color:#ffff; margin-left:-7%; margin-top:7px; text-decoration: none;" >Inicializar</a></button>
-                        {% endif %}
-                        
-                        {% if i.estado_proyecto != 'Finalizado' and i.estado_proyecto != 'Cancelado' %}
-                        <button type="button" class="btn btn-warning" ><a href="{% url 'finalizar_proyecto' i.pk %}"style="color:black; margin-left:-7%; margin-top:7px; text-decoration: none;">Finalizar</a></button>
-                        {% endif %}
-                        {% if i.estado_proyecto == 'Iniciado' or i.estado_proyecto == 'Planificado' %}
-                        <button type="button" class="btn btn-danger" ><a href="{% url 'cancelar_proyecto' i.pk %}"style="color:#ffff; margin-left:-7%; margin-top:7px; text-decoration: none;">Cancelar</a></button>
-                        {% endif %}
-                        {% if request.user.is_superuser %}
-                        <button type="button" class="btn btn-danger" ><a href="{% url 'delete-project' i.pk %}"style="color:black; margin-left:-7%; margin-top:7px; text-decoration: none;">Eliminar</a></button>
-                        {% endif %}
-                      </td>
+                      <td style="padding:10px;">{{i.fecha_fin}}</td>
+                      <td><a href="{% url 'action-project' project.id %}">Acciones</a></td>
                   </tr>
                   {% endif %}
                 {% endfor %}
@@ -80,27 +61,10 @@
                       <td style="padding:10px;">{{i.estado_proyecto}}</td>
                       <td style="padding:10px;">{{i.fecha_inicio}}</td>
                       <td style="padding:10px;">{{i.fecha_fin}}</td>
-                      <td class="btn-group" role="group" aria-label="Basic mixed styles example">
-                        {% if 14 in out or request.user.is_superuser %}
-                        <button type="button" class="btn btn-secondary" ><a href="{% url 'update-project' i.pk %}"  style="color:#ffff; margin-left:-7%; margin-top:7px; text-decoration: none;" >Editar</a></button>
-                        {% if i.estado_proyecto != 'Iniciado' and i.estado_proyecto != 'Cancelado' and i.estado_proyecto != 'Finalizado'%}
-                        <button type="button" class="btn btn-success" ><a href="{% url 'inicializar_proyecto' i.pk %}"style="color:#ffff; margin-left:-7%; margin-top:7px; text-decoration: none;" >Inicializar</a></button>
-                        {% endif %}
-                        {% endif %}
-                        {% if i.estado_proyecto != 'Finalizado' and i.estado_proyecto != 'Cancelado' %}
-                        <button type="button" class="btn btn-warning" ><a href="{% url 'finalizar_proyecto' i.pk %}"style="color:black; margin-left:-7%; margin-top:7px; text-decoration: none;">Finalizar</a></button>
-                        {% endif %}
-                        {% if i.estado_proyecto == 'Iniciado' or i.estado_proyecto == 'Planificado' %}
-                        <button type="button" class="btn btn-danger" ><a href="{% url 'cancelar_proyecto' i.pk %}"style="color:#ffff; margin-left:-7%; margin-top:7px; text-decoration: none;">Cancelar</a></button>
-                        {% endif %}
-                        {% if request.user.is_superuser %}
-                        <button type="button" class="btn btn-danger" ><a href="{% url 'delete-project' i.pk %}"style="color:black; margin-left:-7%; margin-top:7px; text-decoration: none;">Eliminar</a></button>
-                        {% endif %}
-                      </td>
+                    <td><a href="{% url 'action-project' i.pk %}">Acciones</a></td>
+
                 </tr>
                 {% endif %}
-                {% endif %}
-                {% endfor %}
                 {% endfor %}
         </table>
         {% for message in messages %}

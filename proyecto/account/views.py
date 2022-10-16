@@ -155,6 +155,18 @@ def update_project(request, id):
 
     return render(request, 'project/update_project.html', {'project': project, 'form': form})
 
+
+def action_project(request, id):
+    '''
+        Seleccionar accion por proyecto
+        fecha: 16/10/2022
+
+            Funcion en la cual se seleccionan las acciones por proyecto
+    '''
+    project = Proyectos.objects.get(id=id)
+
+    return render(request, 'project/action_project.html', {'project': project})
+
 def inicializar_proyecto(request, id):
 
     Proyectos.objects.filter(id=id).update(estado_proyecto='Iniciado')
