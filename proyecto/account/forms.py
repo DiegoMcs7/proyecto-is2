@@ -1,7 +1,10 @@
+from cProfile import label
 from email import message
+from attr import fields
 from django import forms
 from django.contrib.auth.models import User
 from django.db.models import Q
+from matplotlib import widgets
 from .models import Estados, Miembro_Sprint, Profile, Proyectos, Miembros, Rol, Sprint, Tipo_User_Story, UserStory
 from django.conf import settings
 from django.forms import ModelForm
@@ -221,11 +224,11 @@ class UserStoryForm(ModelForm):
         widgets = {
             'nombre_us': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nombre del user story'}),
             'desc_us': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Descripcion del user story', 'style': 'height: 20%;'}),
-            'horas_estimadas': forms.NumberInput(attrs={'class': 'form-control'}),
-            'encargado': forms.Select(attrs={'class': 'form-control', 'placeholder': 'Encargado'}),
-            'prioridad_us': forms.Select(attrs={'class': 'form-control', 'placeholder': 'Horas de trabajo por día'}),
+            'horas_estimadas': forms.HiddenInput(attrs={'class': 'form-control'}),
+            'encargado': forms.HiddenInput(attrs={'class': 'form-control', 'placeholder': 'Encargado'}),
+            'prioridad_us': forms.HiddenInput(attrs={'class': 'form-control', 'placeholder': 'Horas de trabajo por día'}),
             'id_tipo_user_story': forms.Select(attrs={'class': 'form-control', 'placeholder': 'Tipo de user story'}),
-            'id_sprint': forms.Select(attrs={'class': 'form-control', 'placeholder': 'Sprint'}),
+            'id_sprint': forms.HiddenInput(attrs={'class': 'form-control', 'placeholder': 'Sprint'}),
             'id_proyecto': forms.HiddenInput(attrs={'class': 'form-control', 'placeholder': 'Sprint'}),
         }
 
@@ -237,6 +240,14 @@ class UserStoryForm(ModelForm):
         self.fields['id_tipo_user_story'].queryset = Tipo_User_Story.objects.filter(id_proyecto_id=self._pwd)
         self.fields['id_sprint'].queryset = Sprint.objects.filter(id_proyecto_id=self._pwd)
 
+class UsPrioridadForm(ModelForm):
+    class Meta:
+        model = UserStory
+        fields = ('prioridad_us',)
+        labels = {'prioridad_us': 'Prioridad'}
+        widgets = {
+            'prioridad_us': forms.Select(attrs={'class': 'form-control', 'placeholder': 'Prioridad'}),
+        }
 
 class TipoUsForm(ModelForm):
     class Meta:

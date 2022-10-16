@@ -5,7 +5,7 @@ from urllib.request import Request
 from .permisos import permisos
 from .models import Estados, Miembro_Sprint, Miembros, Profile, Proyectos, Rol, Sprint, Tipo_User_Story, UserStory
 from django.shortcuts import render, redirect
-from .forms import AddMembersForm, AddMembersSprintForm, EstadosForm, ProyectosForm, RolForm, TipoUsForm, UserEditForm, \
+from .forms import AddMembersForm, AddMembersSprintForm, EstadosForm, ProyectosForm, RolForm, TipoUsForm, UsPrioridadForm, UserEditForm, \
     UserRegistrationForm, \
     SprintForm, UserStoryForm, AsignarEstadosTipoUsForm
 from django.contrib.auth.decorators import login_required
@@ -562,14 +562,14 @@ def all_user_story(request, id):
                   {'user_story_list': user_story, 'id_project': id, 'project': project})
 
 
-def all_user_story_sprint_backlog(request, id):
+def all_user_story_sprint_backlog(request, id_proyecto, id_sprint):
 
     user_story = UserStory.objects.all()
-    s= Sprint.objects.get(id=id)
-    project = Proyectos.objects.get(id=s.id_proyecto_id)
+    sprint = Sprint.objects.get(id=id_sprint)
+    project = Proyectos.objects.get(id=id_proyecto)
 
-    return render(request, 'user_story/user_story_list_sprint_backlog.html',
-                  {'user_story_list': user_story, 'id_sprint': id, 'id_proyecto': s.id_proyecto_id, 'project': project})
+    return render(request, 'user_story/all_user_story_sprint_backlog.html',
+                  {'user_story_list': user_story, 'sprint': sprint, 'project': project})
 
 
 def add_user_story(request, id_proyecto):
@@ -597,9 +597,26 @@ def update_user_story(request, id_proyecto, id_user_story):
 
     return render(request, 'user_story/update_user_story.html', {'user_story': user_story, 'form': form, 'id_proyecto': id_proyecto, 'project': project})
 
+def update_prioridad_user_story(request, id_proyecto, id_user_story):
+
+    user_story = UserStory.objects.get(id=id_user_story)
+    project = Proyectos.objects.get(id=id_proyecto)
+    form = UsPrioridadForm(request.POST or None, instance=user_story, initial={'id_proyecto_id': id_proyecto})
+    if form.is_valid():
+        form.save()
+        return redirect('/user_story/%d'%id_proyecto)
+
+    return render(request, 'user_story/update_prioridad_us.html', {'user_story': user_story, 'form': form, 'id_proyecto': id_proyecto, 'project': project})
+
+
 #Edit de miembros del Equipo Proyecto y Sprint
 
+def all_user_story_sprint_backlog(request, id_proyecto):
+    user_story = UserStory.objects.all()
+    project = Proyectos.objects.get(id=id_proyecto)
 
+    return render(request, 'user_story/all_user_story_sprint_backlog',
+                  {'user_story_list': user_story, 'id_proyecto': id_proyecto, 'project': project})
 
 def update_members_sprint(request, id_proyecto, id_sprint,id_usuario):
     '''

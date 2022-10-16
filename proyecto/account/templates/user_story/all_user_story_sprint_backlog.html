@@ -59,11 +59,8 @@
 
 
 {% if 41 in out or request.user.is_superuser %}
-<div style="margin-left: 3%;margin-top: 3%;">
-<a class="button-create" href="{% url 'add-user_story' id_project %}">Agregar User Story</a>
-    <a class="button" href="{% url "add-members" id_project %}" style="margin-left: 15px; text-decoration: none; font-family: Arial, Helvetica, sans-serif; background-color: slategray;">Volver</a>
 
-</div>
+<h1> Asignar user story a "{{sprint.nombre_sprint}}"</h1>
 {% endif %}
 <div>
         <script>
@@ -81,7 +78,10 @@
                     <tr>
                       <th>Nombre</th>
                       <th>Descripción</th>
+                      <th>Horas Estimadas</th>
                       <th>Prioridad de us</th>
+                      <th>Encargado</th>
+                      <th>Sprint</th>
                     </tr>
                 </thead>
             {% for p in user_story_list %}
@@ -90,16 +90,15 @@
                     style="tr:hover {background-color: #77bdff;}">
                     <td style="padding:10px;">{{p.nombre_us}}</td>
                     <td style="padding:10px;">{{p.desc_us}}</td>
+                    <td style="padding:10px;">{{p.horas_estimadas}}</td>
                     <td style="padding:10px;">{{p.prioridad_us}}</td>
+                    <td style="padding:10px;">{{p.encargado}}</td>
+                    <td style="padding:10px;">{{p.id_sprint}}</td>
                     {% if 42 in out or request.user.is_superuser %}
-                    <!--Solo el product owner puede cambiar la prioridad de un us-->
-                    <td style="padding:10px;"><a href="{% url 'update-prioridad-user_story' id_project p.id %}">Prioridad</a></td>
                     <td style="padding:10px;"><a href="{% url 'update-user_story' id_project p.id %}">Editar</a></td>
                     {% endif %}
                 </tr>
-
                 {% endif %}
-
             {% endfor %}
         </table>
     </div>
