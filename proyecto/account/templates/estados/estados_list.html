@@ -58,7 +58,7 @@
 
 
 <div style="margin-left: 3%;margin-top: 3%;">
-{% if 25 in out or request.user.is_superuser %}
+{% if 'Can add estados' in pout or request.user.is_superuser %}
     <div style="display:flex;">
          <p class="display-3" ><a class="button-create" style="margin-right:10px;" href="{% url "asignar-estados-tipos-us" id_proyecto id_tipo_us %}">Asignar Estado</a></p>
         <p class="display-3" ><a class="button-create" href="{% url "add-estados" id_proyecto id_tipo_us %}">Crear Estado</a></p>
@@ -93,7 +93,7 @@
                       <td style="padding:10px;">{{p.id}} </a></td>
                         <td style="padding:10px;">{{p.nombre_estado}} </a></td>
                         <td style="padding:10px;">{{p.id_tipo_user_story}}</td>
-                        {% if 26 in out or request.user.is_superuser %}
+                        {% if 'Can change estados' in pout or request.user.is_superuser %}
                         <td style="padding:10px;"><a href="{% url 'update-estados' id_proyecto id_tipo_us p.pk %}">Editar</a></td>
                         {% endif %}
                     </tr>

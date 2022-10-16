@@ -1,3 +1,4 @@
+from email import message
 from django import forms
 from django.contrib.auth.models import User
 from django.db.models import Q
@@ -247,12 +248,12 @@ class TipoUsForm(ModelForm):
             'id_proyecto': '',
 
         }
+
         widgets = {
             'nombre_tipo_us': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nombre del Tipo_US'}),
             'id_estado': forms.HiddenInput(attrs={'class': 'form-control', 'placeholder': 'Estado'}),
             'id_proyecto': forms.HiddenInput(attrs={'class': 'form-control', 'placeholder': 'Proyecto'}),
         }
-
 
 class AsignarEstadosTipoUsForm(ModelForm):
     class Meta:
@@ -264,6 +265,11 @@ class AsignarEstadosTipoUsForm(ModelForm):
             'id_proyecto': '',
 
         }
+        my_default_errors = {
+        'required': 'Este campo es requerido',
+        'invalid': 'Ingrese un '
+        }
+
         widgets = {
             'nombre_tipo_us': forms.HiddenInput(attrs={'class': 'form-control', 'placeholder': 'Nombre del Tipo_US'}),
             'id_estado': forms.CheckboxSelectMultiple(attrs={'class': 'form-check', 'placeholder': 'Estado', 'style': 'padding-left: 0.4em;' }),

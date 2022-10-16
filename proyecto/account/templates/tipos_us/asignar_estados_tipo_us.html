@@ -52,10 +52,6 @@
           </span>
     </div>
 
-
-
-
-
 {% if user.is_authenticated %}
 	<h1>Asignar estado a "{{tipous.nombre_tipo_us}}"</h1>
 <br/><br/>
@@ -71,14 +67,14 @@
 			{% csrf_token %}
 
 			{{ form.as_p }}
-            <div style="display: flex;">
-                <input type="submit" value="Asignar" class="btn btn-secondary">
-                <a class="button" href="{% url "tipos_us-list" id_proyecto %}" style="margin-left: 10px; text-decoration: none; font-family: Arial, Helvetica, sans-serif; background-color: slategray;">Cancelar</a>
-            </div>
-			
 
 		</form>
-           </div>
+        </div>
+        <div style="display: flex;">
+            <input type="submit" value="Asignar" class="btn btn-secondary">
+            <a class="button" href="{% url "tipos_us-list" id_proyecto %}" style="margin-left: 10px; text-decoration: none; font-family: Arial, Helvetica, sans-serif; background-color: slategray;">Cancelar</a>
+        </div>
+        
 	</div>
 
 		{% endif %}

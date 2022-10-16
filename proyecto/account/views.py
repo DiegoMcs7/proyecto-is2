@@ -95,7 +95,6 @@ def add_project(request):
     submitted = False
     if request.method == "POST":
         form = ProyectosForm(request.POST, initial={'scrum_master': request.user.id})
-        
         if form.is_valid():
             project = form.save(commit=False)
             project.manager = request.user
@@ -204,22 +203,8 @@ def all_projects(request):
     members = Miembros.objects.all()
     user = request.user.id
 
-    list_p = []
-
-    list_pro = []
-
-    for project_id in project_list:
-        out = permisos(request.user.id,project_id.id)
-        list_p.append(out)
-
-    first_proyecto = Proyectos.objects.all().first()
-    id_first_proyecto = first_proyecto.id
-
-    for indice, valor in enumerate(project_list):
-        list_pro.append(proyecto_iterador(valor.id,indice) )
-
     return render(request, 'project/project_list.html',
-                  {'project_list': project_list,'members': members,'user': user,'list_p': list_p,'id_first_proyecto': id_first_proyecto,'list_pro':list_pro})
+                  {'project_list': project_list,'members': members,'user': user})
 
 class proyecto_iterador:
 
@@ -649,9 +634,11 @@ def all_estados(request,id_proyecto,id_tipo_us):
     all_estados = Estados.objects.all()
     estados = Tipo_User_Story.id_estado.through.objects.filter(tipo_user_story_id=id_tipo_us).values_list('estados_id')
     out = [item for t in estados for item in t]
+
+    pout = permisos(request.user.id,id_proyecto)
                                                        
     return render(request, 'estados/estados_list.html',
-                  {'estados_list': estados_list,'id_proyecto': id_proyecto,'id_tipo_us': id_tipo_us, 'project': project, 'all_estados': all_estados, 'out': out})
+                  {'estados_list': estados_list,'id_proyecto': id_proyecto,'id_tipo_us': id_tipo_us, 'project': project, 'all_estados': all_estados, 'out': out, 'pout': pout})
 
 def add_estados(request,id_proyecto,id_tipo_us):
     '''
@@ -714,9 +701,10 @@ def all_tipos_us(request,id_proyecto):
     tipos_us_list = Tipo_User_Story.objects.all()
     project = Proyectos.objects.get(id=id_proyecto)
 
-                                                             
+    out = permisos(request.user.id,id_proyecto)    
+
     return render(request, 'tipos_us/tipos_us_list.html',
-                  {'tipos_us_list': tipos_us_list,'id_proyecto': id_proyecto, 'project': project})
+                  {'tipos_us_list': tipos_us_list,'id_proyecto': id_proyecto, 'project': project, 'out': out})
 
 def add_tipos_us(request,id):
     '''
