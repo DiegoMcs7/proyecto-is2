@@ -53,20 +53,18 @@
           </span>
     </div>
     
-   
+   <h1> {{sprint.nombre_sprint}}</h1>
        <div class="row">
          <p class="display-3" style="margin-left:550px; padding-top: 12;">
-            {% if 'Can add miembros' in out or request.user.is_superuser %}
-            <p class="display-3">
-            <a class="button-create" href="{% url "add-miembros-sprint" project.id id_sprint %}">
-                <i class="bi bi-plus text-primary"></i> Agregar Miembros </a></p>
-            {% endif %}
-            <p class="display-3">
-
-            <a class="button-create" href="{% url "user_story_sprint_backlog-list" id_sprint %}">
-                <i class="bi bi-plus text-primary"></i> Sprint Backlog </a></p>
-
-        <table class="table table-striped table-hover" border="5px solid #000;" style="margin-top:30px;">
+             <div style="display: flex; margin-left:15px;">
+                {% if 'Can add miembros' in out or request.user.is_superuser %}
+                <a class="button-create" href="{% url "add-miembros-sprint" project.id id_sprint %}">
+                    <i class="bi bi-plus text-primary"></i> Agregar Miembros </a>
+                {% endif %}
+                <a style="margin-left:10px;" class="button-create" href="{% url "user_story_sprint_backlog-list" id_sprint %}">
+                <i class="bi bi-plus text-primary"></i> Sprint Backlog </a>
+            </div>
+        <table class="table table-striped table-hover" border="5px solid #000;" style="margin-top:30px;margin-left:15px;">
             <thead class="thead-dark">
                 <tr>
                     <th>Equipo del sprint</th>
