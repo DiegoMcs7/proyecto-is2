@@ -53,9 +53,9 @@
                       <td style="padding:10px;">{{i.fecha_fin}}</td>  
                       <td class="btn-group" role="group" aria-label="Basic mixed styles example">
                         {% if 'Can change proyectos' in out or request.user.is_superuser %}
-                        <button type="button" class="btn btn-secondary" ><a href="{% url 'update-project' i.pk %}"  style="color:#ffff; margin-left:-7%; margin-top:7px; text-decoration: none;" >Editar</a></button>
+                        <button type="button" class="btn btn-secondary" ><a href="{% url 'update-project' i.pk %}"  style="color:#ffff; margin-left:-5%; margin-top:7px; text-decoration: none;" >Editar</a></button>
                         {% if i.estado_proyecto != 'Iniciado' and i.estado_proyecto != 'Cancelado' and i.estado_proyecto != 'Finalizado'%}
-                        <button type="button" class="btn btn-success" ><a href="{% url 'inicializar_proyecto' i.pk %}"style="color:#ffff; margin-left:-7%; margin-top:7px; text-decoration: none;" >Inicializar</a></button>
+                        <button type="button" class="btn btn-success" ><a href="{% url 'inicializar_proyecto' i.pk %}"style="color:#ffff; margin-left:-5%; margin-top:7px; text-decoration: none;" >Inicializar</a></button>
                         {% endif %}
                         {% endif %}
                         {% if i.estado_proyecto != 'Finalizado' and i.estado_proyecto != 'Cancelado' %}
