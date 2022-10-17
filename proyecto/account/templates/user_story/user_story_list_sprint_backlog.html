@@ -53,7 +53,8 @@
           </span>
     </div>
 
-<h2> Sprint Backlog</h2>
+<h1> Sprint Backlog</h1>
+
 <div>
         <script>
             document.addEventListener("DOMContentLoaded", () => {
@@ -84,11 +85,13 @@
                     <td style="padding:10px;">{{p.horas_estimadas}}</td>
                     <td style="padding:10px;">{{p.prioridad_us}}</td>
                     <td style="padding:10px;">{{p.encargado}}</td>
+                    
                 </tr>
                 {% endif %}
             {% endfor %}
         </table>
     </div>
+    <a class="button" href="{% url "add-members-sprint" id_proyecto id_sprint %}"  style="margin-top: 20px; height: 40px; margin-left: 15px; text-decoration: none; font-family: Arial, Helvetica, sans-serif; background-color: slategray;">Volver</a>
 
 </body>
 </html>

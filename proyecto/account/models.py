@@ -141,7 +141,7 @@ class UserStory(models.Model):
     id_proyecto = models.ForeignKey("Proyectos", on_delete=models.CASCADE, null=True)
     id_sprint = models.ForeignKey("Sprint", on_delete=models.CASCADE, null=True, blank=True)
     id_tipo_user_story = models.ForeignKey("Tipo_User_Story", on_delete=models.CASCADE, null=True, blank=True)
-
+    estado = models.TextField(default="To Do")
     @property
     def us_exist(self):
         return self.id_user_story>0

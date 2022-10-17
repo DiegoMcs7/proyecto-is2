@@ -56,7 +56,6 @@
 <h1> Asignar user story a "{{sprint.nombre_sprint}}"</h1>
 <br/>
 
-<p class="display-3" > <a class="button" href="{% url "add-members-sprint" id_project sprint.id %}" style="margin-left: 15px; text-decoration: none; font-family: Arial, Helvetica, sans-serif; background-color: slategray;">Volver</a></p>
 
 
 <div>
@@ -82,7 +81,7 @@
                 </thead>
             {% for p in user_story_list %}
                 {% if id_project == p.id_proyecto_id and p.id_sprint == None %}
-                <tr scope="row" data-href="{% url 'add-user_story' id_project %}"
+                <tr scope="row" 
                     style="tr:hover {background-color: #77bdff;}">
                     <td style="padding:10px;">{{p.nombre_us}}</td>
                     <td style="padding:10px;">{{p.desc_us}}</td>
@@ -93,7 +92,7 @@
                     {% else %}
                         <td style="padding:10px;">{{p.encargado}}</td>
                     {% endif %}
-                    {% if 'Can change user story' in out %}
+                    {% if 'Can change miembro_ sprint' in out or p.encargado == request.user %}
                     <td style="padding:10px;"><a href="{% url 'update-sprint-user-story' id_project p.id sprint.id %}">Asignar</a></td>
                     {% endif %}
                 </tr>
@@ -101,5 +100,7 @@
             {% endfor %}
         </table>
     </div>
+    <p class="display-3" > <a class="button" href="{% url "add-members-sprint" id_project sprint.id %}" style="margin-left: 15px; text-decoration: none; font-family: Arial, Helvetica, sans-serif; background-color: slategray;">Volver</a></p>
+
 </body>
 </html>

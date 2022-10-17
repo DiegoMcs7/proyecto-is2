@@ -441,6 +441,55 @@ def import_roles(request,id_proyecto):
 
 # CRUD para sprint
 
+def action_sprint(request, id_proyecto, id_sprint):
+    '''
+        Seleccionar accion por proyecto
+        fecha: 16/10/2022
+
+            Funcion en la cual se seleccionan las acciones por proyecto
+    '''
+    project = Proyectos.objects.get(id=id_proyecto)
+    sprint = Sprint.objects.get(id=id_sprint)
+
+    out = permisos(request.user.id,id_proyecto)
+
+    return render(request, 'sprint/action_sprint.html', {'project': project,'sprint': sprint,'out': out})
+
+def inicializar_sprint(request, id):
+
+    sprint = Sprint.objects.filter(estado_sprint='Iniciado') #Trae el sprint inicializado
+    out = [item for t in sprint for item in t]
+    print(out)
+    
+
+    return redirect('/sprint/%d'%id)
+
+def cancelar_sprint(request, id):
+
+    Sprint.objects.filter(id=id).update(estado_sprint='Cancelado')
+
+    return redirect('sprint-list')
+
+
+def finalizar_sprint(request, id):
+
+    sprint = Sprint.objects.filter(estado_sprint='Iniciado').values_list('id') #Trae el sprint inicializado
+    out = [item for t in sprint for item in t]
+    
+    if len(out) != 0:
+        user_story_list = UserStory.objects.filter(id_sprint=out[0]).values_list('estado') #Trae todos los us que pertenecen al sprint
+        out = [item for t in user_story_list for item in t]
+        aux = 0
+        for i in out:
+            if i != 'Done':
+                aux = 1                     
+            elif aux == 0:
+                Sprint.objects.filter(id=id).update(estado_sprint='Finalizado')
+            else:
+                messages.error(request, 'No puedes realizar la acción ya que existenUsert Story no finalizados')
+    
+    return redirect('/sprint/%d'%id)
+
 @login_required
 def all_sprints(request,id):
     '''
@@ -913,3 +962,80 @@ def asignar_estados_tipos_us(request,id_proyecto,id_tipo_us):
 
     return render(request, 'tipos_us/asignar_estados_tipo_us.html', {'tipous': tipous, 'form': form,'id_proyecto': id_proyecto, 'project': project,'out': out})
 
+def tablero_kanban(request,id_proyecto,id_tipo_us):
+    '''
+        Tablero Kanban
+        fecha: 25/9/2022
+
+            Vista que invoca un template con el tablero kanban
+            En el desarrollo le obtiene el lisado de los estados correspondientes al tipo de user story
+            que posteriormente se utilizaran para las columnas de la tabla kanban
+    '''
+    project = Proyectos.objects.get(id=id_proyecto)
+    tipous = Tipo_User_Story.objects.get(id=id_tipo_us)
+    estados = Tipo_User_Story.id_estado.through.objects.filter(tipo_user_story_id=id_tipo_us).values_list('id')
+    print(estados)
+    out = [item for t in estados for item in t]
+    estados = Estados.objects.filter(id_tipo_user_story_id=id_tipo_us)  # estados del tipo de user story
+    print('ssss')
+    print(estados)
+    cant_estados = len(Estados.objects.filter(id__in=out))
+    list_user_story = UserStory.objects.filter(id_tipo_user_story=id_tipo_us)
+    cant_user_story = len(UserStory.objects.filter(id_tipo_user_story=id_tipo_us))
+    print(cant_user_story)
+    string_vacio = ""
+
+
+    # list_user_story = []
+    # for indice, valor in enumerate(cant_user_story):
+    #     list_user_story.append(indiceValor(indice, valor))
+    #
+    # print('hola')
+    # print(list_user_story)
+    return render(request, 'tipos_us/tablero_kanban.html', {'string_vacio': string_vacio,'project': project, 'tipous': tipous,'id_proyecto': id_proyecto, 'estados': estados, 'cant_estados': cant_estados, 'list_user_story': list_user_story, 'id_tipo_us': id_tipo_us})
+
+
+def update_user_story_kanban_avanzar(request, id_proyecto, id_user_story, id_tipo_us):
+    project = Proyectos.objects.get(id=id_proyecto)
+    user_story = UserStory.objects.get(id=id_user_story)
+    tipous = Tipo_User_Story.objects.get(id=id_tipo_us)
+    project = Proyectos.objects.get(id=id_proyecto)
+    list_user_story = UserStory.objects.filter(id_tipo_user_story=id_tipo_us)
+    estados = Tipo_User_Story.id_estado.through.objects.filter(tipo_user_story_id=id_tipo_us).values_list('id')
+    print(estados)
+    out = [item for t in estados for item in t]
+    estados = Estados.objects.filter(id_tipo_user_story_id=id_tipo_us).values_list('nombre_estado') # estados del tipo de user story
+    print('aaaa')
+    print(estados)
+    out = [item for t in estados for item in t]  # todos los nombres de los estados
+    print('bbbb')
+    print(out)
+    ultimo = len(out)
+    string_vacio = ""
+    print('xxxx')
+    print(estados)
+    indice = out.index(user_story.estado)
+    if indice < ultimo - 1:
+        user_story.estado = out[indice + 1]
+    user_story.save()
+
+    return redirect('/tablero_kanban/' + str(id_proyecto) + '/' + str(id_tipo_us))
+
+def update_user_story_kanban_atras(request, id_proyecto, id_user_story, id_tipo_us):
+    project = Proyectos.objects.get(id=id_proyecto)
+    user_story = UserStory.objects.get(id=id_user_story)
+    list_user_story = UserStory.objects.filter(id_tipo_user_story=id_tipo_us)
+    tipous = Tipo_User_Story.objects.get(id=id_tipo_us)
+    project = Proyectos.objects.get(id=id_proyecto)
+    estados = Tipo_User_Story.id_estado.through.objects.filter(tipo_user_story_id=id_tipo_us).values_list('id')
+    out = [item for t in estados for item in t]
+    estados = Estados.objects.filter(id_tipo_user_story_id=id_tipo_us).values_list('nombre_estado')   # estados del tipo de user story
+    out = [item for t in estados for item in t]  # todos los nombres de los estados
+    ultimo = len(out)
+    indice = out.index(user_story.estado)
+    string_vacio = ""
+    if indice-1 >= 0:
+        user_story.estado = out[indice -1]
+
+    user_story.save()
+    return redirect('/tablero_kanban/' + str(id_proyecto) + '/' + str(id_tipo_us))

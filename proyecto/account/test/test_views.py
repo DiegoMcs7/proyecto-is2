@@ -4,7 +4,7 @@ import warnings
 from django.urls import reverse
 from django.contrib.auth.models import User
 from account.models import  Proyectos
-from account.views import all_projects,all_roles,all_sprints,all_estados,all_user_story
+from account.views import all_projects,all_sprints,all_estados,all_user_story
 from mixer.backend.django import mixer
 import pytest
 
@@ -20,7 +20,7 @@ class TestViews:
 
         response = all_projects(request)
         assert response.status_code == 200
-        warnings.warn(UserWarning("Test Proyecto autenticado"))
+        warnings.warn(UserWarning("Testeando Proyecto autenticado"))
 
     def test_sprint_authenticated(self):
 
@@ -31,18 +31,18 @@ class TestViews:
 
         response = all_sprints(request,id=4)
         assert response.status_code == 200
-        warnings.warn(UserWarning("Test Sprint autenticado"))
+        warnings.warn(UserWarning("Testeando Sprint autenticado"))
 
     def test_estados_authenticated(self):
 
         mixer.blend('account.Estados')
-        path = reverse('estados-list',kwargs={'id_proyecto':4,'id_tipo_us':53})
+        path = reverse('estados-list',kwargs={'id_proyecto':4,'id_tipo_us':5})
         request = RequestFactory().get(path)
         request.user = mixer.blend(User)
 
-        response = all_estados(request,id_proyecto=4,id_tipo_us=53)
+        response = all_estados(request,id_proyecto=4,id_tipo_us=5)
         assert response.status_code == 200
-        warnings.warn(UserWarning("Test Estado autenticado"))
+        warnings.warn(UserWarning("Testeando Estado autenticado"))
     
     def test_us_authenticated(self):
 
@@ -53,5 +53,5 @@ class TestViews:
 
         response = all_user_story(request,id=4)
         assert response.status_code == 200
-        warnings.warn(UserWarning("Test user story autenticado"))
+        warnings.warn(UserWarning("Testeando user story autenticado"))
 

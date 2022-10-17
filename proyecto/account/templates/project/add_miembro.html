@@ -66,6 +66,7 @@
         <form  class="text-danger" style="margin-left:15px;" action="" method=POST>
             {% csrf_token %}
             {{ form.as_p }}
+
             {% if 'Can add miembros' in out or request.user.is_superuser %}
             <input type="submit" value="Añadir Miembro">
             {% endif %}

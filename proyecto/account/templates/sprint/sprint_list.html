@@ -102,6 +102,7 @@
                     {% if 'Can change sprint' in out or request.user.is_superuser %}
                     <td style="padding:10px;"><a href="{% url 'update-sprint' id_project p.pk %}">Editar</a></td>
                     {% endif %}
+                    <td><a href="{% url 'action-sprint' id_project p.pk %}">Acciones</a></td>
                 </tr>
                 {% endif %}
             {% endfor %}
