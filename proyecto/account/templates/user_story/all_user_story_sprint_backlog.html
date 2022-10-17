@@ -53,16 +53,9 @@
           </span>
     </div>
 
-
-
-
-
-
-{% if 41 in out or request.user.is_superuser %}
-
 <h1> Asignar user story a "{{sprint.nombre_sprint}}"</h1>
 <br/>
-{% endif %}
+
 <p class="display-3" > <a class="button" href="{% url "add-members-sprint" id_project sprint.id %}" style="margin-left: 15px; text-decoration: none; font-family: Arial, Helvetica, sans-serif; background-color: slategray;">Volver</a></p>
 
 
@@ -100,8 +93,7 @@
                     {% else %}
                         <td style="padding:10px;">{{p.encargado}}</td>
                     {% endif %}
-                    {% if 42 in out or request.user.is_superuser %}
-<!--                    <td style="padding:10px;"><a href="{% url 'update-user_story' id_project p.id %}">Editar</a></td>-->
+                    {% if 'Can change user story' in out %}
                     <td style="padding:10px;"><a href="{% url 'update-sprint-user-story' id_project p.id sprint.id %}">Asignar</a></td>
                     {% endif %}
                 </tr>

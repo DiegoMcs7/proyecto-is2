@@ -59,14 +59,14 @@
       </div>
     <div>
 {% if 'Can add miembros' in out or request.user.is_superuser %}
- <p class="display-3">
-                 <div style="display: flex;">
+<p class="display-3">
+    <div style="display: flex;">
 
     <a style="margin-left: 15px; height: 40px; " class="button-create" href="{% url "add-miembros" project.id %}">
-        <i class="bi bi-plus text-primary"></i> Agregar Miembros</a></p>
-       <a class="button" href="{% url "list-projects" %}" style="margin-top: 20px; height: 40px; margin-left: 15px; text-decoration: none; font-family: Arial, Helvetica, sans-serif; background-color: slategray;">Volver</a>
+    <i class="bi bi-plus text-primary"></i> Agregar Miembros</a></p>
+    <a class="button" href="{% url "list-projects" %}" style="margin-top: 20px; height: 40px; margin-left: 15px; text-decoration: none; font-family: Arial, Helvetica, sans-serif; background-color: slategray;">Volver</a>
 
-                    </div>
+    </div>
 
 {% endif %}
 
@@ -87,10 +87,10 @@
                         {% for x in p.id_rol.all %}
                         <td style="padding:10px;">{{x.rol}}</td>
                         {%endfor%}
-                        {% if 54 in out or request.user.is_superuser %}
+                        {% if 'Can change miembros' in out or request.user.is_superuser %}
                         <td><a href="{% url 'update-members_project' project.id p.pk %}">Editar</a></td>
                         {% endif %}
-                        {% if 55 in out or request.user.is_superuser %}
+                        {% if 'Can delete miembros' in out or request.user.is_superuser %}
                         <td style=><a href="{% url 'delete-members_project' p.pk project.id %}">Eliminar</a></td>
                         {% endif %}
                     {% endif %}

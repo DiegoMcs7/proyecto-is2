@@ -57,7 +57,6 @@
         <div style="margin-left: 3%;margin-top: 3%;">
            <a class="button-create" href="{% url "add-sprint" id_project %}">Agregar Sprint</a>
            <a class="button" href="{% url "add-members" id_project %}" style="margin-left: 15px; text-decoration: none; font-family: Arial, Helvetica, sans-serif; background-color: slategray;">Volver</a>
-
         </div>
 {% endif %}
 
@@ -86,7 +85,6 @@
                 </thead>
                 
             {% for p in sprint_list %}
-
                 {% if id_project == p.id_proyecto_id %}
                 <tr scope="row" data-href="{% url 'add-members-sprint' id_project p.pk %}"
                     style="tr:hover {background-color: #77bdff;}">
@@ -101,13 +99,11 @@
                     <td style="padding:10px;"> </td>
                     {% endif %}
                     <td style="padding:10px;">{{p.fecha_inicio}}</td>
-                    {% if 26 in out or request.user.is_superuser %}
+                    {% if 'Can change sprint' in out or request.user.is_superuser %}
                     <td style="padding:10px;"><a href="{% url 'update-sprint' id_project p.pk %}">Editar</a></td>
                     {% endif %}
                 </tr>
-
                 {% endif %}
-
             {% endfor %}
         </table>
     </div>

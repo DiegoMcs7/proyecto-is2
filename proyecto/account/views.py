@@ -525,12 +525,15 @@ def add_members_sprint(request, id_proyecto, id_sprint):
     x = id_proyecto
     y = id_sprint
 
+    print(form['horas_trabajo'].value())
+    out = permisos(request.user.id,id_proyecto)
+
     if form.is_valid():
         sprint.capacidad = sprint.capacidad + int(form['horas_trabajo'].value())
         new_user = form.save()
         new_user.save()
         return redirect('/add_members_sprint/'+str(x)+'/'+str(y))
-    return render(request, 'sprint/add_members_sprint.html',{'sprint': sprint, 'form': form, 'id_sprint': id_sprint, 'members_sprint': members_sprint, 'id_proyecto': id_proyecto, 'project': project})
+    return render(request, 'sprint/add_members_sprint.html',{'sprint': sprint, 'form': form, 'id_sprint': id_sprint, 'members_sprint': members_sprint, 'id_proyecto': id_proyecto, 'project': project, 'out': out})
 
 
 def add_miembros_sprint(request, id_proyecto, id_sprint):
@@ -546,6 +549,8 @@ def add_miembros_sprint(request, id_proyecto, id_sprint):
     form = AddMembersSprintForm(request.POST or None, pwd=id_proyecto, initial={'id': id_sprint,'sprint':id_sprint})
     x = id_proyecto
     y = id_sprint
+    print(form['horas_trabajo'].value())
+    out = permisos(request.user.id,id_proyecto)
     if form.is_valid():
         new_user = form.save()
         sprint.capacidad = sprint.capacidad + new_user.horas_trabajo * sprint.duracion_dias
@@ -553,17 +558,17 @@ def add_miembros_sprint(request, id_proyecto, id_sprint):
         print(sprint.capacidad)
         new_user.save()
         return redirect('/add_members_sprint/'+str(x)+'/'+str(y))
-    return render(request, 'sprint/add_miembros_sprint.html',{'sprint': sprint, 'form': form, 'id_sprint': id_sprint, 'members_sprint': members_sprint, 'id_proyecto': id_proyecto, 'project': project})
+    return render(request, 'sprint/add_miembros_sprint.html',{'sprint': sprint, 'form': form, 'id_sprint': id_sprint, 'members_sprint': members_sprint, 'id_proyecto': id_proyecto, 'project': project,'out': out})
 
 
 def all_user_story(request, id):
 
     user_story = UserStory.objects.all()
     project = Proyectos.objects.get(id=id)
+    out = permisos(request.user.id,id)
 
     return render(request, 'user_story/user_story_list.html',
-                  {'user_story_list': user_story, 'id_project': id, 'project': project})
-
+                  {'user_story_list': user_story, 'id_project': id, 'project': project, 'out': out})
 
 def all_user_story_sprint_backlog(request, id):
 
@@ -575,16 +580,15 @@ def all_user_story_sprint_backlog(request, id):
     return render(request, 'user_story/user_story_list_sprint_backlog.html',
                   {'user_story_list': user_story, 'id_sprint': id, 'id_proyecto': s.id_proyecto_id, 'project': project, 'out': out})
 
-
 def product_backlog_sprint(request, id_proyecto, id_sprint):
 
     user_story = UserStory.objects.all()
     sprint = Sprint.objects.get(id=id_sprint)
     project = Proyectos.objects.get(id=id_proyecto)
+    out = permisos(request.user.id,id_proyecto)
 
     return render(request, 'user_story/all_user_story_sprint_backlog.html',
-                  {'user_story_list': user_story, 'sprint': sprint, 'id_project': id_proyecto})
-
+                  {'user_story_list': user_story, 'sprint': sprint, 'id_project': id_proyecto, 'out': out})
 
 def add_user_story(request, id_proyecto):
     user_story = UserStory.objects.all()
@@ -636,8 +640,6 @@ def update_sprint_user_story(request, id_proyecto, id_user_story, id_sprint):
         return redirect('/product_backlog_sprint/'+str(id_proyecto)+'/'+str(id_sprint))
 
     return render(request, 'user_story/update_user_story.html', {'user_story': user_story, 'form': form, 'id_proyecto': id_proyecto, 'project': project})
-
-
 
 
 def update_prioridad_user_story(request, id_proyecto, id_user_story):
@@ -824,10 +826,12 @@ def asignar_estados_tipos_us(request,id_proyecto,id_tipo_us):
     x = id_proyecto
     y = id_tipo_us
 
+    out = permisos(request.user.id,id_proyecto)
+
     form = AsignarEstadosTipoUsForm(request.POST or None, instance=tipous, pwd=id_tipo_us, initial={'id_proyecto': id_proyecto})
     if form.is_valid():
         form.save()
         return redirect('/estados/'+str(x)+'/'+str(y))
 
-    return render(request, 'tipos_us/asignar_estados_tipo_us.html', {'tipous': tipous, 'form': form,'id_proyecto': id_proyecto, 'project': project})
+    return render(request, 'tipos_us/asignar_estados_tipo_us.html', {'tipous': tipous, 'form': form,'id_proyecto': id_proyecto, 'project': project,'out': out})
 
