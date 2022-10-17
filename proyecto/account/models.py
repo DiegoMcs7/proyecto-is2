@@ -16,6 +16,12 @@ from pyexpat import model
 from django.db import models
 from django.conf import settings
 from django.contrib.auth.models import Permission
+# import os
+# import django
+#
+# os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'my_crazy_service.settings')
+# django.setup()
+
 # Create your models here.
 
 class Miembros(models.Model):
@@ -31,7 +37,8 @@ class Miembros(models.Model):
     id_usuario = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE)
     id_proyecto = models.ForeignKey("Proyectos",on_delete=models.CASCADE)
     id_rol = models.ManyToManyField("Rol")
-   
+
+
 class Usuarios(models.Model):
     '''
         Editar un proyecto
@@ -120,8 +127,9 @@ class UserStory(models.Model):
     desc_us = models.TextField()
     #com_us = models.TextField()
     #historial_us = models.CharField(max_length=30)
-    horas_estimadas = models.IntegerField(null=True)
-    encargado = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
+    horas_estimadas = models.IntegerField(default=0)
+    horas_trabajadas = models.IntegerField(default=0)
+    encargado = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True)
     prioridad = [
 
         ('Baja','Baja'),
@@ -133,7 +141,7 @@ class UserStory(models.Model):
     id_proyecto = models.ForeignKey("Proyectos", on_delete=models.CASCADE, null=True)
     id_sprint = models.ForeignKey("Sprint", on_delete=models.CASCADE, null=True, blank=True)
     id_tipo_user_story = models.ForeignKey("Tipo_User_Story", on_delete=models.CASCADE, null=True, blank=True)
-
+    estado = models.TextField(default="To Do")
     @property
     def us_exist(self):
         return self.id_user_story>0
@@ -163,7 +171,7 @@ class Tipo_User_Story(models.Model):
     '''
 
     nombre_tipo_us = models.CharField(max_length=30)
-    id_estado = models.ForeignKey("Estados",on_delete=models.CASCADE, null=True, blank=True)
+    id_estado = models.ManyToManyField("Estados", blank=True, db_table='estados_tipo_us')
     id_proyecto = models.ForeignKey("Proyectos",on_delete=models.CASCADE, null=True, blank=True)
 
     def __str__(self):
@@ -178,9 +186,11 @@ class Estados(models.Model):
         Modelo Estados
         fecha: 30/9/2022
 
+
              Se define el modelo que cuenta con los detalles de un estado para tipo de us, como su nombre y el tipo al que pertenece
             Este modelo es utilizado para definir los diferentes estados que pertencen para cada tipo de user story
     '''
+
     nombre_estado = models.CharField(max_length=30)
     id_tipo_user_story = models.ForeignKey("Tipo_User_Story", on_delete=models.CASCADE, null=True)
 
@@ -214,6 +224,7 @@ class Sprint(models.Model):
             Se define el modelo que cuenta con los detalles de un sprint, como su nombre, descripción, estado entre otros detalles
             Este modelo es utilizado para definir los diferentes sprints que pertencen para cada proyecto
     '''
+
     id = models.AutoField(primary_key=True)
     nombre_sprint = models.CharField(max_length=30)
     desc_sprint = models.TextField()
@@ -226,7 +237,7 @@ class Sprint(models.Model):
         
 
     ]
-    estado_sprint = models.CharField(choices=estado, default='Iniciado', max_length=12)
+    estado_sprint = models.CharField(choices=estado, default='Planificado', max_length=12)
     fecha_inicio = models.DateField(auto_now=True,blank=True,null=True)
     duracion_dias = models.IntegerField(null=True) #Duracion en dias habiles
     capacidad = models.IntegerField(default=0) #Capacidad de produccion
@@ -243,6 +254,8 @@ class Miembro_Sprint (models.Model):
     usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     sprint = models.ForeignKey("Sprint", on_delete=models.CASCADE)
     horas_trabajo = models.IntegerField(null=True)
+    def __str__(self):
+        return self.usuario
 
 class Reportes(models.Model):
     id = models.AutoField(primary_key=True)

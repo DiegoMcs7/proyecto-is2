@@ -1,6 +1,10 @@
+from cProfile import label
+from email import message
+from attr import fields
 from django import forms
 from django.contrib.auth.models import User
 from django.db.models import Q
+from matplotlib import widgets
 from .models import Estados, Miembro_Sprint, Profile, Proyectos, Miembros, Rol, Sprint, Tipo_User_Story, UserStory
 from django.conf import settings
 from django.forms import ModelForm
@@ -173,7 +177,7 @@ class SprintForm(ModelForm):
         widgets = {
             'nombre_sprint': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nombre del sprint'}),
             'desc_sprint': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Descripcion del sprint', 'style': 'height: 30%;'}),
-            'estado_sprint': forms.Select(attrs={'class': 'form-select', 'placeholder': 'Estado del sprint'}),
+            'estado_sprint': forms.HiddenInput(attrs={'class': 'form-select', 'placeholder': 'Estado del sprint'}),
             'duracion_dias': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Duración en días hábiles'}),
             'capacidad': forms.HiddenInput(attrs={'class': 'form-control', 'placeholder': 'Duración en días hábiles'}),
             'id_proyecto': forms.HiddenInput(attrs={'class': 'form-control', 'placeholder': 'Proyecto'}),
@@ -219,12 +223,12 @@ class UserStoryForm(ModelForm):
         }
         widgets = {
             'nombre_us': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nombre del user story'}),
-            'desc_us': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Descripcion del user story', 'style': 'height: 30%;'}),
-            'horas_estimadas': forms.NumberInput(attrs={'class': 'form-control'}),
-            'encargado': forms.Select(attrs={'class': 'form-control', 'placeholder': 'Encargado'}),
-            'prioridad_us': forms.Select(attrs={'class': 'form-control', 'placeholder': 'Horas de trabajo por día'}),
+            'desc_us': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Descripcion del user story', 'style': 'height: 20%;'}),
+            'horas_estimadas': forms.HiddenInput(attrs={'class': 'form-control'}),
+            'encargado': forms.HiddenInput(attrs={'class': 'form-control', 'placeholder': 'Encargado'}),
+            'prioridad_us': forms.HiddenInput(attrs={'class': 'form-control', 'placeholder': 'Horas de trabajo por día'}),
             'id_tipo_user_story': forms.Select(attrs={'class': 'form-control', 'placeholder': 'Tipo de user story'}),
-            'id_sprint': forms.Select(attrs={'class': 'form-control', 'placeholder': 'Sprint'}),
+            'id_sprint': forms.HiddenInput(attrs={'class': 'form-control', 'placeholder': 'Sprint'}),
             'id_proyecto': forms.HiddenInput(attrs={'class': 'form-control', 'placeholder': 'Sprint'}),
         }
 
@@ -236,6 +240,38 @@ class UserStoryForm(ModelForm):
         self.fields['id_tipo_user_story'].queryset = Tipo_User_Story.objects.filter(id_proyecto_id=self._pwd)
         self.fields['id_sprint'].queryset = Sprint.objects.filter(id_proyecto_id=self._pwd)
 
+
+class UserStorySprintForm(ModelForm):
+    class Meta:
+        model = UserStory
+        fields = ('horas_estimadas', 'encargado', 'id_sprint')
+        labels = {
+            'horas_estimadas': 'Horas estimadas',
+            'encargado': 'Encargado',
+        }
+        widgets = {
+            'horas_estimadas': forms.NumberInput(attrs={'class': 'form-control'}),
+            'encargado': forms.Select(attrs={'class': 'form-control', 'placeholder': 'Encargado'}),
+            'id_sprint': forms.HiddenInput(attrs={'class': 'form-control', 'placeholder': 'Sprint'}),
+        }
+    def __init__(self, *args, **kwargs):
+        self._pwd = kwargs.pop('pwd', None)
+        print(self._pwd)
+        super().__init__(*args, **kwargs)
+        #self.fields['encargado'].queryset = Miembro_Sprint.objects.filter(sprint=self._pwd)
+        self.fields['encargado'].queryset = User.objects.filter(miembro_sprint__sprint=self._pwd)
+        #Miembro_Sprint.sprint.through.objects.filter(tipo_user_story_id=id_tipo_us).values_list('estados_id')
+
+
+class UsPrioridadForm(ModelForm):
+    class Meta:
+        model = UserStory
+        fields = ('prioridad_us',)
+        labels = {'prioridad_us': 'Prioridad'}
+        widgets = {
+            'prioridad_us': forms.Select(attrs={'class': 'form-control', 'placeholder': 'Prioridad'}),
+        }
+
 class TipoUsForm(ModelForm):
     class Meta:
         model = Tipo_User_Story
@@ -246,11 +282,39 @@ class TipoUsForm(ModelForm):
             'id_proyecto': '',
 
         }
+
         widgets = {
             'nombre_tipo_us': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nombre del Tipo_US'}),
-            'id_estado': forms.Select(attrs={'class': 'form-control', 'placeholder': 'Estado'}),
-            'id_proyecto': forms.Select(attrs={'class': 'form-control', 'placeholder': 'Proyecto'}),
+            'id_estado': forms.HiddenInput(attrs={'class': 'form-control', 'placeholder': 'Estado'}),
+            'id_proyecto': forms.HiddenInput(attrs={'class': 'form-control', 'placeholder': 'Proyecto'}),
         }
+
+class AsignarEstadosTipoUsForm(ModelForm):
+    class Meta:
+        model = Tipo_User_Story
+        fields = ('nombre_tipo_us', 'id_estado', 'id_proyecto')
+        labels = {
+            'nombre_tipo_us': '',
+            'id_estado': 'Estados',
+            'id_proyecto': '',
+
+        }
+        my_default_errors = {
+        'required': 'Este campo es requerido',
+        'invalid': 'Ingrese un '
+        }
+
+        widgets = {
+            'nombre_tipo_us': forms.HiddenInput(attrs={'class': 'form-control', 'placeholder': 'Nombre del Tipo_US'}),
+            'id_estado': forms.CheckboxSelectMultiple(attrs={'class': 'form-check', 'placeholder': 'Estado', 'style': 'padding-left: 0.4em;' }),
+            'id_proyecto': forms.HiddenInput(attrs={'class': 'form-control', 'placeholder': 'Proyecto'}),
+        }
+    def __init__(self, *args, **kwargs):
+        self._pwd = kwargs.pop('pwd', None)
+        print(self._pwd)
+        super().__init__(*args, **kwargs)
+        self.fields['id_estado'].queryset = Estados.objects.filter(id_tipo_user_story=self._pwd)
+
 
 
 class EstadosForm(ModelForm):
@@ -264,6 +328,14 @@ class EstadosForm(ModelForm):
         }
         widgets = {
             'nombre_estado': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nombre del Estados'}),
-            'id_tipo_user_story': forms.Select(attrs={'class': 'form-control', 'placeholder': 'Tipo User Story'}),
+            'id_tipo_user_story': forms.HiddenInput(attrs={'class': 'form-control', 'placeholder': 'Tipo User Story'}),
         }
 
+class UsHorasForm(ModelForm):
+    class Meta:
+        model = UserStory
+        fields = ('horas_trabajadas',)
+        labels = {'horas_trabajadas': 'Horas'}
+        widgets = {
+            'horas_trabajadas': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Horas'}),
+        }

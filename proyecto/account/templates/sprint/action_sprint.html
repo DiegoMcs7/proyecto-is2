@@ -1,0 +1,95 @@
+{% load static %}
+
+<html lang="en">
+<head>
+   <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@500&display=swap" rel="stylesheet">
+
+
+    <title>Acciones</title>
+    <link rel="stylesheet" type="text/css" href="{% static "css/base.css" %}" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-iYQeCzEYFbKjA/T2uDLTpkwGzCiq6soy8tYaI1GyVh/UjpbCx/TYkiZhlZB6+fzT" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css"/>
+    <style>
+          a{
+        font-size: 1.03em;
+        font-family: 'Noto Sans', sans-serif;
+        }
+    </style>
+</head>
+<body style="overflow: overlay;">
+    <div id="header">
+         <a href="{% url "tablero" %}"><span class="logo" style="color:#df8a3d; margin-left:-5%; margin-top:7px"> <i class="bi bi-grid-3x3-gap-fill"></i></span></a>
+        <a href="{% url "tablero" %}"><span class="logo" style="color:#df8a3d; margin-left:-5%; font-family: 'Noto Sans', sans-serif; font-size: 1.500em;"
+> {{ project.nombre_proyecto }}</span></a>
+        {% if request.user.is_authenticated %}
+          <ul class="menu">
+
+              <li>
+              <a href="{% url "list-projects" %}">Proyectos</a>
+              </li>
+              <li>
+              <a href="{% url "tipos_us-list" project.id %}">Tipo US</a></a>
+              </li>
+              <li>
+              <a href="{% url "sprint-list" project.id %}">Sprints</a>
+              </li>
+               <li>
+              <a href="{% url "user_story-list" project.id %}">Product Backlog</a>
+              </li>
+               <li>
+              <a href="{% url "list-roles" project.id %}">Roles</a>
+              </li>
+          </ul>
+          {% endif %}
+          <span class="user">
+              {% if request.user.is_authenticated %}
+              Hola, {{ request.user.first_name }}..
+              <a style="color:#df8a3d" href="{% url "logout" %}">Cerrar Sesión</a>
+              {% else %}
+              <a href="{% url "login" %}">Iniciar Sesión</a>
+              {% endif %}
+          </span>
+    </div>
+
+	<h1>Pulse un botón para realizar la acción</h1>
+
+<br/>
+    <div id="content" style="margin-top:20px; margin-bottom:20px;margin-left: 15px;">
+        <td class="btn-group" role="group" aria-label="Basic mixed styles example">
+                {% if 'Can change sprint' in out and sprint.estado_sprin != 'Cancelado'%}
+                <button type="button" class="btn btn-secondary" ><a href="{% url 'update-sprint' project.id sprint.id %}"  style="color:#ffff; margin-left:-7%; margin-top:7px; text-decoration: none;" >Editar</a></button>
+                {% endif %}
+                {% if sprint.estado_sprint != 'Iniciado' and sprint.estado_sprint != 'Cancelado' and sprint.estado_sprint != 'Finalizado'%}
+                <button type="button" class="btn btn-success" ><a href="{% url 'inicializar_sprint' project.id sprint.id %}"style="color:#ffff; margin-left:-7%; margin-top:7px; text-decoration: none;" >Inicializar</a></button>
+                {% endif %}
+                {% if sprint.estado_sprint != 'Finalizado' and sprint.estado_sprint != 'Cancelado' %}
+                <button type="button" class="btn btn-warning" ><a href="{% url 'finalizar_sprint' project.id sprint.id %}"style="color:black; margin-left:-7%; margin-top:7px; text-decoration: none;">Finalizar</a></button>
+                {% endif %}
+                {% if sprint.estado_sprint == 'Iniciado' or sprint.estado_sprint == 'Planificado' %}
+                <button type="button" class="btn btn-danger" ><a href="{% url 'cancelar_sprint' project.id sprint.id %}"style="color:#ffff; margin-left:-7%; margin-top:7px; text-decoration: none;">Cancelar</a></button>
+                {% endif %}
+                {% if request.user.is_superuser %}
+                <button type="button" class="btn btn-danger" ><a href="{% url 'delete-sprint' project.id %}"style="color:black; margin-left:-7%; margin-top:7px; text-decoration: none;">Eliminar</a></button>
+                {% endif %}
+              </td>
+              {% for message in messages %}
+
+        <div class="alert alert-success">
+          <a class="close" href="#" data-dismiss="alert"></a>
+          {{ message }}
+        </div>
+
+        {% endfor %}
+      </div>
+      
+            <br/><br/><br/>
+
+             <a class="button" href="{% url "sprint-list" project.id %}" style="margin-left: 15px; text-decoration: none; font-family: Arial, Helvetica, sans-serif; background-color: slategray;">Volver</a>
+
+</body>
+</html>
+
+

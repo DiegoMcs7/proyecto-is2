@@ -2,15 +2,27 @@
 
 <html lang="en">
 <head>
-    <title>Estados </title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@500&display=swap" rel="stylesheet">
+
+
+    <title>Listar tipo de user story </title>
     <link rel="stylesheet" type="text/css" href="{% static "css/base.css" %}" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-iYQeCzEYFbKjA/T2uDLTpkwGzCiq6soy8tYaI1GyVh/UjpbCx/TYkiZhlZB6+fzT" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css"/>
+    <style>
+         a{
+        font-size: 1.03em;
+        font-family: 'Noto Sans', sans-serif;
+        }
+    </style>
 </head>
 <body style="overflow: overlay;">
     <div id="header">
-        <a href="{% url "tablero" %}"><span class="logo" style="color:#df8a3d; margin-left:-5%">Gestor de Proyectos</span></a>
+       <a href="{% url "tablero" %}"><span class="logo" style="color:#df8a3d; margin-left:-5%; margin-top:7px"> <i class="bi bi-grid-3x3-gap-fill"></i></span></a>
+       <a href="{% url "tablero" %}"><span class="logo" style="color:#df8a3d; margin-left:-8%; font-family: 'Noto Sans', sans-serif; font-size: 1.500em;"> {{ project.nombre_proyecto }}</span></a>
         {% if request.user.is_authenticated %}
           <ul class="menu">
               <li>
@@ -41,13 +53,14 @@
     </div>
 
 
-
-
-
-
 <div style="margin-left: 3%;margin-top: 3%;">
-{% if 25 in out or request.user.is_superuser %}
- <p class="display-3" ><a class="button-create" href="{% url "add-estados" id_proyecto id_tipo_us %}">Agregar Estado</a></p>
+{% if 'Can add estados' in pout or request.user.is_superuser %}
+    <div style="display:flex;">
+         <p class="display-3" ><a class="button-create" style="margin-right:10px;" href="{% url "asignar-estados-tipos-us" id_proyecto id_tipo_us %}">Asignar Estado</a></p>
+        <p class="display-3" ><a class="button-create" href="{% url "add-estados" id_proyecto id_tipo_us %}">Crear Estado</a></p>
+        <p class="display-3" > <a class="button" href="{% url "tipos_us-list" id_proyecto %}" style="margin-left: 15px; text-decoration: none; font-family: Arial, Helvetica, sans-serif; background-color: slategray;">Volver</a></p>
+
+    </div>
     {% endif %}
  </div>
     <div>
@@ -69,18 +82,18 @@
                       <th>Descripción</th>
                     </tr>
                 </thead>
-                
-            {% for p in estados_list %}
 
-                <tr scope="row" style="tr:hover {background-color: #77bdff;}">
-                  <td style="padding:10px;">{{p.id}} </a></td>
-                    <td style="padding:10px;">{{p.nombre_estado}} </a></td>
-                    <td style="padding:10px;">{{p.id_tipo_user_story}}</td>
-                    {% if 26 in out or request.user.is_superuser %}
-                    <td style="padding:10px;"><a href="{% url 'update-estados' id_proyecto id_tipo_us p.pk %}">Editar</a></td>
-                    {% endif %}
-                </tr>
-
+            {% for p in all_estados %}
+                  {% if p.id in out %}
+                    <tr scope="row" style="tr:hover {background-color: #77bdff;}">
+                      <td style="padding:10px;">{{p.id}} </a></td>
+                        <td style="padding:10px;">{{p.nombre_estado}} </a></td>
+                        <td style="padding:10px;">{{p.id_tipo_user_story}}</td>
+                        {% if 'Can change estados' in pout or request.user.is_superuser %}
+                        <td style="padding:10px;"><a href="{% url 'update-estados' id_proyecto id_tipo_us p.pk %}">Editar</a></td>
+                        {% endif %}
+                    </tr>
+                  {% endif %}
             {% endfor %}
         </table>
     </div>

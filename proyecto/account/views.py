@@ -2,10 +2,13 @@ from datetime import datetime
 from gc import get_objects
 from urllib import response
 from urllib.request import Request
+from .permisos import permisos
 from .models import Estados, Miembro_Sprint, Miembros, Profile, Proyectos, Rol, Sprint, Tipo_User_Story, UserStory
 from django.shortcuts import render, redirect
-from .forms import AddMembersForm, AddMembersSprintForm, EstadosForm, ProyectosForm, RolForm, TipoUsForm, UserEditForm, UserRegistrationForm, \
-    SprintForm, UserStoryForm
+from .forms import AddMembersForm, AddMembersSprintForm, EstadosForm, ProyectosForm, RolForm, TipoUsForm, \
+    UsPrioridadForm, UserEditForm, \
+    UserRegistrationForm, \
+    SprintForm, UserStoryForm, AsignarEstadosTipoUsForm, UserStorySprintForm, UsHorasForm
 from django.contrib.auth.decorators import login_required
 from tablib import Dataset
 from django.contrib import messages
@@ -30,6 +33,10 @@ def tablero(request):
     '''
 
     return render(request, 'account/tablero.html', {'section': 'tablero'})
+
+def kanban(request):
+
+    return render(request, 'kanban/index.html')
 
 
 def register(request):
@@ -89,7 +96,6 @@ def add_project(request):
     submitted = False
     if request.method == "POST":
         form = ProyectosForm(request.POST, initial={'scrum_master': request.user.id})
-        
         if form.is_valid():
             project = form.save(commit=False)
             project.manager = request.user
@@ -132,30 +138,77 @@ def update_project(request, id):
             Funcion en la cual se pueden editar proyectos.        
     '''
     project = Proyectos.objects.get(id=id)
-
     form = ProyectosForm(request.POST or None, instance=project)
 
-    a = Sprint.objects.filter(Q(id_proyecto_id=id),
-                              Q(estado_sprint="Iniciado") | Q(estado_sprint="Pendiente")).values_list('id')
-    out = [item for t in a for item in t]
-    if form.is_valid():
-        print(form['estado_proyecto'].value() )
-        if form['estado_proyecto'].value() == 'Cancelado' or form['estado_proyecto'].value() == 'Finalizado':
-            print('entra')
-            if len(out) == 0:
-                form.save()
-                return redirect('list-projects')
-            else:
-                messages.error(request, 'No puedes realizar la acción ya que hay sprints no finalizados.')
-        else:
+    # a = Sprint.objects.filter(Q(id_proyecto_id=id),
+    #                           Q(estado_sprint="Iniciado") | Q(estado_sprint="Iniciado")).values_list('id')
+    # out = [item for t in a for item in t]
+    project_state = Proyectos.objects.get(id=id)
+    if project_state.estado_proyecto == 'Cancelado':
+        messages.error(request, 'No puedes realizar la acción ya que el proyecto ha sido cancelado')
+    elif project_state.estado_proyecto == 'Finalizado':
+        messages.error(request, 'No puedes realizar la acción ya que el proyecto ha sido finalizado')
+    else:
+        if form.is_valid():
             form.save()
             return redirect('list-projects')
 
     return render(request, 'project/update_project.html', {'project': project, 'form': form})
 
+
+def action_project(request, id):
+    '''
+        Seleccionar accion por proyecto
+        fecha: 16/10/2022
+
+            Funcion en la cual se seleccionan las acciones por proyecto
+    '''
+    project = Proyectos.objects.get(id=id)
+
+    return render(request, 'project/action_project.html', {'project': project})
+
 def inicializar_proyecto(request, id):
 
+    '''
+        Accion inicializar proyecto
+        fecha: 16/10/2022
+
+            Funcion en la cual se permite inicializar un proyecto
+    '''
+
     Proyectos.objects.filter(id=id).update(estado_proyecto='Iniciado')
+
+    return redirect('list-projects')
+
+def cancelar_proyecto(request, id):
+
+    '''
+        Accion cancelar proyecto
+        fecha: 16/10/2022
+
+            Funcion en la cual se seleccionan las acciones por proyecto
+    '''
+
+    Proyectos.objects.filter(id=id).update(estado_proyecto='Cancelado')
+
+    return redirect('list-projects')
+
+
+def finalizar_proyecto(request, id):
+
+    '''
+        Accion finalizar proyecto
+        fecha: 16/10/2022
+
+            Funcion en la cual se permite finalizar un proyecto
+    '''
+
+    Proyectos.objects.filter(id=id).update(estado_proyecto='Finalizado')
+    project_state = Proyectos.objects.get(id=id)
+    if project_state.estado_proyecto == 'Cancelado':
+        messages.error(request, 'No puedes realizar la acción ya que el proyecto ha sido cancelado')
+    elif project_state.estado_proyecto == 'Finalizado':
+        messages.error(request, 'No puedes realizar la acción ya que el proyecto ha sido finalizado')
 
     return redirect('list-projects')
 
@@ -168,13 +221,22 @@ def all_projects(request):
             Esta vista es la encargada de llamar al archivo project_list.html con el fin de mostrar en pantalla la lista
             de todos los proyectos registrados en el sistema.       
     '''
-
     project_list = Proyectos.objects.all()
     members = Miembros.objects.all()
     user = request.user.id
+
     return render(request, 'project/project_list.html',
                   {'project_list': project_list,'members': members,'user': user})
 
+class proyecto_iterador:
+
+    list_id = 0
+    indice_permiso = 0
+
+    def __init__(self, list_id, indice_permiso): 
+        self.list_id = list_id 
+        self.indice_permiso = indice_permiso
+    
 def add_members(request, id):
     '''
         Agregar mimembro a un proyecto
@@ -186,12 +248,34 @@ def add_members(request, id):
     members = Miembros.objects.all()
     roles = Rol.objects.all()
     form = AddMembersForm(request.POST or None, pwd=project.id, initial={'id_proyecto': id})
+
+    out = permisos(request.user.id,id)
     
     if form.is_valid():
         new_user = form.save()
         new_user.save()
         return redirect('/add_members/%d'%project.id)
-    return render(request, 'project/add_members.html', {'project': project, 'form': form, 'members': members, 'roles': roles})
+    return render(request, 'project/add_members.html', {'project': project, 'form': form, 'members': members, 'roles': roles, 'out': out})
+
+def add_miembros(request, id):
+    '''
+        Agregar mimembro a un proyecto
+        fecha: 25/9/2022
+
+            Funcion en la cual se pueden agregar miembros a diferentes proyectos.        
+    '''
+    project = Proyectos.objects.get(id=id)
+    members = Miembros.objects.all()
+    roles = Rol.objects.all()
+    form = AddMembersForm(request.POST or None, pwd=project.id, initial={'id_proyecto': id})
+
+    out = permisos(request.user.id,id)
+    
+    if form.is_valid():
+        new_user = form.save()
+        new_user.save()
+        return redirect('/add_members/%d'%project.id)
+    return render(request, 'project/add_miembro.html', {'project': project, 'form': form, 'members': members, 'roles': roles, 'out': out})
 
 def update_members_project(request, id_proyecto, id_miembro):
     '''
@@ -229,7 +313,10 @@ def all_roles(request, id_proyecto):
     out = [item for t in a for item in t]
     a = Rol.permisos.through.objects.filter(rol_id__in=out).values_list('permission_id')
     out = [item for t in a for item in t]
-
+    a = Permission.objects.filter(id__in=out).values_list('name')
+    out = [item for t in a for item in t]
+    # En linea 60 de roles_list utilizar los nombres de los permisos Ejempo:'can view rol' en vez del id 45
+    # en otras metodos no se utiliza out pero en los templates si se utiliza?
 
     return render(request, 'roles_y_permisos/roles_list.html',
                   {'roles_list': roles_list, 'out': out,'project': project})
@@ -269,6 +356,7 @@ def add_rol(request,id_proyecto):
             submitted = True
 
     return render(request, 'roles_y_permisos/add_rol.html', {'form': form, 'submitted': submitted,'project':project})
+
 
 def update_rol(request, id,id_proyecto):
     '''
@@ -374,6 +462,72 @@ def import_roles(request,id_proyecto):
 
 # CRUD para sprint
 
+def action_sprint(request, id_proyecto, id_sprint):
+    '''
+        Seleccionar accion por proyecto
+        fecha: 16/10/2022
+
+            Funcion en la cual se seleccionan las acciones por proyecto
+    '''
+    project = Proyectos.objects.get(id=id_proyecto)
+    sprint = Sprint.objects.get(id=id_sprint)
+
+    out = permisos(request.user.id,id_proyecto)
+
+    return render(request, 'sprint/action_sprint.html', {'project': project,'sprint': sprint,'out': out})
+
+def inicializar_sprint(request, id_proyecto,id_sprint):
+
+    sprint = Sprint.objects.filter(id=id_sprint).values_list('estado_sprint') #Trae el sprint inicializado
+    out = [item for t in sprint for item in t]
+    x = id_proyecto
+    y = id_sprint
+    for i in out:
+        if i == 'Planificado':
+            Sprint.objects.filter(id=id_sprint).update(estado_sprint='Iniciado')
+        else :
+            messages.error(request, 'No se puede inicializar el sprint')
+            return redirect('/action_sprint/'+str(x)+'/'+str(y))
+
+    return redirect('/sprint/%d'%id_proyecto)
+
+def cancelar_sprint(request, id_proyecto,id_sprint):
+
+    sprint = Sprint.objects.filter(id=id_sprint).values_list('estado_sprint') #Trae el sprint inicializado
+    out = [item for t in sprint for item in t]
+    x = id_proyecto
+    y = id_sprint
+    for i in out:
+        if i != 'Finalizado' or i != 'Cancelado':
+            Sprint.objects.filter(id=id_sprint).update(estado_sprint='Cancelado')
+        else :
+            messages.error(request, 'No se puede inicializar el sprint')
+            return redirect('/action_sprint/'+str(x)+'/'+str(y))
+
+    return redirect('/sprint/%d'%id_proyecto)
+
+
+def finalizar_sprint(request, id_proyecto,id_sprint):
+
+    x = id_proyecto
+    y = id_sprint
+    sprint = Sprint.objects.filter(estado_sprint='Iniciado').values_list('id') #Trae el sprint inicializado
+    out = [item for t in sprint for item in t]
+    if len(out) != 0:
+        user_story_list = UserStory.objects.filter(id_sprint=out[0]).values_list('estado') #Trae todos los us que pertenecen al sprint
+        out = [item for t in user_story_list for item in t]
+        aux = 0
+        for i in out:
+            if i != 'Done':
+                aux = 1                     
+            elif aux == 0:
+                Sprint.objects.filter(id=id).update(estado_sprint='Finalizado')
+            else:
+                messages.error(request, 'No puedes realizar la acción ya que existe un User Story no finalizado')
+                return redirect('/action_sprint/'+str(x)+'/'+str(y))
+    
+    return redirect('/sprint/%d'%id_proyecto)
+
 @login_required
 def all_sprints(request,id):
     '''
@@ -384,9 +538,12 @@ def all_sprints(request,id):
             de todos los sprints creados para cada proyecto.       
     '''
     sprint_list = Sprint.objects.all()
+    project = Proyectos.objects.get(id=id)
+
+    out = permisos(request.user.id,id)
                                                              
     return render(request, 'sprint/sprint_list.html',
-                  {'sprint_list': sprint_list,'id_project': id})
+                  {'sprint_list': sprint_list,'id_project': id, 'project': project, 'out': out})
 
 
 def add_sprint(request,id):
@@ -401,20 +558,13 @@ def add_sprint(request,id):
     x = project.id
     if request.method == "POST":
         form = SprintForm(request.POST, initial={'id_proyecto':x})
-        a = Sprint.objects.filter(Q(id_proyecto_id=id), Q(estado_sprint="Iniciado") | Q(estado_sprint="Pendiente")).values_list('id')
+        a = Sprint.objects.filter(Q(id_proyecto_id=id), Q(estado_sprint="Iniciado")).values_list('id')
         out = [item for t in a for item in t]
 
         if form.is_valid() and len(out)==0:
             sprint = form.save()
             sprint.manager = request.user
             sprint.save()
-            estado1 = Estados.objects.create(nombre_estado="To Do")
-            estado2 = Estados.objects.create(nombre_estado="Doing")
-            estado3 = Estados.objects.create(nombre_estado="Done")
-
-            estado1.save()
-            estado2.save()
-            estado3.save()
 
             return HttpResponseRedirect('/sprint/%d'%id)
         else:
@@ -426,7 +576,7 @@ def add_sprint(request,id):
         if 'submitted' in request.GET:
             submitted = True
 
-    return render(request, 'sprint/add_sprint.html', {'form': form, 'submitted': submitted, 'id_proyecto': id})
+    return render(request, 'sprint/add_sprint.html', {'form': form, 'submitted': submitted, 'id_proyecto': id, 'project': project})
 
 
 def update_sprint(request, id_proyecto, id_sprint):
@@ -437,13 +587,15 @@ def update_sprint(request, id_proyecto, id_sprint):
             Funcion en la cual se pueden editar sprint a diferentes proyectos.        
     '''
     sprint = Sprint.objects.get(id=id_sprint)
+    project = Proyectos.objects.get(id=id_proyecto)
+
 
     form = SprintForm(request.POST or None, instance=sprint, initial={'id_proyecto': id_proyecto})
     if form.is_valid():
         form.save()
         return redirect('/sprint/%d' %id_proyecto)
 
-    return render(request, 'sprint/update_sprint.html', {'sprint': sprint, 'form': form, 'id_proyecto': id_proyecto})
+    return render(request, 'sprint/update_sprint.html', {'sprint': sprint, 'form': form, 'id_proyecto': id_proyecto, 'project': project})
 
 
 def add_members_sprint(request, id_proyecto, id_sprint):
@@ -454,38 +606,80 @@ def add_members_sprint(request, id_proyecto, id_sprint):
             Funcion en la cual se pueden agregar miembros a diferentes sprints.        
     '''
     sprint = Sprint.objects.get(id=id_sprint)
+    project = Proyectos.objects.get(id=id_proyecto)
     members_sprint = Miembro_Sprint.objects.all()
     form = AddMembersSprintForm(request.POST or None, pwd=id_proyecto, initial={'id': id_sprint,'sprint':id_sprint})
     x = id_proyecto
     y = id_sprint
+
     print(form['horas_trabajo'].value())
+    out = permisos(request.user.id,id_proyecto)
+
     if form.is_valid():
         sprint.capacidad = sprint.capacidad + int(form['horas_trabajo'].value())
         new_user = form.save()
         new_user.save()
         return redirect('/add_members_sprint/'+str(x)+'/'+str(y))
-    return render(request, 'sprint/add_members_sprint.html',{'sprint': sprint, 'form': form, 'id_sprint': id_sprint, 'members_sprint': members_sprint, 'id_proyecto': id_proyecto})
+    return render(request, 'sprint/add_members_sprint.html',{'sprint': sprint, 'form': form, 'id_sprint': id_sprint, 'members_sprint': members_sprint, 'id_proyecto': id_proyecto, 'project': project, 'out': out})
+
+
+def add_miembros_sprint(request, id_proyecto, id_sprint):
+    '''
+        Agregar mimembro a un sprint
+        fecha: 25/9/2022
+
+            Funcion en la cual se pueden agregar miembros a diferentes sprints.        
+    '''
+    sprint = Sprint.objects.get(id=id_sprint)
+    project = Proyectos.objects.get(id=id_proyecto)
+    members_sprint = Miembro_Sprint.objects.all()
+    form = AddMembersSprintForm(request.POST or None, pwd=id_proyecto, initial={'id': id_sprint,'sprint':id_sprint})
+    x = id_proyecto
+    y = id_sprint
+    print(form['horas_trabajo'].value())
+    out = permisos(request.user.id,id_proyecto)
+    if form.is_valid():
+        new_user = form.save()
+        sprint.capacidad = sprint.capacidad + new_user.horas_trabajo * sprint.duracion_dias
+        sprint.save()
+        print(sprint.capacidad)
+        new_user.save()
+        return redirect('/add_members_sprint/'+str(x)+'/'+str(y))
+    return render(request, 'sprint/add_miembros_sprint.html',{'sprint': sprint, 'form': form, 'id_sprint': id_sprint, 'members_sprint': members_sprint, 'id_proyecto': id_proyecto, 'project': project,'out': out})
 
 
 def all_user_story(request, id):
 
     user_story = UserStory.objects.all()
+    project = Proyectos.objects.get(id=id)
+    out = permisos(request.user.id,id)
 
     return render(request, 'user_story/user_story_list.html',
-                  {'user_story_list': user_story, 'id_project': id})
-
+                  {'user_story_list': user_story, 'id_project': id, 'project': project, 'out': out})
 
 def all_user_story_sprint_backlog(request, id):
 
     user_story = UserStory.objects.all()
     s= Sprint.objects.get(id=id)
+    project = Proyectos.objects.get(id=s.id_proyecto_id)
+    out = permisos(request.user.id,id)
 
     return render(request, 'user_story/user_story_list_sprint_backlog.html',
-                  {'user_story_list': user_story, 'id_sprint': id, 'id_proyecto': s.id_proyecto_id})
+                  {'user_story_list': user_story, 'id_sprint': id, 'id_proyecto': s.id_proyecto_id, 'project': project, 'out': out})
 
+def product_backlog_sprint(request, id_proyecto, id_sprint):
+
+    user_story = UserStory.objects.all()
+    sprint = Sprint.objects.get(id=id_sprint)
+    project = Proyectos.objects.get(id=id_proyecto)
+    out = permisos(request.user.id,id_proyecto)
+
+    return render(request, 'user_story/all_user_story_sprint_backlog.html',
+                  {'user_story_list': user_story, 'sprint': sprint, 'id_project': id_proyecto, 'out': out})
 
 def add_user_story(request, id_proyecto):
     user_story = UserStory.objects.all()
+    project = Proyectos.objects.get(id=id_proyecto)
     form = UserStoryForm(request.POST or None, pwd=id_proyecto, initial={'id_proyecto': id_proyecto})
     if form.is_valid():
 
@@ -494,21 +688,80 @@ def add_user_story(request, id_proyecto):
         return HttpResponseRedirect('/user_story/%d'%id_proyecto)
 
     return render(request, 'user_story/add_user_story.html',
-                  {'user_story': user_story, 'form': form, 'id_proyecto': id_proyecto})
+                  {'user_story': user_story, 'form': form, 'id_proyecto': id_proyecto, 'project': project})
 
 
 def update_user_story(request, id_proyecto, id_user_story):
 
+    '''
+        Actualizar user story
+        fecha: 16/10/2022
+
+            vista que permite asignar un us a sprint y definir sus horas_estimadas y encargado
+    '''
+
     user_story = UserStory.objects.get(id=id_user_story)
+    project = Proyectos.objects.get(id=id_proyecto)
     form = UserStoryForm(request.POST or None, instance=user_story, pwd=id_proyecto, initial={'id_proyecto_id': id_proyecto})
+    if form.is_valid():
+        form.save()
+        return HttpResponseRedirect('/user_story/%d'%id_proyecto)
+
+    return render(request, 'user_story/update_user_story.html', {'user_story': user_story, 'form': form, 'id_proyecto': id_proyecto, 'project': project})
+
+
+def update_sprint_user_story(request, id_proyecto, id_user_story, id_sprint):
+
+    '''
+        Asignar US a sprint
+        fecha: 16/10/2022
+
+            vista que permite asignar un us a sprint y definir sus horas_estimadas y encargado
+    '''
+
+    user_story = UserStory.objects.get(id=id_user_story)
+    sprint = Sprint.objects.get(id=id_sprint)
+    project = Proyectos.objects.get(id=id_proyecto)
+    form = UserStorySprintForm(request.POST or None, instance=user_story,pwd= id_sprint,initial={'id_sprint': id_sprint})
+    print('Entra')
+    if form.is_valid():
+        new_user = form.save()
+        aux = sprint.capacidad - new_user.horas_estimadas
+        print(aux)
+        print()
+        if aux >= 0:
+            new_user.save()
+            sprint.capacidad = sprint.capacidad - new_user.horas_estimadas
+            sprint.save()
+        else:
+            user_story.id_sprint = None
+            user_story.save()
+            messages.error(request, 'La capacidad del sprint ya ha sido rebasada')
+
+        return redirect('/product_backlog_sprint/'+str(id_proyecto)+'/'+str(id_sprint))
+
+    return render(request, 'user_story/update_user_story.html', {'user_story': user_story, 'form': form, 'id_proyecto': id_proyecto, 'project': project})
+
+
+def update_prioridad_user_story(request, id_proyecto, id_user_story):
+
+    '''
+        Prioridad por cada tipo de US
+        fecha: 16/10/2022
+
+            Funcion en la cual se permite definir la prioridad por proyecto
+    '''
+    user_story = UserStory.objects.get(id=id_user_story)
+    project = Proyectos.objects.get(id=id_proyecto)
+    form = UsPrioridadForm(request.POST or None, instance=user_story, initial={'id_proyecto_id': id_proyecto})
     if form.is_valid():
         form.save()
         return redirect('/user_story/%d'%id_proyecto)
 
-    return render(request, 'user_story/update_user_story.html', {'user_story': user_story, 'form': form, 'id_proyecto': id_proyecto})
+    return render(request, 'user_story/update_prioridad_us.html', {'user_story': user_story, 'form': form, 'id_proyecto': id_proyecto, 'project': project})
+
 
 #Edit de miembros del Equipo Proyecto y Sprint
-
 
 
 def update_members_sprint(request, id_proyecto, id_sprint,id_usuario):
@@ -519,14 +772,15 @@ def update_members_sprint(request, id_proyecto, id_sprint,id_usuario):
             Funcion en la cual se pueden editar miembros de un sprint.        
     '''
     members = Miembro_Sprint.objects.get(id=id_usuario)
-    form = AddMembersSprintForm(request.POST or None, instance=members, initial={'usuario':id_usuario,'id_proyecto': id_proyecto,'sprint': id_sprint,})
+    project = Proyectos.objects.get(id=id_proyecto)
+    form = AddMembersSprintForm(request.POST or None, instance=members, initial={'usuario':id_usuario,'id_proyecto': id_proyecto,'sprint': id_sprint})
     x = id_proyecto
     y = id_sprint
     if form.is_valid():
         form.save()
         return redirect('/add_members_sprint/'+str(x)+'/'+str(y))
 
-    return render(request, 'project/update_members_sprint.html', {'id_proyecto': id_proyecto,'members': members, 'form': form})
+    return render(request, 'project/update_members_sprint.html', {'id_proyecto': id_proyecto, 'members': members, 'form': form, 'project': project})
 
 #CRUD ESTADOS
 
@@ -538,10 +792,16 @@ def all_estados(request,id_proyecto,id_tipo_us):
             Esta vista es la encargada de llamar al archivo sprint_list.html con el fin de mostrar en pantalla la lista
             de todos los sprints creados para cada proyecto.       
     '''
-    estados_list = Estados.objects.all()
-                                                             
+    estados_list = Estados.objects.filter(id_tipo_user_story=id_tipo_us)
+    project = Proyectos.objects.get(id=id_proyecto)
+    all_estados = Estados.objects.all()
+    estados = Tipo_User_Story.id_estado.through.objects.filter(tipo_user_story_id=id_tipo_us).values_list('estados_id')
+    out = [item for t in estados for item in t]
+
+    pout = permisos(request.user.id,id_proyecto)
+                                                       
     return render(request, 'estados/estados_list.html',
-                  {'estados_list': estados_list,'id_proyecto': id_proyecto,'id_tipo_us': id_tipo_us})
+                  {'estados_list': estados_list,'id_proyecto': id_proyecto,'id_tipo_us': id_tipo_us, 'project': project, 'all_estados': all_estados, 'out': out, 'pout': pout})
 
 def add_estados(request,id_proyecto,id_tipo_us):
     '''
@@ -568,7 +828,7 @@ def add_estados(request,id_proyecto,id_tipo_us):
         if 'submitted' in request.GET:
             submitted = True
 
-    return render(request, 'estados/add_estados.html', {'form': form,'id_proyecto': id_proyecto, 'submitted': submitted})
+    return render(request, 'estados/add_estados.html', {'form': form,'id_proyecto': id_proyecto,'id_tipo_us': id_tipo_us, 'submitted': submitted, 'project': project})
 
 
 def update_estados(request,id_proyecto,id_tipo_us,id_estado):
@@ -589,7 +849,7 @@ def update_estados(request,id_proyecto,id_tipo_us,id_estado):
         form.save()
         return redirect('/estados/'+str(x)+'/'+str(y))
 
-    return render(request, 'estados/update_estados.html', {'id_proyecto': id_proyecto,'tipous': tipous, 'form': form})
+    return render(request, 'estados/update_estados.html', {'id_proyecto': id_proyecto,'tipous': tipous, 'form': form, 'project': project})
 
 #CRUD TIPOS_US
 
@@ -602,9 +862,12 @@ def all_tipos_us(request,id_proyecto):
             de todos los tipos de user story creados para cada proyecto.
     '''
     tipos_us_list = Tipo_User_Story.objects.all()
-                                                             
+    project = Proyectos.objects.get(id=id_proyecto)
+
+    out = permisos(request.user.id,id_proyecto)    
+
     return render(request, 'tipos_us/tipos_us_list.html',
-                  {'tipos_us_list': tipos_us_list,'id_proyecto': id_proyecto})
+                  {'tipos_us_list': tipos_us_list,'id_proyecto': id_proyecto, 'project': project, 'out': out})
 
 def add_tipos_us(request,id):
     '''
@@ -616,12 +879,20 @@ def add_tipos_us(request,id):
     submitted = False
     project = Proyectos.objects.get(id=id)
     x = project.id
+    out = permisos(request.user.id,id)
     if request.method == "POST":
         form = TipoUsForm(request.POST, initial={'id_proyecto':x})
         if form.is_valid():
             sprint = form.save()
             sprint.manager = request.user
             sprint.save()
+            estado1 = Estados.objects.create(nombre_estado="To Do", id_tipo_user_story=Tipo_User_Story.objects.last())
+            estado2 = Estados.objects.create(nombre_estado="Doing", id_tipo_user_story=Tipo_User_Story.objects.last())
+            estado3 = Estados.objects.create(nombre_estado="Done", id_tipo_user_story=Tipo_User_Story.objects.last())
+            estado1.save()
+            estado2.save()
+            estado3.save()
+
             return HttpResponseRedirect('/tipos_us/%d'%id)
     else:
 
@@ -629,7 +900,7 @@ def add_tipos_us(request,id):
         if 'submitted' in request.GET:
             submitted = True
 
-    return render(request, 'tipos_us/add_tipos_us.html', {'form': form, 'submitted': submitted, 'id_proyecto': id})
+    return render(request, 'tipos_us/add_tipos_us.html', {'form': form, 'submitted': submitted, 'id_proyecto': id, 'project': project,'out': out,})
 
 
 def update_tipos_us(request,id_proyecto,id_tipo_us):
@@ -640,12 +911,218 @@ def update_tipos_us(request,id_proyecto,id_tipo_us):
             Funcion en la cual se pueden editar tipo de user a diferentes proyectos.
     '''
     tipous = Tipo_User_Story.objects.get(id=id_tipo_us)
+    project = Proyectos.objects.get(id=id_proyecto)
 
-    form = TipoUsForm(request.POST or None, instance=tipous, initial={'id_proyecto': id_proyecto})
+    form = TipoUsForm(request.POST or None, initial={'id_proyecto': id_proyecto})
     if form.is_valid():
         form.save()
         return redirect('/tipos_us/%d' %id_proyecto)
 
-    return render(request, 'tipos_us/update_tipos_us.html', {'tipous': tipous, 'form': form,'id_proyecto': id_proyecto})
+    return render(request, 'tipos_us/update_tipos_us.html', {'tipous': tipous, 'form': form,'id_proyecto': id_proyecto, 'project': project})
+
+def export_tipoUS(request, id_proyecto):
+    if request.method == 'POST':
+        # Get selected option from form
+        file_format = request.POST['file-format']
+        tipoUS_resource = Tipo_USResource()
+        dataset = tipoUS_resource.export(queryset=Tipo_User_Story.objects.filter(id_proyecto=id_proyecto))
+        if file_format == 'CSV':
+            response = HttpResponse(dataset.csv, content_type='text/csv')
+            response['Content-Disposition'] = 'attachment; filename="exported_data.csv"'
+            return response
+        elif file_format == 'JSON':
+            response = HttpResponse(dataset.json, content_type='application/json')
+            response['Content-Disposition'] = 'attachment; filename="exported_data.json"'
+            return response
+        elif file_format == 'XLS (Excel)':
+            response = HttpResponse(dataset.xls, content_type='application/vnd.ms-excel')
+            response['Content-Disposition'] = 'attachment; filename="exported_data.xls"'
+            return response
+
+    return render(request, 'import_export/export_tipoUS.html', {'id_proyecto': id_proyecto})
+
+def import_tipo_us(request, id_proyecto):
+    if request.method == 'POST':
+        file_format = request.POST['file-format']
+        tipoUS_resource = Tipo_USResource()
+        dataset = Dataset()
+        new_tipo_us = request.FILES['importData']
+        if file_format == 'CSV':
+            imported_data = dataset.load(new_tipo_us.read().decode('utf-8'), format='csv')
+            result = tipoUS_resource.import_data(dataset, dry_run=True)
+            print(imported_data)
+            if not result.has_errors():
+                # Import now
+                for i in range(imported_data.height):
+                    r = imported_data.pop()
+                    tipo_us_nuevo = Tipo_User_Story.objects.create(nombre_tipo_us=r[1],
+                                                   id_proyecto=Proyectos.objects.get(id=id_proyecto))
+                    tipo_us_nuevo.save()
+                    estado = list(r[2].split(","))
+                    estado1 = []
+                    for x in estado:
+                        exist_estado= Estados.objects.get(id=int(x))
+                        nuevo_estado = Estados.objects.create(nombre_estado=exist_estado.nombre_estado, id_tipo_user_story=Tipo_User_Story.objects.last())
+                        nuevo_estado.save()
+                        estado1.append(Estados.objects.get(nombre_estado=exist_estado.nombre_estado, id_tipo_user_story=Tipo_User_Story.objects.last()).id)
+                    estado_tuple = tuple(estado1)
+                    e = Estados.objects.filter(id__in=estado_tuple)
+                    tipo_us_guardado= Tipo_User_Story.objects.last()
+                    tipo_us_guardado.id_estado.set(e)
+                    tipo_us_guardado.save()
+        elif file_format == 'JSON':
+            imported_data = dataset.load(new_tipo_us.read().decode('utf-8'), format='json')
+            result = tipoUS_resource.import_data(dataset, dry_run=True)
+            print(imported_data)
+            if not result.has_errors():
+                # Import now
+                for i in range(imported_data.height):
+                    r = imported_data.pop()
+                    tipo_us_nuevo = Tipo_User_Story.objects.create(nombre_tipo_us=r[1],
+                                                                   id_proyecto=Proyectos.objects.get(id=id_proyecto))
+                    tipo_us_nuevo.save()
+                    estado = list(r[3].split(","))
+                    estado1 = []
+                    for x in estado:
+                        exist_estado = Estados.objects.get(id=int(x))
+                        nuevo_estado = Estados.objects.create(nombre_estado=exist_estado.nombre_estado,
+                                                              id_tipo_user_story=Tipo_User_Story.objects.last())
+                        nuevo_estado.save()
+                        estado1.append(Estados.objects.get(nombre_estado=exist_estado.nombre_estado,
+                                                           id_tipo_user_story=Tipo_User_Story.objects.last()).id)
+                    estado_tuple = tuple(estado1)
+                    e = Estados.objects.filter(id__in=estado_tuple)
+                    tipo_us_guardado = Tipo_User_Story.objects.last()
+                    tipo_us_guardado.id_estado.set(e)
+                    tipo_us_guardado.save()
+            print(result)
+
+    return render(request, 'import_export/import_tipoUS.html', {'id_proyecto': id_proyecto})
+
+def asignar_estados_tipos_us(request,id_proyecto,id_tipo_us):
+    '''
+        Asignar estados a cada tipo de user story
+        fecha: 12/9/2022
+
+            vista que permite asignar los estados a cada tipo de user story
+    '''
+    tipous = Tipo_User_Story.objects.get(id=id_tipo_us)
+    project = Proyectos.objects.get(id=id_proyecto)
+    x = id_proyecto
+    y = id_tipo_us
+
+    out = permisos(request.user.id,id_proyecto)
+
+    form = AsignarEstadosTipoUsForm(request.POST or None, instance=tipous, pwd=id_tipo_us, initial={'id_proyecto': id_proyecto})
+    if form.is_valid():
+        form.save()
+        return redirect('/estados/'+str(x)+'/'+str(y))
+
+    return render(request, 'tipos_us/asignar_estados_tipo_us.html', {'tipous': tipous, 'form': form,'id_proyecto': id_proyecto, 'project': project,'out': out})
+
+def tablero_kanban(request,id_proyecto,id_tipo_us):
+    '''
+        Tablero Kanban
+        fecha: 14/10/2022
+
+            Vista que invoca un template con el tablero kanban
+            En el desarrollo le obtiene el lisado de los estados correspondientes al tipo de user story
+            que posteriormente se utilizaran para las columnas de la tabla kanban
+    '''
+    project = Proyectos.objects.get(id=id_proyecto)
+    tipous = Tipo_User_Story.objects.get(id=id_tipo_us)
+    estados = Tipo_User_Story.id_estado.through.objects.filter(tipo_user_story_id=id_tipo_us).values_list('id')
+    print(estados)
+    out = [item for t in estados for item in t]
+    estados = Estados.objects.filter(id_tipo_user_story_id=id_tipo_us)  # estados del tipo de user story
+    print('ssss')
+    print(estados)
+    cant_estados = len(Estados.objects.filter(id__in=out))
+    list_user_story = UserStory.objects.filter(id_tipo_user_story=id_tipo_us)
+    cant_user_story = len(UserStory.objects.filter(id_tipo_user_story=id_tipo_us))
+    print(cant_user_story)
+    string_vacio = ""
 
 
+    # list_user_story = []
+    # for indice, valor in enumerate(cant_user_story):
+    #     list_user_story.append(indiceValor(indice, valor))
+    #
+    # print('hola')
+    # print(list_user_story)
+    return render(request, 'tipos_us/tablero_kanban.html', {'string_vacio': string_vacio,'project': project, 'tipous': tipous,'id_proyecto': id_proyecto, 'estados': estados, 'cant_estados': cant_estados, 'list_user_story': list_user_story, 'id_tipo_us': id_tipo_us})
+
+
+def update_user_story_kanban_avanzar(request, id_proyecto, id_user_story, id_tipo_us):
+    '''
+        Avanzar User Story Kanban
+        fecha: 14/10/2022
+
+           Vista que se encarga de mover el user story de izquierda a derecha dentro del tablero kanban
+           Se obtienen los nombres de los estados por tipo de US
+           En el caso de ya no poder avanzar, el user story se mantiene en la misma posicion
+
+    '''
+    project = Proyectos.objects.get(id=id_proyecto)
+    user_story = UserStory.objects.get(id=id_user_story)
+    tipous = Tipo_User_Story.objects.get(id=id_tipo_us)
+    project = Proyectos.objects.get(id=id_proyecto)
+    list_user_story = UserStory.objects.filter(id_tipo_user_story=id_tipo_us)
+    estados = Tipo_User_Story.id_estado.through.objects.filter(tipo_user_story_id=id_tipo_us).values_list('id')
+    print(estados)
+    out = [item for t in estados for item in t]
+    estados = Estados.objects.filter(id_tipo_user_story_id=id_tipo_us).values_list('nombre_estado') # estados del tipo de user story
+    print('aaaa')
+    print(estados)
+    out = [item for t in estados for item in t]  # todos los nombres de los estados
+    print('bbbb')
+    print(out)
+    ultimo = len(out)
+    string_vacio = ""
+    print('xxxx')
+    print(estados)
+    indice = out.index(user_story.estado)
+    if indice < ultimo - 1:
+        user_story.estado = out[indice + 1]
+    user_story.save()
+
+    return redirect('/tablero_kanban/' + str(id_proyecto) + '/' + str(id_tipo_us))
+
+def update_user_story_kanban_atras(request, id_proyecto, id_user_story, id_tipo_us):
+    '''
+        Atrasar User Story Kanban
+        fecha: 14/10/2022
+
+           Vista que se encarga de mover el user story de derecha a izquierda dentro del tablero kanban
+           Se obtienen los nombres de los estados por tipo de US
+           En el caso de ya no poder atrasar, el user story se mantiene en la misma posicion
+
+    '''
+    project = Proyectos.objects.get(id=id_proyecto)
+    user_story = UserStory.objects.get(id=id_user_story)
+    list_user_story = UserStory.objects.filter(id_tipo_user_story=id_tipo_us)
+    tipous = Tipo_User_Story.objects.get(id=id_tipo_us)
+    project = Proyectos.objects.get(id=id_proyecto)
+    estados = Tipo_User_Story.id_estado.through.objects.filter(tipo_user_story_id=id_tipo_us).values_list('id')
+    out = [item for t in estados for item in t]
+    estados = Estados.objects.filter(id_tipo_user_story_id=id_tipo_us).values_list('nombre_estado')   # estados del tipo de user story
+    out = [item for t in estados for item in t]  # todos los nombres de los estados
+    ultimo = len(out)
+    indice = out.index(user_story.estado)
+    string_vacio = ""
+    if indice-1 >= 0:
+        user_story.estado = out[indice -1]
+
+    user_story.save()
+    return redirect('/tablero_kanban/' + str(id_proyecto) + '/' + str(id_tipo_us))
+
+def update_horas_trabajadas(request, id_proyecto, id_user_story):
+
+    user_story = UserStory.objects.get(id=id_user_story)
+    project = Proyectos.objects.get(id=id_proyecto)
+    form = UsHorasForm(request.POST or None, instance=user_story, initial={'id_proyecto_id': id_proyecto})
+    if form.is_valid():
+        form.save()
+        return redirect('/user_story/%d'%id_proyecto)
+
+    return render(request, 'user_story/update_prioridad_us.html', {'user_story': user_story, 'form': form, 'id_proyecto': id_proyecto, 'project': project})

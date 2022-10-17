@@ -7,23 +7,23 @@ USER_FIELDS = ['username', 'email']
 
 def create_user(strategy, details, user=None, *args, **kwargs):
 
-    if user:
-        return {'is_new': False}
+        if user:
+            return {'is_new': False}
 
-    allowed_emails = get_whitelisted_emails()
+        allowed_emails = get_whitelisted_emails()
 
-    fields = dict((name, kwargs.get(name, details.get(name)))
-                  for name in strategy.setting('USER_FIELDS', USER_FIELDS))
-    if not fields:
-        return
+        fields = dict((name, kwargs.get(name, details.get(name)))
+                      for name in strategy.setting('USER_FIELDS', USER_FIELDS))
+        if not fields:
+            return
 
-    if fields[('email')] in next(zip(*allowed_emails)):
+        if fields[('email')] in next(zip(*allowed_emails)):
 
-        return {
-            'is_new': False,
-        }
-    else:
-        return HttpResponseForbidden("No estas registrado")
+            return {
+                'is_new': False,
+            }
+        else:
+            return HttpResponseForbidden("No estas registrado")
 
 
 

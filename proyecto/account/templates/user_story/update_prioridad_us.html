@@ -1,0 +1,95 @@
+{% load static %}
+
+<html lang="en">
+<head>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@500&display=swap" rel="stylesheet">
+
+
+    <title>Listar tipo de user story </title>
+    <link rel="stylesheet" type="text/css" href="{% static "css/base.css" %}" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-iYQeCzEYFbKjA/T2uDLTpkwGzCiq6soy8tYaI1GyVh/UjpbCx/TYkiZhlZB6+fzT" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css"/>
+    <style>
+       a{
+        font-size: 1.03em;
+        font-family: 'Noto Sans', sans-serif;
+        }
+    </style>
+</head>
+<body style="overflow: overlay;">
+    <div id="header">
+        <a href="{% url "tablero" %}"><span class="logo" style="color:#df8a3d; margin-left:-5%; margin-top:7px"> <i class="bi bi-grid-3x3-gap-fill"></i></span></a>
+       <a href="{% url "tablero" %}"><span class="logo" style="color:#df8a3d; margin-left:-8%; font-family: 'Noto Sans', sans-serif; font-size: 1.500em;"> {{ project.nombre_proyecto }}</span></a>
+
+        {% if request.user.is_authenticated %}
+          <ul class="menu">
+              <li>
+              <a href="{% url "list-projects" %}">Proyectos</a>
+              </li>
+              <li>
+              <a href="{% url "tipos_us-list" id_proyecto %}">Tipo US</a></a>
+              </li>
+              <li>
+              <a href="{% url "sprint-list" id_proyecto %}">Sprints</a>
+              </li>
+               <li>
+              <a href="{% url "user_story-list" id_proyecto %}">Product Backlog</a>
+              </li>
+               <li>
+              <a href="{% url "list-roles" id_proyecto %}">Roles</a>
+              </li>
+          </ul>
+          {% endif %}
+          <span class="user">
+              {% if request.user.is_authenticated %}
+              Hola, {{ request.user.first_name }}..
+              <a style="color:#df8a3d" href="{% url "logout" %}">Cerrar Sesión</a>
+              {% else %}
+              <a href="{% url "login" %}">Iniciar Sesión</a>
+              {% endif %}
+          </span>
+    </div>
+
+
+
+
+{% if user.is_authenticated %}
+	<h1>Editar User Story</h1>
+<br/>
+
+{% if submitted %}
+
+    User story actualizado correctamente...
+
+	{% else %}
+	<div class="row">
+		<div class="col-5">
+		<form action="" method=POST style="margin-left:10px;">
+			{% csrf_token %}
+
+			{{ form.as_p }}
+
+			
+            <div style="display: flex;">
+                <input type="submit" value="Actualizar" class="btn btn-secondary">
+                <a class="button" href="{% url "user_story-list" id_proyecto %}" style="margin-left: 10px; text-decoration: none; font-family: Arial, Helvetica, sans-serif; background-color: slategray;">Cancelar</a>
+            </div>
+		</form>
+       		</div>
+	</div>
+		{% endif %}
+
+<br/><br/>	
+
+{% else %}
+<h1>Deberías de estar logueado para acceder a esta página...</h1>
+
+<a href="{% url 'login' %}">Login Here</a>
+
+{% endif %}
+
+</body>
+</html>

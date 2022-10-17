@@ -1,0 +1,106 @@
+{% load static %}
+
+<html lang="en">
+<head>
+     <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@500&display=swap" rel="stylesheet">
+
+
+    <title>Menu </title>
+    <link rel="stylesheet" type="text/css" href="{% static "css/base.css" %}" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-iYQeCzEYFbKjA/T2uDLTpkwGzCiq6soy8tYaI1GyVh/UjpbCx/TYkiZhlZB6+fzT" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css"/>
+    <style>
+         a{
+        font-size: 1.03em;
+        font-family: 'Noto Sans', sans-serif;
+        }
+    </style>
+</head>
+<body style="overflow: overlay;">
+    <div id="header">
+             <a href="{% url "tablero" %}"><span class="logo" style="color:#df8a3d; margin-left:-5%; margin-top:7px"> <i class="bi bi-grid-3x3-gap-fill"></i></span></a>
+       <a href="{% url "tablero" %}"><span class="logo" style="color:#df8a3d; margin-left:-8%; font-family: 'Noto Sans', sans-serif; font-size: 1.500em;"> {{ project.nombre_proyecto }}</span></a>
+
+        {% if request.user.is_authenticated %}
+          <ul class="menu">
+              <li>
+              <a href="{% url "list-projects" %}">Proyectos</a>
+              </li>
+              <li>
+              <a href="{% url "tipos_us-list" id_project %}">Tipo US</a></a>
+              </li>
+              <li>
+              <a href="{% url "sprint-list" id_project %}">Sprints</a>
+              </li>
+               <li>
+              <a href="{% url "user_story-list" id_project %}">Product Backlog</a>
+              </li>
+               <li>
+              <a href="{% url "list-roles" id_project %}">Roles</a>
+              </li>
+          </ul>
+          {% endif %}
+          <span class="user">
+              {% if request.user.is_authenticated %}
+              Hola, {{ request.user.first_name }}..
+              <a style="color:#df8a3d" href="{% url "logout" %}">Cerrar Sesión</a>
+              {% else %}
+              <a href="{% url "login" %}">Iniciar Sesión</a>
+              {% endif %}
+          </span>
+    </div>
+
+<h1> Asignar user story a "{{sprint.nombre_sprint}}"</h1>
+<br/>
+
+
+
+<div>
+        <script>
+            document.addEventListener("DOMContentLoaded", () => {
+              const rows = document.querySelectorAll("tr[data-href]");
+              rows.forEach( row => {
+                row.addEventListener("click", () =>{
+                  window.location.href = row.dataset.href;
+                });
+              });
+            });
+        </script>
+        <table class="table table-striped table-hover" border="5px solid #000;" style="margin-top:30px;">
+                <thead class="thead-dark">
+                    <tr>
+                      <th>Nombre</th>
+                      <th>Descripción</th>
+                      <th>Horas Estimadas</th>
+                      <th>Prioridad de us</th>
+                      <th>Encargado</th>
+                    </tr>
+                </thead>
+            {% for p in user_story_list %}
+                {% if id_project == p.id_proyecto_id and p.id_sprint == None %}
+                <tr scope="row" 
+                    style="tr:hover {background-color: #77bdff;}">
+                    <td style="padding:10px;">{{p.nombre_us}}</td>
+                    <td style="padding:10px;">{{p.desc_us}}</td>
+                    <td style="padding:10px;">{{p.horas_estimadas}} hs</td>
+                    <td style="padding:10px;">{{p.prioridad_us}}</td>
+                    {% if p.encargado == None %}
+                        <td style="padding:10px;"> </td>
+                    {% else %}
+                        <td style="padding:10px;">{{p.encargado}}</td>
+                    {% endif %}
+                    {% if 'Can change miembro_ sprint' in out or p.encargado == request.user %}
+                    <td style="padding:10px;"><a href="{% url 'update-sprint-user-story' id_project p.id sprint.id %}">Asignar</a></td>
+                    {% endif %}
+                </tr>
+                {% endif %}
+            {% endfor %}
+        </table>
+    </div>
+    <p class="display-3" > <a class="button" href="{% url "add-members-sprint" id_project sprint.id %}" style="margin-left: 15px; text-decoration: none; font-family: Arial, Helvetica, sans-serif; background-color: slategray;">Volver</a></p>
+
+</body>
+</html>

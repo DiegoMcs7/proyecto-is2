@@ -1,12 +1,11 @@
 {% extends "base.html" %}
-
+{% load custom_tag %}
 {% block title %} Tabla Proyecto {% endblock %}
-
 {% block content %}
 
 <body>
   <h2 style="text-align: center; padding-bottom: 15px;">Proyectos</h2>
-{% if 13 in out or request.user.is_superuser %}
+{% if 'Can add proyectos' in out or request.user.is_superuser %}
  <p class="display-3">
     <a class="button-create" href="{% url "add-project" %}">
         <i class="bi bi-plus text-primary"></i> Agregar</a></p>
@@ -22,6 +21,7 @@
               });
             });
         </script>
+        
         <table class="table table-striped table-hover" border="5px solid #000;" style="margin-top:30px;">
                 <thead class="thead-dark">
                     <tr>
@@ -34,9 +34,10 @@
                         <th></th>
                         <th></th>
                         <th></th>
+                        <th></th>
+                        <th></th>
                     </tr>
                 </thead>
-
                   {% for i in project_list %}
                   {% if not request.user.is_superuser %}
                   {% for member in members %}
@@ -48,13 +49,7 @@
                       <td style="padding:10px;">{{i.estado_proyecto}}</td>
                       <td style="padding:10px;">{{i.fecha_inicio}}</td>
                       <td style="padding:10px;">{{i.fecha_fin}}</td>
-                      {% if 14 in out or request.user.is_superuser %}
-                      <td style="padding:10px;"><a href="{% url 'update-project' i.pk %}">Editar</a></td>
-                      <td style="padding:10px;"><a href="{% url 'inicializar_proyecto' i.pk %}">Inicializar</a></td>
-                      {% endif %}
-                      {% if request.user.is_superuser %}
-                      <td style="padding:10px;"><a href="{% url 'delete-project' i.pk %}">Eliminar</a></td>
-                      {% endif %}
+                      <td><a href="{% url 'action-project' i.pk %}">Acciones</a></td>
                   </tr>
                   {% endif %}
                 {% endfor %}
@@ -66,18 +61,20 @@
                       <td style="padding:10px;">{{i.estado_proyecto}}</td>
                       <td style="padding:10px;">{{i.fecha_inicio}}</td>
                       <td style="padding:10px;">{{i.fecha_fin}}</td>
-                      {% if 14 in out or request.user.is_superuser %}
-                      <td style="padding:10px;"><a href="{% url 'update-project' i.pk %}">Editar</a></td>
-                      <td style="padding:10px;"><a href="{% url 'inicializar_proyecto' i.pk %}">Inicializar</a></td>
-                      {% endif %}
-                      {% if request.user.is_superuser %}
-                      <td style="padding:10px;"><a href="{% url 'delete-project' i.pk %}">Eliminar</a></td>
-                      {% endif %}
+                    <td><a href="{% url 'action-project' i.pk %}">Acciones</a></td>
+
                 </tr>
                 {% endif %}
                 {% endfor %}
         </table>
+        {% for message in messages %}
 
+        <div class="alert alert-success">
+          <a class="close" href="#" data-dismiss="alert"></a>
+          {{ message }}
+        </div>
+
+        {% endfor %}
     </div>
  
 </body>
