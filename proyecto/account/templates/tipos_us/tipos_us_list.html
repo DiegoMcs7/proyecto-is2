@@ -55,6 +55,8 @@
 {% if 'Can add tipo_ user_ story' in out or request.user.is_superuser %}
 <div style="margin-left: 3%;margin-top: 3%;">
      <a class="button-create" href="{% url "add-tipos_us" id_proyecto  %}">Agregar Tipo de User Story</a>
+    <a class="button-create" href="{% url "tipos_us-export" id_proyecto  %}">Exportar Tipos de User Story</a>
+    <a class="button-create" href="{% url "tipos_us-import" id_proyecto  %}">Importar Tipos de User Story</a>
     <a class="button" href="{% url "add-members" id_proyecto %}" style="margin-left: 15px; text-decoration: none; font-family: Arial, Helvetica, sans-serif; background-color: slategray;">Volver</a>
 
 </div>

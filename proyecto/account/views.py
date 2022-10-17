@@ -806,13 +806,91 @@ def update_tipos_us(request,id_proyecto,id_tipo_us):
     tipous = Tipo_User_Story.objects.get(id=id_tipo_us)
     project = Proyectos.objects.get(id=id_proyecto)
 
-    form = TipoUsForm(request.POST or None, instance=tipous, initial={'id_proyecto': id_proyecto})
+    form = TipoUsForm(request.POST or None, initial={'id_proyecto': id_proyecto})
     if form.is_valid():
         form.save()
         return redirect('/tipos_us/%d' %id_proyecto)
 
     return render(request, 'tipos_us/update_tipos_us.html', {'tipous': tipous, 'form': form,'id_proyecto': id_proyecto, 'project': project})
 
+def export_tipoUS(request, id_proyecto):
+    if request.method == 'POST':
+        # Get selected option from form
+        file_format = request.POST['file-format']
+        tipoUS_resource = Tipo_USResource()
+        dataset = tipoUS_resource.export(queryset=Tipo_User_Story.objects.filter(id_proyecto=id_proyecto))
+        if file_format == 'CSV':
+            response = HttpResponse(dataset.csv, content_type='text/csv')
+            response['Content-Disposition'] = 'attachment; filename="exported_data.csv"'
+            return response
+        elif file_format == 'JSON':
+            response = HttpResponse(dataset.json, content_type='application/json')
+            response['Content-Disposition'] = 'attachment; filename="exported_data.json"'
+            return response
+        elif file_format == 'XLS (Excel)':
+            response = HttpResponse(dataset.xls, content_type='application/vnd.ms-excel')
+            response['Content-Disposition'] = 'attachment; filename="exported_data.xls"'
+            return response
+
+    return render(request, 'import_export/export_tipoUS.html', {'id_proyecto': id_proyecto})
+
+def import_tipo_us(request, id_proyecto):
+    if request.method == 'POST':
+        file_format = request.POST['file-format']
+        tipoUS_resource = Tipo_USResource()
+        dataset = Dataset()
+        new_tipo_us = request.FILES['importData']
+        if file_format == 'CSV':
+            imported_data = dataset.load(new_tipo_us.read().decode('utf-8'), format='csv')
+            result = tipoUS_resource.import_data(dataset, dry_run=True)
+            print(imported_data)
+            if not result.has_errors():
+                # Import now
+                for i in range(imported_data.height):
+                    r = imported_data.pop()
+                    tipo_us_nuevo = Tipo_User_Story.objects.create(nombre_tipo_us=r[1],
+                                                   id_proyecto=Proyectos.objects.get(id=id_proyecto))
+                    tipo_us_nuevo.save()
+                    estado = list(r[2].split(","))
+                    estado1 = []
+                    for x in estado:
+                        exist_estado= Estados.objects.get(id=int(x))
+                        nuevo_estado = Estados.objects.create(nombre_estado=exist_estado.nombre_estado, id_tipo_user_story=Tipo_User_Story.objects.last())
+                        nuevo_estado.save()
+                        estado1.append(Estados.objects.get(nombre_estado=exist_estado.nombre_estado, id_tipo_user_story=Tipo_User_Story.objects.last()).id)
+                    estado_tuple = tuple(estado1)
+                    e = Estados.objects.filter(id__in=estado_tuple)
+                    tipo_us_guardado= Tipo_User_Story.objects.last()
+                    tipo_us_guardado.id_estado.set(e)
+                    tipo_us_guardado.save()
+        elif file_format == 'JSON':
+            imported_data = dataset.load(new_tipo_us.read().decode('utf-8'), format='json')
+            result = tipoUS_resource.import_data(dataset, dry_run=True)
+            print(imported_data)
+            if not result.has_errors():
+                # Import now
+                for i in range(imported_data.height):
+                    r = imported_data.pop()
+                    tipo_us_nuevo = Tipo_User_Story.objects.create(nombre_tipo_us=r[1],
+                                                                   id_proyecto=Proyectos.objects.get(id=id_proyecto))
+                    tipo_us_nuevo.save()
+                    estado = list(r[3].split(","))
+                    estado1 = []
+                    for x in estado:
+                        exist_estado = Estados.objects.get(id=int(x))
+                        nuevo_estado = Estados.objects.create(nombre_estado=exist_estado.nombre_estado,
+                                                              id_tipo_user_story=Tipo_User_Story.objects.last())
+                        nuevo_estado.save()
+                        estado1.append(Estados.objects.get(nombre_estado=exist_estado.nombre_estado,
+                                                           id_tipo_user_story=Tipo_User_Story.objects.last()).id)
+                    estado_tuple = tuple(estado1)
+                    e = Estados.objects.filter(id__in=estado_tuple)
+                    tipo_us_guardado = Tipo_User_Story.objects.last()
+                    tipo_us_guardado.id_estado.set(e)
+                    tipo_us_guardado.save()
+            print(result)
+
+    return render(request, 'import_export/import_tipoUS.html', {'id_proyecto': id_proyecto})
 
 def asignar_estados_tipos_us(request,id_proyecto,id_tipo_us):
     '''
