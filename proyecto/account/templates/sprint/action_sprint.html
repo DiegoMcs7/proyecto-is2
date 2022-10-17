@@ -59,25 +59,23 @@
 <br/>
     <div id="content" style="margin-top:20px; margin-bottom:20px;margin-left: 15px;">
         <td class="btn-group" role="group" aria-label="Basic mixed styles example">
-                {% if 'Can change sprint' in out and sprint.estado != 'Cancelado'%}
+                {% if 'Can change sprint' in out and sprint.estado_sprin != 'Cancelado'%}
                 <button type="button" class="btn btn-secondary" ><a href="{% url 'update-sprint' project.id sprint.id %}"  style="color:#ffff; margin-left:-7%; margin-top:7px; text-decoration: none;" >Editar</a></button>
                 {% endif %}
-                {% if sprint.estado != 'Iniciado' and sprint.estado != 'Cancelado' and sprint.estado != 'Finalizado'%}
-                <button type="button" class="btn btn-success" ><a href="{% url 'inicializar_sprint' project.id %}"style="color:#ffff; margin-left:-7%; margin-top:7px; text-decoration: none;" >Inicializar</a></button>
+                {% if sprint.estado_sprint != 'Iniciado' and sprint.estado_sprint != 'Cancelado' and sprint.estado_sprint != 'Finalizado'%}
+                <button type="button" class="btn btn-success" ><a href="{% url 'inicializar_sprint' project.id sprint.id %}"style="color:#ffff; margin-left:-7%; margin-top:7px; text-decoration: none;" >Inicializar</a></button>
                 {% endif %}
-                {% if sprint.estado != 'Finalizado' and sprint.estado != 'Cancelado' %}
-                <button type="button" class="btn btn-warning" ><a href="{% url 'finalizar_sprint' project.id %}"style="color:black; margin-left:-7%; margin-top:7px; text-decoration: none;">Finalizar</a></button>
+                {% if sprint.estado_sprint != 'Finalizado' and sprint.estado_sprint != 'Cancelado' %}
+                <button type="button" class="btn btn-warning" ><a href="{% url 'finalizar_sprint' project.id sprint.id %}"style="color:black; margin-left:-7%; margin-top:7px; text-decoration: none;">Finalizar</a></button>
                 {% endif %}
-                {% if sprint.estado == 'Iniciado' or sprint.estado == 'Planificado' %}
-                <button type="button" class="btn btn-danger" ><a href="{% url 'cancelar_sprint' project.id %}"style="color:#ffff; margin-left:-7%; margin-top:7px; text-decoration: none;">Cancelar</a></button>
+                {% if sprint.estado_sprint == 'Iniciado' or sprint.estado_sprint == 'Planificado' %}
+                <button type="button" class="btn btn-danger" ><a href="{% url 'cancelar_sprint' project.id sprint.id %}"style="color:#ffff; margin-left:-7%; margin-top:7px; text-decoration: none;">Cancelar</a></button>
                 {% endif %}
                 {% if request.user.is_superuser %}
                 <button type="button" class="btn btn-danger" ><a href="{% url 'delete-sprint' project.id %}"style="color:black; margin-left:-7%; margin-top:7px; text-decoration: none;">Eliminar</a></button>
                 {% endif %}
               </td>
-
-      </div>
-      {% for message in messages %}
+              {% for message in messages %}
 
         <div class="alert alert-success">
           <a class="close" href="#" data-dismiss="alert"></a>
@@ -85,7 +83,8 @@
         </div>
 
         {% endfor %}
-
+      </div>
+      
             <br/><br/><br/>
 
              <a class="button" href="{% url "sprint-list" project.id %}" style="margin-left: 15px; text-decoration: none; font-family: Arial, Helvetica, sans-serif; background-color: slategray;">Volver</a>

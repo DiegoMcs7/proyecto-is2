@@ -455,27 +455,43 @@ def action_sprint(request, id_proyecto, id_sprint):
 
     return render(request, 'sprint/action_sprint.html', {'project': project,'sprint': sprint,'out': out})
 
-def inicializar_sprint(request, id):
+def inicializar_sprint(request, id_proyecto,id_sprint):
 
-    sprint = Sprint.objects.filter(estado_sprint='Iniciado') #Trae el sprint inicializado
+    sprint = Sprint.objects.filter(id=id_sprint).values_list('estado_sprint') #Trae el sprint inicializado
     out = [item for t in sprint for item in t]
-    print(out)
-    
+    x = id_proyecto
+    y = id_sprint
+    for i in out:
+        if i == 'Planificado':
+            Sprint.objects.filter(id=id_sprint).update(estado_sprint='Iniciado')
+        else :
+            messages.error(request, 'No se puede inicializar el sprint')
+            return redirect('/action_sprint/'+str(x)+'/'+str(y))
 
-    return redirect('/sprint/%d'%id)
+    return redirect('/sprint/%d'%id_proyecto)
 
-def cancelar_sprint(request, id):
+def cancelar_sprint(request, id_proyecto,id_sprint):
 
-    Sprint.objects.filter(id=id).update(estado_sprint='Cancelado')
+    sprint = Sprint.objects.filter(id=id_sprint).values_list('estado_sprint') #Trae el sprint inicializado
+    out = [item for t in sprint for item in t]
+    x = id_proyecto
+    y = id_sprint
+    for i in out:
+        if i != 'Finalizado' or i != 'Cancelado':
+            Sprint.objects.filter(id=id_sprint).update(estado_sprint='Cancelado')
+        else :
+            messages.error(request, 'No se puede inicializar el sprint')
+            return redirect('/action_sprint/'+str(x)+'/'+str(y))
 
-    return redirect('sprint-list')
+    return redirect('/sprint/%d'%id_proyecto)
 
 
-def finalizar_sprint(request, id):
+def finalizar_sprint(request, id_proyecto,id_sprint):
 
+    x = id_proyecto
+    y = id_sprint
     sprint = Sprint.objects.filter(estado_sprint='Iniciado').values_list('id') #Trae el sprint inicializado
     out = [item for t in sprint for item in t]
-    
     if len(out) != 0:
         user_story_list = UserStory.objects.filter(id_sprint=out[0]).values_list('estado') #Trae todos los us que pertenecen al sprint
         out = [item for t in user_story_list for item in t]
@@ -486,9 +502,10 @@ def finalizar_sprint(request, id):
             elif aux == 0:
                 Sprint.objects.filter(id=id).update(estado_sprint='Finalizado')
             else:
-                messages.error(request, 'No puedes realizar la acción ya que existenUsert Story no finalizados')
+                messages.error(request, 'No puedes realizar la acción ya que existe un User Story no finalizado')
+                return redirect('/action_sprint/'+str(x)+'/'+str(y))
     
-    return redirect('/sprint/%d'%id)
+    return redirect('/sprint/%d'%id_proyecto)
 
 @login_required
 def all_sprints(request,id):
@@ -660,7 +677,7 @@ def update_user_story(request, id_proyecto, id_user_story):
     form = UserStoryForm(request.POST or None, instance=user_story, pwd=id_proyecto, initial={'id_proyecto_id': id_proyecto})
     if form.is_valid():
         form.save()
-        return redirect('/product-backlog-sprint/%d'%id_proyecto)
+        return HttpResponseRedirect('/user_story/%d'%id_proyecto)
 
     return render(request, 'user_story/update_user_story.html', {'user_story': user_story, 'form': form, 'id_proyecto': id_proyecto, 'project': project})
 
