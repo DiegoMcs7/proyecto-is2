@@ -240,6 +240,22 @@ class UserStoryForm(ModelForm):
         self.fields['id_tipo_user_story'].queryset = Tipo_User_Story.objects.filter(id_proyecto_id=self._pwd)
         self.fields['id_sprint'].queryset = Sprint.objects.filter(id_proyecto_id=self._pwd)
 
+
+class UserStorySprintForm(ModelForm):
+    class Meta:
+        model = UserStory
+        fields = ('horas_estimadas', 'encargado', 'id_sprint')
+        labels = {
+            'horas_estimadas': 'Horas estimadas',
+            'encargado': 'Encargado',
+        }
+        widgets = {
+            'horas_estimadas': forms.NumberInput(attrs={'class': 'form-control'}),
+            'encargado': forms.Select(attrs={'class': 'form-control', 'placeholder': 'Encargado'}),
+            'id_sprint': forms.HiddenInput(attrs={'class': 'form-control', 'placeholder': 'Sprint'}),
+        }
+
+
 class UsPrioridadForm(ModelForm):
     class Meta:
         model = UserStory

@@ -5,9 +5,10 @@ from urllib.request import Request
 from .permisos import permisos
 from .models import Estados, Miembro_Sprint, Miembros, Profile, Proyectos, Rol, Sprint, Tipo_User_Story, UserStory
 from django.shortcuts import render, redirect
-from .forms import AddMembersForm, AddMembersSprintForm, EstadosForm, ProyectosForm, RolForm, TipoUsForm, UsPrioridadForm, UserEditForm, \
+from .forms import AddMembersForm, AddMembersSprintForm, EstadosForm, ProyectosForm, RolForm, TipoUsForm, \
+    UsPrioridadForm, UserEditForm, \
     UserRegistrationForm, \
-    SprintForm, UserStoryForm, AsignarEstadosTipoUsForm
+    SprintForm, UserStoryForm, AsignarEstadosTipoUsForm, UserStorySprintForm
 from django.contrib.auth.decorators import login_required
 from tablib import Dataset
 from django.contrib import messages
@@ -523,13 +524,14 @@ def add_members_sprint(request, id_proyecto, id_sprint):
     form = AddMembersSprintForm(request.POST or None, pwd=id_proyecto, initial={'id': id_sprint,'sprint':id_sprint})
     x = id_proyecto
     y = id_sprint
-    print(form['horas_trabajo'].value())
+
     if form.is_valid():
         sprint.capacidad = sprint.capacidad + int(form['horas_trabajo'].value())
         new_user = form.save()
         new_user.save()
         return redirect('/add_members_sprint/'+str(x)+'/'+str(y))
     return render(request, 'sprint/add_members_sprint.html',{'sprint': sprint, 'form': form, 'id_sprint': id_sprint, 'members_sprint': members_sprint, 'id_proyecto': id_proyecto, 'project': project})
+
 
 def add_miembros_sprint(request, id_proyecto, id_sprint):
     '''
@@ -544,10 +546,11 @@ def add_miembros_sprint(request, id_proyecto, id_sprint):
     form = AddMembersSprintForm(request.POST or None, pwd=id_proyecto, initial={'id': id_sprint,'sprint':id_sprint})
     x = id_proyecto
     y = id_sprint
-    print(form['horas_trabajo'].value())
     if form.is_valid():
-        sprint.capacidad = sprint.capacidad + int(form['horas_trabajo'].value())
         new_user = form.save()
+        sprint.capacidad = sprint.capacidad + new_user.horas_trabajo * sprint.duracion_dias
+        sprint.save()
+        print(sprint.capacidad)
         new_user.save()
         return redirect('/add_members_sprint/'+str(x)+'/'+str(y))
     return render(request, 'sprint/add_miembros_sprint.html',{'sprint': sprint, 'form': form, 'id_sprint': id_sprint, 'members_sprint': members_sprint, 'id_proyecto': id_proyecto, 'project': project})
@@ -562,14 +565,25 @@ def all_user_story(request, id):
                   {'user_story_list': user_story, 'id_project': id, 'project': project})
 
 
-def all_user_story_sprint_backlog(request, id_proyecto, id_sprint):
+def all_user_story_sprint_backlog(request, id):
+
+    user_story = UserStory.objects.all()
+    s= Sprint.objects.get(id=id)
+    project = Proyectos.objects.get(id=s.id_proyecto_id)
+    out = permisos(request.user.id,id)
+
+    return render(request, 'user_story/user_story_list_sprint_backlog.html',
+                  {'user_story_list': user_story, 'id_sprint': id, 'id_proyecto': s.id_proyecto_id, 'project': project, 'out': out})
+
+
+def product_backlog_sprint(request, id_proyecto, id_sprint):
 
     user_story = UserStory.objects.all()
     sprint = Sprint.objects.get(id=id_sprint)
     project = Proyectos.objects.get(id=id_proyecto)
 
     return render(request, 'user_story/all_user_story_sprint_backlog.html',
-                  {'user_story_list': user_story, 'sprint': sprint, 'project': project})
+                  {'user_story_list': user_story, 'sprint': sprint, 'id_project': id_proyecto})
 
 
 def add_user_story(request, id_proyecto):
@@ -593,9 +607,38 @@ def update_user_story(request, id_proyecto, id_user_story):
     form = UserStoryForm(request.POST or None, instance=user_story, pwd=id_proyecto, initial={'id_proyecto_id': id_proyecto})
     if form.is_valid():
         form.save()
-        return redirect('/user_story/%d'%id_proyecto)
+        return redirect('/product-backlog-sprint/%d'%id_proyecto)
 
     return render(request, 'user_story/update_user_story.html', {'user_story': user_story, 'form': form, 'id_proyecto': id_proyecto, 'project': project})
+
+
+def update_sprint_user_story(request, id_proyecto, id_user_story, id_sprint):
+
+    user_story = UserStory.objects.get(id=id_user_story)
+    sprint = Sprint.objects.get(id=id_sprint)
+    project = Proyectos.objects.get(id=id_proyecto)
+    form = UserStorySprintForm(request.POST or None, instance=user_story,initial={'id_sprint': id_sprint})
+    print('Entra')
+    if form.is_valid():
+        new_user = form.save()
+        aux = sprint.capacidad - new_user.horas_estimadas
+        print(aux)
+        print()
+        if aux >= 0:
+            new_user.save()
+            sprint.capacidad = sprint.capacidad - new_user.horas_estimadas
+            sprint.save()
+        else:
+            user_story.id_sprint = None
+            user_story.save()
+            messages.error(request, 'La capacidad del sprint ya ha sido rebasada')
+
+        return redirect('/product_backlog_sprint/'+str(id_proyecto)+'/'+str(id_sprint))
+
+    return render(request, 'user_story/update_user_story.html', {'user_story': user_story, 'form': form, 'id_proyecto': id_proyecto, 'project': project})
+
+
+
 
 def update_prioridad_user_story(request, id_proyecto, id_user_story):
 
@@ -611,12 +654,6 @@ def update_prioridad_user_story(request, id_proyecto, id_user_story):
 
 #Edit de miembros del Equipo Proyecto y Sprint
 
-def all_user_story_sprint_backlog(request, id_proyecto):
-    user_story = UserStory.objects.all()
-    project = Proyectos.objects.get(id=id_proyecto)
-
-    return render(request, 'user_story/all_user_story_sprint_backlog',
-                  {'user_story_list': user_story, 'id_proyecto': id_proyecto, 'project': project})
 
 def update_members_sprint(request, id_proyecto, id_sprint,id_usuario):
     '''

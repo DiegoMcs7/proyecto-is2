@@ -71,8 +71,14 @@
 			{% csrf_token %}
 
 			{{ form.as_p }}
+                {% for message in messages %}
 
-			
+                    <div class="alert alert-success">
+                        <a class="close" href="#" data-dismiss="alert"></a>
+                        {{ message }}
+                    </div>
+
+                    {% endfor %}
             <div style="display: flex;">
                 <input type="submit" value="Actualizar" class="btn btn-secondary">
                 <a class="button" href="{% url "user_story-list" id_proyecto %}" style="margin-left: 10px; text-decoration: none; font-family: Arial, Helvetica, sans-serif; background-color: slategray;">Cancelar</a>

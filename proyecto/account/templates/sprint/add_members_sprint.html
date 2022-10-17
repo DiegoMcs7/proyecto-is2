@@ -60,7 +60,7 @@
                 {% endif %}
                 <a style="margin-left:10px;" class="button-create" href="{% url "user_story_sprint_backlog-list" id_sprint %}">
                 <i class="bi bi-plus text-primary"></i> Sprint Backlog </a>
-                <a style="margin-left:10px;" class="button-create" href="{% url "all-user-story-sprint-backlog" project.id sprint.id %}">
+                <a style="margin-left:10px;" class="button-create" href="{% url "product-backlog-sprint" project.id id_sprint %}">
                     <i class="bi bi-plus text-primary"></i> Product Backlog </a>
             </div>
         <table class="table table-striped table-hover" border="5px solid #000;" style="margin-top:30px;margin-left:15px;">
