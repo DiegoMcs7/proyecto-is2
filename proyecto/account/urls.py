@@ -60,4 +60,5 @@ urlpatterns = [
     path('tablero_kanban/<int:id_proyecto>/<int:id_tipo_us>', views.tablero_kanban, name='tablero-kanban'),
     path('update_user_story_kanban_avanzar/<int:id_proyecto>/<int:id_user_story>/<int:id_tipo_us>', views.update_user_story_kanban_avanzar, name='update-user-story-kanban-avanzar'),
     path('update_user_story_kanban_atras/<int:id_proyecto>/<int:id_user_story>/<int:id_tipo_us>', views.update_user_story_kanban_atras, name='update-user-story-kanban-atras'),
+    path('update_horas_trabajadas/<int:id_proyecto>/<int:id_user_story>', views.update_horas_trabajadas,name="update-horas-trabajadas"),
 ]

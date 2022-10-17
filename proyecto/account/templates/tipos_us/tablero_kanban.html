@@ -69,8 +69,11 @@
                 <thead class="thead-dark">
                     <tr>
                         {% for p in estados %}
+                            {% if p.nombre_estado != 'Done' %}
                           <th>{{p.nombre_estado}}</th>
+                            {% endif %}
                         {% endfor %}
+                         <th>Done</th>
                     </tr>
                 </thead>
                 {% for i in list_user_story %}

@@ -254,6 +254,8 @@ class Miembro_Sprint (models.Model):
     usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     sprint = models.ForeignKey("Sprint", on_delete=models.CASCADE)
     horas_trabajo = models.IntegerField(null=True)
+    def __str__(self):
+        return self.usuario
 
 class Reportes(models.Model):
     id = models.AutoField(primary_key=True)

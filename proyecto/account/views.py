@@ -8,7 +8,7 @@ from django.shortcuts import render, redirect
 from .forms import AddMembersForm, AddMembersSprintForm, EstadosForm, ProyectosForm, RolForm, TipoUsForm, \
     UsPrioridadForm, UserEditForm, \
     UserRegistrationForm, \
-    SprintForm, UserStoryForm, AsignarEstadosTipoUsForm, UserStorySprintForm
+    SprintForm, UserStoryForm, AsignarEstadosTipoUsForm, UserStorySprintForm, UsHorasForm
 from django.contrib.auth.decorators import login_required
 from tablib import Dataset
 from django.contrib import messages
@@ -169,11 +169,25 @@ def action_project(request, id):
 
 def inicializar_proyecto(request, id):
 
+    '''
+        Accion inicializar proyecto
+        fecha: 16/10/2022
+
+            Funcion en la cual se permite inicializar un proyecto
+    '''
+
     Proyectos.objects.filter(id=id).update(estado_proyecto='Iniciado')
 
     return redirect('list-projects')
 
 def cancelar_proyecto(request, id):
+
+    '''
+        Accion cancelar proyecto
+        fecha: 16/10/2022
+
+            Funcion en la cual se seleccionan las acciones por proyecto
+    '''
 
     Proyectos.objects.filter(id=id).update(estado_proyecto='Cancelado')
 
@@ -181,6 +195,13 @@ def cancelar_proyecto(request, id):
 
 
 def finalizar_proyecto(request, id):
+
+    '''
+        Accion finalizar proyecto
+        fecha: 16/10/2022
+
+            Funcion en la cual se permite finalizar un proyecto
+    '''
 
     Proyectos.objects.filter(id=id).update(estado_proyecto='Finalizado')
     project_state = Proyectos.objects.get(id=id)
@@ -672,6 +693,13 @@ def add_user_story(request, id_proyecto):
 
 def update_user_story(request, id_proyecto, id_user_story):
 
+    '''
+        Actualizar user story
+        fecha: 16/10/2022
+
+            vista que permite asignar un us a sprint y definir sus horas_estimadas y encargado
+    '''
+
     user_story = UserStory.objects.get(id=id_user_story)
     project = Proyectos.objects.get(id=id_proyecto)
     form = UserStoryForm(request.POST or None, instance=user_story, pwd=id_proyecto, initial={'id_proyecto_id': id_proyecto})
@@ -684,10 +712,17 @@ def update_user_story(request, id_proyecto, id_user_story):
 
 def update_sprint_user_story(request, id_proyecto, id_user_story, id_sprint):
 
+    '''
+        Asignar US a sprint
+        fecha: 16/10/2022
+
+            vista que permite asignar un us a sprint y definir sus horas_estimadas y encargado
+    '''
+
     user_story = UserStory.objects.get(id=id_user_story)
     sprint = Sprint.objects.get(id=id_sprint)
     project = Proyectos.objects.get(id=id_proyecto)
-    form = UserStorySprintForm(request.POST or None, instance=user_story,initial={'id_sprint': id_sprint})
+    form = UserStorySprintForm(request.POST or None, instance=user_story,pwd= id_sprint,initial={'id_sprint': id_sprint})
     print('Entra')
     if form.is_valid():
         new_user = form.save()
@@ -710,6 +745,12 @@ def update_sprint_user_story(request, id_proyecto, id_user_story, id_sprint):
 
 def update_prioridad_user_story(request, id_proyecto, id_user_story):
 
+    '''
+        Prioridad por cada tipo de US
+        fecha: 16/10/2022
+
+            Funcion en la cual se permite definir la prioridad por proyecto
+    '''
     user_story = UserStory.objects.get(id=id_user_story)
     project = Proyectos.objects.get(id=id_proyecto)
     form = UsPrioridadForm(request.POST or None, instance=user_story, initial={'id_proyecto_id': id_proyecto})
@@ -982,7 +1023,7 @@ def asignar_estados_tipos_us(request,id_proyecto,id_tipo_us):
 def tablero_kanban(request,id_proyecto,id_tipo_us):
     '''
         Tablero Kanban
-        fecha: 25/9/2022
+        fecha: 14/10/2022
 
             Vista que invoca un template con el tablero kanban
             En el desarrollo le obtiene el lisado de los estados correspondientes al tipo de user story
@@ -1013,6 +1054,15 @@ def tablero_kanban(request,id_proyecto,id_tipo_us):
 
 
 def update_user_story_kanban_avanzar(request, id_proyecto, id_user_story, id_tipo_us):
+    '''
+        Avanzar User Story Kanban
+        fecha: 14/10/2022
+
+           Vista que se encarga de mover el user story de izquierda a derecha dentro del tablero kanban
+           Se obtienen los nombres de los estados por tipo de US
+           En el caso de ya no poder avanzar, el user story se mantiene en la misma posicion
+
+    '''
     project = Proyectos.objects.get(id=id_proyecto)
     user_story = UserStory.objects.get(id=id_user_story)
     tipous = Tipo_User_Story.objects.get(id=id_tipo_us)
@@ -1039,6 +1089,15 @@ def update_user_story_kanban_avanzar(request, id_proyecto, id_user_story, id_tip
     return redirect('/tablero_kanban/' + str(id_proyecto) + '/' + str(id_tipo_us))
 
 def update_user_story_kanban_atras(request, id_proyecto, id_user_story, id_tipo_us):
+    '''
+        Atrasar User Story Kanban
+        fecha: 14/10/2022
+
+           Vista que se encarga de mover el user story de derecha a izquierda dentro del tablero kanban
+           Se obtienen los nombres de los estados por tipo de US
+           En el caso de ya no poder atrasar, el user story se mantiene en la misma posicion
+
+    '''
     project = Proyectos.objects.get(id=id_proyecto)
     user_story = UserStory.objects.get(id=id_user_story)
     list_user_story = UserStory.objects.filter(id_tipo_user_story=id_tipo_us)
@@ -1056,3 +1115,14 @@ def update_user_story_kanban_atras(request, id_proyecto, id_user_story, id_tipo_
 
     user_story.save()
     return redirect('/tablero_kanban/' + str(id_proyecto) + '/' + str(id_tipo_us))
+
+def update_horas_trabajadas(request, id_proyecto, id_user_story):
+
+    user_story = UserStory.objects.get(id=id_user_story)
+    project = Proyectos.objects.get(id=id_proyecto)
+    form = UsHorasForm(request.POST or None, instance=user_story, initial={'id_proyecto_id': id_proyecto})
+    if form.is_valid():
+        form.save()
+        return redirect('/user_story/%d'%id_proyecto)
+
+    return render(request, 'user_story/update_prioridad_us.html', {'user_story': user_story, 'form': form, 'id_proyecto': id_proyecto, 'project': project})

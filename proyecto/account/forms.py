@@ -254,6 +254,13 @@ class UserStorySprintForm(ModelForm):
             'encargado': forms.Select(attrs={'class': 'form-control', 'placeholder': 'Encargado'}),
             'id_sprint': forms.HiddenInput(attrs={'class': 'form-control', 'placeholder': 'Sprint'}),
         }
+    def __init__(self, *args, **kwargs):
+        self._pwd = kwargs.pop('pwd', None)
+        print(self._pwd)
+        super().__init__(*args, **kwargs)
+        #self.fields['encargado'].queryset = Miembro_Sprint.objects.filter(sprint=self._pwd)
+        self.fields['encargado'].queryset = User.objects.filter(miembro_sprint__sprint=self._pwd)
+        #Miembro_Sprint.sprint.through.objects.filter(tipo_user_story_id=id_tipo_us).values_list('estados_id')
 
 
 class UsPrioridadForm(ModelForm):
@@ -324,3 +331,11 @@ class EstadosForm(ModelForm):
             'id_tipo_user_story': forms.HiddenInput(attrs={'class': 'form-control', 'placeholder': 'Tipo User Story'}),
         }
 
+class UsHorasForm(ModelForm):
+    class Meta:
+        model = UserStory
+        fields = ('horas_trabajadas',)
+        labels = {'horas_trabajadas': 'Horas'}
+        widgets = {
+            'horas_trabajadas': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Horas'}),
+        }
