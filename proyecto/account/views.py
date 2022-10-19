@@ -794,6 +794,7 @@ def all_estados(request,id_proyecto,id_tipo_us):
     '''
     estados_list = Estados.objects.filter(id_tipo_user_story=id_tipo_us)
     project = Proyectos.objects.get(id=id_proyecto)
+    tipoUs = Tipo_User_Story.objects.get(id=id_tipo_us)
     all_estados = Estados.objects.all()
     estados = Tipo_User_Story.id_estado.through.objects.filter(tipo_user_story_id=id_tipo_us).values_list('estados_id')
     out = [item for t in estados for item in t]
@@ -801,7 +802,7 @@ def all_estados(request,id_proyecto,id_tipo_us):
     pout = permisos(request.user.id,id_proyecto)
                                                        
     return render(request, 'estados/estados_list.html',
-                  {'estados_list': estados_list,'id_proyecto': id_proyecto,'id_tipo_us': id_tipo_us, 'project': project, 'all_estados': all_estados, 'out': out, 'pout': pout})
+                  {'estados_list': estados_list,'id_proyecto': id_proyecto,'id_tipo_us': id_tipo_us, 'project': project, 'tipoUs': tipoUs, 'all_estados': all_estados, 'out': out, 'pout': pout})
 
 def add_estados(request,id_proyecto,id_tipo_us):
     '''

@@ -52,8 +52,11 @@
           </span>
     </div>
 
-
+    <div style="margin-left: 3%;margin-top: 3%;">
+      <h1 style="color:#A0A7AC">{{tipoUs.nombre_tipo_us}}</h1>
+    </div>
 <div style="margin-left: 3%;margin-top: 3%;">
+  
 {% if 'Can add estados' in pout or request.user.is_superuser %}
     <div style="display:flex;">
          <p class="display-3" ><a class="button-create" style="margin-right:10px;" href="{% url "asignar-estados-tipos-us" id_proyecto id_tipo_us %}">Asignar Estado</a></p>
