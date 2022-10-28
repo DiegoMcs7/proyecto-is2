@@ -18,6 +18,7 @@ class LoginForm(forms.Form):
     password = forms.CharField(widget=forms.PasswordInput)
 
 
+
 class UserRegistrationForm(ModelForm):
     class Meta:
         model = User
@@ -275,46 +276,27 @@ class UsPrioridadForm(ModelForm):
 class TipoUsForm(ModelForm):
     class Meta:
         model = Tipo_User_Story
-        fields = ('nombre_tipo_us', 'id_estado', 'id_proyecto')
+        fields = ('nombre_tipo_us', 'id_proyecto')
         labels = {
             'nombre_tipo_us': '',
-            'id_estado': '',
             'id_proyecto': '',
 
         }
 
         widgets = {
             'nombre_tipo_us': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nombre del Tipo_US'}),
-            'id_estado': forms.HiddenInput(attrs={'class': 'form-control', 'placeholder': 'Estado'}),
             'id_proyecto': forms.HiddenInput(attrs={'class': 'form-control', 'placeholder': 'Proyecto'}),
         }
 
-class AsignarEstadosTipoUsForm(ModelForm):
-    class Meta:
-        model = Tipo_User_Story
-        fields = ('nombre_tipo_us', 'id_estado', 'id_proyecto')
-        labels = {
-            'nombre_tipo_us': '',
-            'id_estado': 'Estados',
-            'id_proyecto': '',
 
-        }
-        my_default_errors = {
-        'required': 'Este campo es requerido',
-        'invalid': 'Ingrese un '
-        }
+class EditarPosicionEstadoForm(ModelForm):
+    class Meta:
+        model = Estados
+        fields = ('posicion',)
 
         widgets = {
-            'nombre_tipo_us': forms.HiddenInput(attrs={'class': 'form-control', 'placeholder': 'Nombre del Tipo_US'}),
-            'id_estado': forms.CheckboxSelectMultiple(attrs={'class': 'form-check', 'placeholder': 'Estado', 'style': 'padding-left: 0.4em;' }),
-            'id_proyecto': forms.HiddenInput(attrs={'class': 'form-control', 'placeholder': 'Proyecto'}),
+            'posicion': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Posicion'}),
         }
-    def __init__(self, *args, **kwargs):
-        self._pwd = kwargs.pop('pwd', None)
-        print(self._pwd)
-        super().__init__(*args, **kwargs)
-        self.fields['id_estado'].queryset = Estados.objects.filter(id_tipo_user_story=self._pwd)
-
 
 
 class EstadosForm(ModelForm):
@@ -330,6 +312,7 @@ class EstadosForm(ModelForm):
             'nombre_estado': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nombre del Estados'}),
             'id_tipo_user_story': forms.HiddenInput(attrs={'class': 'form-control', 'placeholder': 'Tipo User Story'}),
         }
+
 
 class UsHorasForm(ModelForm):
     class Meta:

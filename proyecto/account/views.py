@@ -1,14 +1,11 @@
-from datetime import datetime
-from gc import get_objects
-from urllib import response
-from urllib.request import Request
+import operator
 from .permisos import permisos
 from .models import Estados, Miembro_Sprint, Miembros, Profile, Proyectos, Rol, Sprint, Tipo_User_Story, UserStory
 from django.shortcuts import render, redirect
 from .forms import AddMembersForm, AddMembersSprintForm, EstadosForm, ProyectosForm, RolForm, TipoUsForm, \
     UsPrioridadForm, UserEditForm, \
     UserRegistrationForm, \
-    SprintForm, UserStoryForm, AsignarEstadosTipoUsForm, UserStorySprintForm, UsHorasForm
+    SprintForm, UserStoryForm, UserStorySprintForm, UsHorasForm, EditarPosicionEstadoForm
 from django.contrib.auth.decorators import login_required
 from tablib import Dataset
 from django.contrib import messages
@@ -37,6 +34,15 @@ def tablero(request):
 def kanban(request):
 
     return render(request, 'kanban/index.html')
+
+
+# def perfil_image(request):
+#     user = request.user
+#     form = PerfilImagenForm(instance=user)
+#     context = {'form':}
+#     return render()
+
+
 
 
 def register(request):
@@ -784,7 +790,8 @@ def update_members_sprint(request, id_proyecto, id_sprint,id_usuario):
 
 #CRUD ESTADOS
 
-def all_estados(request,id_proyecto,id_tipo_us):
+
+def all_estados(request, id_proyecto, id_tipo_us):
     '''
         Vista de todos los estados creados para cada proyecto
         fecha: 25/9/2022
@@ -792,17 +799,19 @@ def all_estados(request,id_proyecto,id_tipo_us):
             Esta vista es la encargada de llamar al archivo sprint_list.html con el fin de mostrar en pantalla la lista
             de todos los sprints creados para cada proyecto.       
     '''
-    estados_list = Estados.objects.filter(id_tipo_user_story=id_tipo_us)
+    estados_list = Estados.objects.filter(id_tipo_user_story=id_tipo_us).values_list('id')
+    print(estados_list)
     project = Proyectos.objects.get(id=id_proyecto)
     tipoUs = Tipo_User_Story.objects.get(id=id_tipo_us)
     all_estados = Estados.objects.all()
-    estados = Tipo_User_Story.id_estado.through.objects.filter(tipo_user_story_id=id_tipo_us).values_list('estados_id')
-    out = [item for t in estados for item in t]
+    # estados = Tipo_User_Story.id_estado.through.objects.filter(tipo_user_story_id=id_tipo_us).values_list('estados_id')
+    out = [item for t in estados_list for item in t]
 
-    pout = permisos(request.user.id,id_proyecto)
+    pout = permisos(request.user.id, id_proyecto)
                                                        
     return render(request, 'estados/estados_list.html',
-                  {'estados_list': estados_list,'id_proyecto': id_proyecto,'id_tipo_us': id_tipo_us, 'project': project, 'tipoUs': tipoUs, 'all_estados': all_estados, 'out': out, 'pout': pout})
+                  {'id_proyecto': id_proyecto,'id_tipo_us': id_tipo_us, 'project': project, 'tipoUs': tipoUs, 'all_estados': all_estados, 'out': out, 'pout': pout})
+
 
 def add_estados(request,id_proyecto,id_tipo_us):
     '''
@@ -831,7 +840,6 @@ def add_estados(request,id_proyecto,id_tipo_us):
 
     return render(request, 'estados/add_estados.html', {'form': form,'id_proyecto': id_proyecto,'id_tipo_us': id_tipo_us, 'submitted': submitted, 'project': project})
 
-
 def update_estados(request,id_proyecto,id_tipo_us,id_estado):
     '''
         Editar estados de un proyecto
@@ -852,7 +860,30 @@ def update_estados(request,id_proyecto,id_tipo_us,id_estado):
 
     return render(request, 'estados/update_estados.html', {'id_proyecto': id_proyecto,'tipous': tipous, 'form': form, 'project': project})
 
-#CRUD TIPOS_US
+
+def editar_posicion_estado(request, id_proyecto, id_tipo_us, id_estado):
+    '''
+        Asignar estados a cada tipo de user story
+        fecha: 12/9/2022
+
+            vista que permite asignar los estados a cada tipo de user story
+    '''
+    project = Proyectos.objects.get(id=id_proyecto)
+    tipous = Tipo_User_Story.objects.get(id=id_tipo_us)
+    estado = Estados.objects.get(id=id_estado)
+    x = id_proyecto
+    y = id_tipo_us
+
+    out = permisos(request.user.id, id_proyecto)
+    form = EditarPosicionEstadoForm(request.POST or None, instance=estado)
+    if form.is_valid():
+        form.save()
+        return redirect('/estados/' + str(x) + '/' + str(y))
+
+    return render(request, 'estados/editar_posicion_estado.html',
+                  {'estado': estado, 'form': form, 'id_proyecto': id_proyecto, 'out': out,'project': project, 'tipous': tipous})
+
+
 
 def all_tipos_us(request,id_proyecto):
     '''
@@ -1000,26 +1031,6 @@ def import_tipo_us(request, id_proyecto):
 
     return render(request, 'import_export/import_tipoUS.html', {'id_proyecto': id_proyecto})
 
-def asignar_estados_tipos_us(request,id_proyecto,id_tipo_us):
-    '''
-        Asignar estados a cada tipo de user story
-        fecha: 12/9/2022
-
-            vista que permite asignar los estados a cada tipo de user story
-    '''
-    tipous = Tipo_User_Story.objects.get(id=id_tipo_us)
-    project = Proyectos.objects.get(id=id_proyecto)
-    x = id_proyecto
-    y = id_tipo_us
-
-    out = permisos(request.user.id,id_proyecto)
-
-    form = AsignarEstadosTipoUsForm(request.POST or None, instance=tipous, pwd=id_tipo_us, initial={'id_proyecto': id_proyecto})
-    if form.is_valid():
-        form.save()
-        return redirect('/estados/'+str(x)+'/'+str(y))
-
-    return render(request, 'tipos_us/asignar_estados_tipo_us.html', {'tipous': tipous, 'form': form,'id_proyecto': id_proyecto, 'project': project,'out': out})
 
 def tablero_kanban(request,id_proyecto,id_tipo_us):
     '''
@@ -1032,26 +1043,20 @@ def tablero_kanban(request,id_proyecto,id_tipo_us):
     '''
     project = Proyectos.objects.get(id=id_proyecto)
     tipous = Tipo_User_Story.objects.get(id=id_tipo_us)
-    estados = Tipo_User_Story.id_estado.through.objects.filter(tipo_user_story_id=id_tipo_us).values_list('id')
-    print(estados)
-    out = [item for t in estados for item in t]
-    estados = Estados.objects.filter(id_tipo_user_story_id=id_tipo_us)  # estados del tipo de user story
-    print('ssss')
-    print(estados)
-    cant_estados = len(Estados.objects.filter(id__in=out))
+    estados = Estados.objects.filter(id_tipo_user_story_id=id_tipo_us).values_list('nombre_estado') # estados del tipo de user story
+    out = [item for t in estados for item in t]  # todos los nombres de los estados
+    posicion = Estados.objects.filter(id_tipo_user_story_id=id_tipo_us).values_list('posicion')
+    posiciones = [item for t in posicion for item in t]  # todos los nombres de los estados
+    diccionario = {}  # contedra el nombre del estado y su posicion en el kanban
+    for index in range(len(out)):
+        diccionario[out[index]] = posiciones[index]
+
+    diccionario = sorted(diccionario.items(), key=operator.itemgetter(1), reverse=False)
     list_user_story = UserStory.objects.filter(id_tipo_user_story=id_tipo_us)
     cant_user_story = len(UserStory.objects.filter(id_tipo_user_story=id_tipo_us))
-    print(cant_user_story)
     string_vacio = ""
 
-
-    # list_user_story = []
-    # for indice, valor in enumerate(cant_user_story):
-    #     list_user_story.append(indiceValor(indice, valor))
-    #
-    # print('hola')
-    # print(list_user_story)
-    return render(request, 'tipos_us/tablero_kanban.html', {'string_vacio': string_vacio,'project': project, 'tipous': tipous,'id_proyecto': id_proyecto, 'estados': estados, 'cant_estados': cant_estados, 'list_user_story': list_user_story, 'id_tipo_us': id_tipo_us})
+    return render(request, 'tipos_us/tablero_kanban.html', {'string_vacio': string_vacio,'project': project, 'tipous': tipous,'id_proyecto': id_proyecto, 'estados': estados, 'diccionario': diccionario, 'id_tipo_us': id_tipo_us})
 
 
 def update_user_story_kanban_avanzar(request, id_proyecto, id_user_story, id_tipo_us):
@@ -1064,27 +1069,26 @@ def update_user_story_kanban_avanzar(request, id_proyecto, id_user_story, id_tip
            En el caso de ya no poder avanzar, el user story se mantiene en la misma posicion
 
     '''
-    project = Proyectos.objects.get(id=id_proyecto)
     user_story = UserStory.objects.get(id=id_user_story)
-    tipous = Tipo_User_Story.objects.get(id=id_tipo_us)
-    project = Proyectos.objects.get(id=id_proyecto)
-    list_user_story = UserStory.objects.filter(id_tipo_user_story=id_tipo_us)
-    estados = Tipo_User_Story.id_estado.through.objects.filter(tipo_user_story_id=id_tipo_us).values_list('id')
-    print(estados)
-    out = [item for t in estados for item in t]
     estados = Estados.objects.filter(id_tipo_user_story_id=id_tipo_us).values_list('nombre_estado') # estados del tipo de user story
-    print('aaaa')
-    print(estados)
     out = [item for t in estados for item in t]  # todos los nombres de los estados
-    print('bbbb')
-    print(out)
+    posicion = Estados.objects.filter(id_tipo_user_story_id=id_tipo_us).values_list('posicion')
+    posiciones = [item for t in posicion for item in t]  # todos los nombres de los estados
+    diccionario = {}  # contedra el nombre del estado y su posicion en el kanban
+    for index in range(len(out)):
+        diccionario[out[index]] = posiciones[index]
+
+    diccionario = sorted(diccionario.items(), key=operator.itemgetter(1), reverse=False)
+
     ultimo = len(out)
     string_vacio = ""
-    print('xxxx')
-    print(estados)
-    indice = out.index(user_story.estado)
-    if indice < ultimo - 1:
-        user_story.estado = out[indice + 1]
+    indice = diccionario[user_story.estado]  # se obtiene el estado actual del userStory
+
+    if indice < ultimo - 1:  # condicion para validar si se puede seguir avanzando
+        for index in len(diccionario) -1:
+            if user_story.estado == (diccionario.keys())[index]:
+                user_story.estado = (diccionario.keys())[index+1]
+                break
     user_story.save()
 
     return redirect('/tablero_kanban/' + str(id_proyecto) + '/' + str(id_tipo_us))
@@ -1104,7 +1108,7 @@ def update_user_story_kanban_atras(request, id_proyecto, id_user_story, id_tipo_
     list_user_story = UserStory.objects.filter(id_tipo_user_story=id_tipo_us)
     tipous = Tipo_User_Story.objects.get(id=id_tipo_us)
     project = Proyectos.objects.get(id=id_proyecto)
-    estados = Tipo_User_Story.id_estado.through.objects.filter(tipo_user_story_id=id_tipo_us).values_list('id')
+    estados = Estados.objects.filter(tipo_user_story_id=id_tipo_us).values_list('id')
     out = [item for t in estados for item in t]
     estados = Estados.objects.filter(id_tipo_user_story_id=id_tipo_us).values_list('nombre_estado')   # estados del tipo de user story
     out = [item for t in estados for item in t]  # todos los nombres de los estados

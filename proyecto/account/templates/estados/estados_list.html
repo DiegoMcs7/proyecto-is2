@@ -5,6 +5,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@500&display=swap" rel="stylesheet">
+    <link rel="shortcut icon" href="{%  static 'favicon.ico' %}">
 
 
     <title>Listar tipo de user story </title>
@@ -52,6 +53,8 @@
           </span>
     </div>
 
+
+
     <div style="margin-left: 3%;margin-top: 3%;">
       <h1 style="color:#A0A7AC">{{tipoUs.nombre_tipo_us}}</h1>
     </div>
@@ -59,7 +62,6 @@
   
 {% if 'Can add estados' in pout or request.user.is_superuser %}
     <div style="display:flex;">
-         <p class="display-3" ><a class="button-create" style="margin-right:10px;" href="{% url "asignar-estados-tipos-us" id_proyecto id_tipo_us %}">Asignar Estado</a></p>
         <p class="display-3" ><a class="button-create" href="{% url "add-estados" id_proyecto id_tipo_us %}">Crear Estado</a></p>
         <p class="display-3" > <a class="button" href="{% url "tipos_us-list" id_proyecto %}" style="margin-left: 15px; text-decoration: none; font-family: Arial, Helvetica, sans-serif; background-color: slategray;">Volver</a></p>
 
@@ -80,19 +82,25 @@
         <table class="table table-striped table-hover" border="5px solid #000;" style="margin-top:30px;">
                 <thead class="thead-dark">
                     <tr>
-                      <th>Id</th>
+<!--                      <th>Id</th>-->
                       <th>Nombre</th>
-                      <th>Descripción</th>
+                      <th>Posición en tablero kanban</th>
                     </tr>
                 </thead>
 
             {% for p in all_estados %}
                   {% if p.id in out %}
                     <tr scope="row" style="tr:hover {background-color: #77bdff;}">
-                      <td style="padding:10px;">{{p.id}} </a></td>
+<!--                      <td style="padding:10px;">{{p.id}} </a></td>-->
                         <td style="padding:10px;">{{p.nombre_estado}} </a></td>
-                        <td style="padding:10px;">{{p.id_tipo_user_story}}</td>
+                         {% if p.posicion == 0 %}
+                            <td style="padding:10px;"> - </td>
+                         {% else %}
+                           <td style="padding:10px;">{{p.posicion}}</td>
+                         {% endif %}
+
                         {% if 'Can change estados' in pout or request.user.is_superuser %}
+                        <td style="padding:10px;"><a href="{% url 'editar-posicion-estado' id_proyecto id_tipo_us p.pk %}">Gestionar Posición</a></td>
                         <td style="padding:10px;"><a href="{% url 'update-estados' id_proyecto id_tipo_us p.pk %}">Editar</a></td>
                         {% endif %}
                     </tr>
