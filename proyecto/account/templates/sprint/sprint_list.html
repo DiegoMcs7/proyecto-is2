@@ -13,6 +13,8 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-iYQeCzEYFbKjA/T2uDLTpkwGzCiq6soy8tYaI1GyVh/UjpbCx/TYkiZhlZB6+fzT" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css"/>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-OERcA2EqjJCMA+/3y+gxIOqMEjwtxJY7qPCqsdltbNJuaOe923+mo//f6V8Qbsw3" crossorigin="anonymous"></script>
+
     <style>
         a{
         font-size: 1.03em;
@@ -52,7 +54,11 @@
               {% endif %}
           </span>
     </div>
-
+    {% if mensaje_error == 1 %}
+        <div class="alert alert-danger" role="alert">
+            No puedes realizar la acción ya que existen User Stories no finalizados
+        </div>
+    {% endif %}
 
 {% if 'Can add sprint' in out or request.user.is_superuser %}
         <div style="margin-left: 3%;margin-top: 3%;">
@@ -61,10 +67,13 @@
         </div>
 {% endif %}
 
+
+
     <div>
+        <!--solo al dar clic a las columnas con clase ".script" se activara el llamado a la vista-->
         <script>
             document.addEventListener("DOMContentLoaded", () => {
-              const rows = document.querySelectorAll("tr[data-href]");
+              const rows = document.querySelectorAll(".script");
               rows.forEach( row => {
                 row.addEventListener("click", () =>{
                   window.location.href = row.dataset.href;
@@ -84,26 +93,50 @@
                       <th>Fecha inicio</th>
                     </tr>
                 </thead>
-                
             {% for p in sprint_list %}
                 {% if id_project == p.id_proyecto_id %}
-                <tr scope="row" data-href="{% url 'add-members-sprint' id_project p.pk %}"
+                <tr scope="row"
                     style="tr:hover {background-color: #77bdff;}">
-                    <td style="padding:10px;">{{p.id}} </a></td>
-                    <td style="padding:10px;">{{p.nombre_sprint}}</td>
-                    <td style="padding:10px;">{{p.desc_sprint}}</td>
-                    <td style="padding:10px;">{{p.estado_sprint}}</td>
-                    <td style="padding:10px;">{{p.duracion_dias}} días</td>
+                    <td class="script" data-href="{% url 'add-members-sprint' id_project p.pk %}" style="padding:10px;">{{p.id}} </a></td>
+                    <td class="script" data-href="{% url 'add-members-sprint' id_project p.pk %}" style="padding:10px;">{{p.nombre_sprint}}</td>
+                    <td class="script" data-href="{% url 'add-members-sprint' id_project p.pk %}" style="padding:10px;">{{p.desc_sprint}}</td>
+                    <td class="script" data-href="{% url 'add-members-sprint' id_project p.pk %}" style="padding:10px;">{{p.estado_sprint}}</td>
+                    <td class="script" data-href="{% url 'add-members-sprint' id_project p.pk %}" style="padding:10px;">{{p.duracion_dias}} días</td>
                     {% if p.capacidad %}
-                    <td style="padding:10px;">{{ p.capacidad }} horas</td>
+                        <td style="padding:10px;" class="script" data-href="{% url 'add-members-sprint' id_project p.pk %}">{{ p.capacidad }} horas</td>
                     {% else %}
-                    <td style="padding:10px;"> </td>
+                        <td style="padding:10px;" class="script" data-href="{% url 'add-members-sprint' id_project p.pk %}"> </td>
                     {% endif %}
-                    <td style="padding:10px;">{{p.fecha_inicio}}</td>
-                    {% if 'Can change sprint' in out or request.user.is_superuser %}
-                    <td style="padding:10px;"><a href="{% url 'update-sprint' id_project p.pk %}">Editar</a></td>
-                    {% endif %}
-                    <td><a href="{% url 'action-sprint' id_project p.pk %}">Acciones</a></td>
+                        <td style="padding:10px;" class="script" data-href="{% url 'add-members-sprint' id_project p.pk %}">{{p.fecha_inicio}}</td>
+                        <td class="excluded-class">
+                            <!--Si esta finalizado o cancelado ya no se puede editar-->
+                           {% if 'Can change sprint' in out and p.estado_sprint != 'Cancelado' and p.estado_sprint != 'Finalizado'%}
+                              <div class="btn-group">
+                                  <button type="button" class="btn btn-success dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Acciones
+                                  </button>
+
+                                  <ul class="dropdown-menu">
+                                    {% if 'Can change sprint' in out and p.estado_sprint != 'Cancelado'%}
+                                        <li><a class="dropdown-item" href="{% url 'update-sprint' id_project p.pk %}">Editar</a></li>
+                                    {% endif %}
+
+                                    {% if p.estado_sprint != 'Iniciado' and p.estado_sprint != 'Cancelado' and p.estado_sprint != 'Finalizado'%}
+                                        <li><a class="dropdown-item" href="{% url 'inicializar_sprint' id_project p.pk %}">Inicializar</a></li>
+                                    {% endif %}
+
+                                    {% if p.estado_sprint != 'Finalizado' and p.estado_sprint != 'Cancelado' %}
+                                        <li><a class="dropdown-item" href="{% url 'finalizar_sprint' id_project p.pk %}">Finalizar</a></li>
+                                    {% endif %}
+
+                                    {% if p.estado_sprint == 'Iniciado' or p.estado_sprint == 'Planificado' %}
+                                        <li><a class="dropdown-item" href="{% url 'cancelar_sprint' id_project p.pk %}">Cancelar</a></li>
+                                    {% endif %}
+
+                                  </ul>
+                              </div>
+                           {% endif %}
+                    </td>
                 </tr>
                 {% endif %}
             {% endfor %}

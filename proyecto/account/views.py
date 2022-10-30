@@ -515,24 +515,43 @@ def cancelar_sprint(request, id_proyecto,id_sprint):
 
 def finalizar_sprint(request, id_proyecto,id_sprint):
 
-    x = id_proyecto
-    y = id_sprint
+    mensaje_error=0
+    sprint_list = Sprint.objects.all().order_by('id')
+    project = Proyectos.objects.get(id=id_proyecto)
     sprint = Sprint.objects.filter(estado_sprint='Iniciado').values_list('id') #Trae el sprint inicializado
     out = [item for t in sprint for item in t]
+    permiso = permisos(request.user.id,id_proyecto)
     if len(out) != 0:
-        user_story_list = UserStory.objects.filter(id_sprint=out[0]).values_list('estado') #Trae todos los us que pertenecen al sprint
-        out = [item for t in user_story_list for item in t]
+        user_story_list = UserStory.objects.filter(id_sprint=out[0]).values_list('estado') #Trae los estados de los us que pertenecen al sprint
+        user_story_list = [item for t in user_story_list for item in t]
+
+        tipo_us_list = UserStory.objects.filter(id_sprint=out[0]).values_list('id_tipo_user_story') #Trae el tipo de US al que pertenece el US
+        tipo_us_list = [item for t in tipo_us_list for item in t]
+
         aux = 0
-        for i in out:
-            if i != 'Done':
-                aux = 1                     
-            elif aux == 0:
-                Sprint.objects.filter(id=id).update(estado_sprint='Finalizado')
-            else:
-                messages.error(request, 'No puedes realizar la acción ya que existe un User Story no finalizado')
-                return redirect('/action_sprint/'+str(x)+'/'+str(y))
-    
-    return redirect('/sprint/%d'%id_proyecto)
+        for indice in range(len(user_story_list)):
+            estados_posicion = Estados.objects.filter(id_tipo_user_story=tipo_us_list[indice]).values_list('posicion') # se obtienen todos los estados pertenecientes al tipo de user story que pertenece el US
+            estados_posicion = [item for t in estados_posicion for item in t] # se obtienen las posiciones en una lista [1,2,4,3]
+            estados_posicion.sort() # se ordena de forma creciente
+
+            nombre_estado = Estados.objects.filter(posicion=estados_posicion[len(estados_posicion) - 1]).values_list('nombre_estado') # se obtienen todos los estados pertenecientes al tipo de user story que pertenece el US
+            nombre_estado = [item for t in nombre_estado for item in t]
+            print(user_story_list[indice])
+            print(nombre_estado[0])
+            if user_story_list[indice] != nombre_estado[0]:
+                aux = 1
+        print(aux)
+        if aux == 0:  # si todos los user story ya se han finalizados(estan ubicados en la ultima columna del kanban)
+            Sprint.objects.filter(id=id_sprint).update(estado_sprint='Finalizado')  # se finaliza el sprint
+        else:
+            mensaje_error = 1
+            return render(request, 'sprint/sprint_list.html',
+                          {'sprint_list': sprint_list, 'id_project': id_proyecto, 'project': project, 'out': permiso, 'mensaje_error': mensaje_error})
+
+    return render(request, 'sprint/sprint_list.html',
+                  {'sprint_list': sprint_list,'id_project': id_proyecto, 'project': project, 'out': permiso,  'mensaje_error': mensaje_error})
+
+
 
 @login_required
 def all_sprints(request,id):
@@ -543,13 +562,14 @@ def all_sprints(request,id):
             Esta vista es la encargada de llamar al archivo sprint_list.html con el fin de mostrar en pantalla la lista
             de todos los sprints creados para cada proyecto.       
     '''
-    sprint_list = Sprint.objects.all()
+    sprint_list = Sprint.objects.all().order_by('id')
     project = Proyectos.objects.get(id=id)
+    mensaje_error = 0
 
     out = permisos(request.user.id,id)
                                                              
     return render(request, 'sprint/sprint_list.html',
-                  {'sprint_list': sprint_list,'id_project': id, 'project': project, 'out': out})
+                  {'sprint_list': sprint_list,'id_project': id, 'project': project, 'out': out,  'mensaje_error': mensaje_error})
 
 
 def add_sprint(request,id):
@@ -656,7 +676,7 @@ def add_miembros_sprint(request, id_proyecto, id_sprint):
 
 def all_user_story(request, id):
 
-    user_story = UserStory.objects.all()
+    user_story = UserStory.objects.all().order_by('id')
     project = Proyectos.objects.get(id=id)
     out = permisos(request.user.id,id)
 
@@ -665,7 +685,7 @@ def all_user_story(request, id):
 
 def all_user_story_sprint_backlog(request, id):
 
-    user_story = UserStory.objects.all()
+    user_story = UserStory.objects.all().order_by('id')
     s= Sprint.objects.get(id=id)
     project = Proyectos.objects.get(id=s.id_proyecto_id)
     out = permisos(request.user.id,id)
@@ -675,7 +695,7 @@ def all_user_story_sprint_backlog(request, id):
 
 def product_backlog_sprint(request, id_proyecto, id_sprint):
 
-    user_story = UserStory.objects.all()
+    user_story = UserStory.objects.all().order_by('id')
     sprint = Sprint.objects.get(id=id_sprint)
     project = Proyectos.objects.get(id=id_proyecto)
     out = permisos(request.user.id,id_proyecto)
@@ -893,7 +913,7 @@ def all_tipos_us(request,id_proyecto):
             Esta vista es la encargada de llamar al archivo tipos_us_list.html con el fin de mostrar en pantalla la lista
             de todos los tipos de user story creados para cada proyecto.
     '''
-    tipos_us_list = Tipo_User_Story.objects.all()
+    tipos_us_list = Tipo_User_Story.objects.all().order_by('id')
     project = Proyectos.objects.get(id=id_proyecto)
 
     out = permisos(request.user.id,id_proyecto)    
@@ -1041,6 +1061,7 @@ def tablero_kanban(request,id_proyecto,id_tipo_us):
             En el desarrollo le obtiene el lisado de los estados correspondientes al tipo de user story
             que posteriormente se utilizaran para las columnas de la tabla kanban
     '''
+    posiciones_establecidas = 1
     project = Proyectos.objects.get(id=id_proyecto)
     tipous = Tipo_User_Story.objects.get(id=id_tipo_us)
     estados = Estados.objects.filter(id_tipo_user_story_id=id_tipo_us).values_list('nombre_estado') # estados del tipo de user story
@@ -1048,15 +1069,23 @@ def tablero_kanban(request,id_proyecto,id_tipo_us):
     posicion = Estados.objects.filter(id_tipo_user_story_id=id_tipo_us).values_list('posicion')
     posiciones = [item for t in posicion for item in t]  # todos los nombres de los estados
     diccionario = {}  # contedra el nombre del estado y su posicion en el kanban
+    nombres_estados = []
     for index in range(len(out)):
         diccionario[out[index]] = posiciones[index]
 
     diccionario = sorted(diccionario.items(), key=operator.itemgetter(1), reverse=False)
-    list_user_story = UserStory.objects.filter(id_tipo_user_story=id_tipo_us)
-    cant_user_story = len(UserStory.objects.filter(id_tipo_user_story=id_tipo_us))
+    for index in range(len(diccionario)):
+        tupla = diccionario[index]
+        nombres_estados.append(tupla[0])  # contiene nombres de los estados ordenados de acuerdo a su posicion
+
+    list_user_story = UserStory.objects.filter(id_tipo_user_story=id_tipo_us).order_by('id')
+    print(list_user_story)
     string_vacio = ""
 
-    return render(request, 'tipos_us/tablero_kanban.html', {'string_vacio': string_vacio,'project': project, 'tipous': tipous,'id_proyecto': id_proyecto, 'estados': estados, 'diccionario': diccionario, 'id_tipo_us': id_tipo_us})
+    return render(request, 'tipos_us/tablero_kanban.html',
+                  {'string_vacio': string_vacio, 'project': project, 'tipous': tipous, 'id_proyecto': id_proyecto,
+                   'estados': estados, 'nombres_estados': nombres_estados, 'id_tipo_us': id_tipo_us,
+                   'list_user_story': list_user_story,'posiciones_establecidas': posiciones_establecidas})
 
 
 def update_user_story_kanban_avanzar(request, id_proyecto, id_user_story, id_tipo_us):
@@ -1069,29 +1098,39 @@ def update_user_story_kanban_avanzar(request, id_proyecto, id_user_story, id_tip
            En el caso de ya no poder avanzar, el user story se mantiene en la misma posicion
 
     '''
+    cantidad_posicion_definido = 0
+    posiciones_establecidas = 1
     user_story = UserStory.objects.get(id=id_user_story)
     estados = Estados.objects.filter(id_tipo_user_story_id=id_tipo_us).values_list('nombre_estado') # estados del tipo de user story
     out = [item for t in estados for item in t]  # todos los nombres de los estados
     posicion = Estados.objects.filter(id_tipo_user_story_id=id_tipo_us).values_list('posicion')
-    posiciones = [item for t in posicion for item in t]  # todos los nombres de los estados
-    diccionario = {}  # contedra el nombre del estado y su posicion en el kanban
+    posiciones = [item for t in posicion for item in t]  # todas las posiciones
+    diccionario = {}  # diccionario que contiene el nombre del estado y su posicion en el kanban
+
     for index in range(len(out)):
         diccionario[out[index]] = posiciones[index]
+        if posiciones[index] !=0:
+            cantidad_posicion_definido = cantidad_posicion_definido + 1
 
-    diccionario = sorted(diccionario.items(), key=operator.itemgetter(1), reverse=False)
+    if len(out) == cantidad_posicion_definido:  # se condiciona de que todos los estados cuenten con una posicion establecida( es decir != 0)
+        # se ordena de forma creciente (se convierte a lista de tupla)
+        # [('To Do', 1), ('Estado tipo 20', 2), ('Doing', 3), ('Done', 4)]
+        lista_tupla = sorted(diccionario.items(), key=operator.itemgetter(1), reverse=False)
 
-    ultimo = len(out)
-    string_vacio = ""
-    indice = diccionario[user_story.estado]  # se obtiene el estado actual del userStory
-
-    if indice < ultimo - 1:  # condicion para validar si se puede seguir avanzando
-        for index in len(diccionario) -1:
-            if user_story.estado == (diccionario.keys())[index]:
-                user_story.estado = (diccionario.keys())[index+1]
+        ultimo = len(out)
+        for index in range(len(lista_tupla)):
+            valor = lista_tupla[index]
+            if user_story.estado == valor[0]:
+                posicion = valor[1]     # se obtiene la posicion del user story
+                if index < ultimo -1:  # si se puede seguir avanzando
+                    valor = lista_tupla[index + 1]
+                    user_story.estado = valor[0]
+                    user_story.save()
                 break
-    user_story.save()
+    else:
+        posiciones_establecidas = 0
+    return redirect('/tablero_kanban/' + str(id_proyecto) + '/' + str(id_tipo_us), posiciones_establecidas=posiciones_establecidas)
 
-    return redirect('/tablero_kanban/' + str(id_proyecto) + '/' + str(id_tipo_us))
 
 def update_user_story_kanban_atras(request, id_proyecto, id_user_story, id_tipo_us):
     '''
@@ -1103,23 +1142,44 @@ def update_user_story_kanban_atras(request, id_proyecto, id_user_story, id_tipo_
            En el caso de ya no poder atrasar, el user story se mantiene en la misma posicion
 
     '''
-    project = Proyectos.objects.get(id=id_proyecto)
+    cantidad_posicion_definido = 0
+    posiciones_establecidas = 1
     user_story = UserStory.objects.get(id=id_user_story)
-    list_user_story = UserStory.objects.filter(id_tipo_user_story=id_tipo_us)
-    tipous = Tipo_User_Story.objects.get(id=id_tipo_us)
-    project = Proyectos.objects.get(id=id_proyecto)
-    estados = Estados.objects.filter(tipo_user_story_id=id_tipo_us).values_list('id')
-    out = [item for t in estados for item in t]
-    estados = Estados.objects.filter(id_tipo_user_story_id=id_tipo_us).values_list('nombre_estado')   # estados del tipo de user story
+    estados = Estados.objects.filter(id_tipo_user_story_id=id_tipo_us).values_list(
+        'nombre_estado')  # estados del tipo de user story
     out = [item for t in estados for item in t]  # todos los nombres de los estados
-    ultimo = len(out)
-    indice = out.index(user_story.estado)
-    string_vacio = ""
-    if indice-1 >= 0:
-        user_story.estado = out[indice -1]
+    posicion = Estados.objects.filter(id_tipo_user_story_id=id_tipo_us).values_list('posicion')
+    posiciones = [item for t in posicion for item in t]  # todas las posiciones de los estados
+    diccionario = {}  # diccionario que ocntiene el nombre del estado y su posicion en el kanban
 
-    user_story.save()
-    return redirect('/tablero_kanban/' + str(id_proyecto) + '/' + str(id_tipo_us))
+    for index in range(len(out)):
+        diccionario[out[index]] = posiciones[index]
+        if posiciones[index] !=0:
+            cantidad_posicion_definido = cantidad_posicion_definido + 1
+
+    if len(out) == cantidad_posicion_definido:  # se condiciona de que todos los estados cuenten con una posicion establecida( es decir != 0)
+
+        # se ordena de forma creciente (se convierte a lista de tupla)
+        # [('To Do', 1), ('Estado tipo 20', 2), ('Doing', 3), ('Done', 4)]
+        lista_tupla = sorted(diccionario.items(), key=operator.itemgetter(1), reverse=False)
+
+        for index in range(len(lista_tupla)):
+            valor = lista_tupla[index]
+            print(valor[0])
+
+            if user_story.estado == valor[0]:
+                if index-1 >= 0:  # si se puede seguir atrazando
+                    print('si')
+                    valor = lista_tupla[index - 1]
+                    user_story.estado = valor[0]
+                    user_story.save()
+                break
+
+    else:
+        posiciones_establecidas = 0
+
+    return redirect('/tablero_kanban/' + str(id_proyecto) + '/' + str(id_tipo_us), posiciones_establecidas=posiciones_establecidas)
+
 
 def update_horas_trabajadas(request, id_proyecto, id_user_story):
 

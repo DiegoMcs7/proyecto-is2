@@ -58,6 +58,7 @@
 	<h1>Pulse un botón para realizar la acción</h1>
 
 <br/>
+
     <div id="content" style="margin-top:20px; margin-bottom:20px;margin-left: 15px;">
         <td class="btn-group" role="group" aria-label="Basic mixed styles example">
                 {% if 'Can change sprint' in out and sprint.estado_sprin != 'Cancelado'%}
@@ -72,16 +73,8 @@
                 {% if sprint.estado_sprint == 'Iniciado' or sprint.estado_sprint == 'Planificado' %}
                 <button type="button" class="btn btn-danger" ><a href="{% url 'cancelar_sprint' project.id sprint.id %}"style="color:#ffff; margin-left:-7%; margin-top:7px; text-decoration: none;">Cancelar</a></button>
                 {% endif %}
-                {% if request.user.is_superuser %}
-                <button type="button" class="btn btn-danger" ><a href="{% url 'delete-sprint' project.id %}"style="color:black; margin-left:-7%; margin-top:7px; text-decoration: none;">Eliminar</a></button>
-                {% endif %}
               </td>
               {% for message in messages %}
-
-        <div class="alert alert-success">
-          <a class="close" href="#" data-dismiss="alert"></a>
-          {{ message }}
-        </div>
 
         {% endfor %}
       </div>

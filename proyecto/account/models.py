@@ -102,7 +102,6 @@ class Rol(models.Model):
         return self.id_rol>0
 
 
-
 class UserStory(models.Model):
     '''
         Modelo User Story
@@ -140,6 +139,7 @@ class UserStory(models.Model):
     def us_exist(self):
         return self.id_user_story>0
 
+
 class Reuniones(models.Model):
     nombre_reunion = models.CharField(max_length=30)
     desc_reunion = models.TextField()
@@ -150,9 +150,11 @@ class Reuniones(models.Model):
 #class Calendario(models.Model):
     #reuniones = models.ListField()
 
+
 class Permisos(models.Model):
     nombre_permisos = models.CharField(max_length=30)
     desc_permisos = models.TextField()
+
 
 class Tipo_User_Story(models.Model):
     '''
