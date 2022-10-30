@@ -103,6 +103,9 @@
                         <td style="padding:10px;"><a href="{% url 'editar-posicion-estado' id_proyecto id_tipo_us p.pk %}">Gestionar Posición</a></td>
                         <td style="padding:10px;"><a href="{% url 'update-estados' id_proyecto id_tipo_us p.pk %}">Editar</a></td>
                         {% endif %}
+                        {% if 'Can delete estados' in pout or request.user.is_superuser %}
+                        <td style="padding:10px;"><a href="{% url 'delete-estados' p.pk id_proyecto id_tipo_us %}">Eliminar</a></td>
+                        {% endif %}
                     </tr>
                   {% endif %}
             {% endfor %}

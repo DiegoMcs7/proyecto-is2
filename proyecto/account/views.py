@@ -399,6 +399,15 @@ def delete_miembro_proyecto(request, id, id_proyecto):
     m = Miembros.objects.get(id=id)
     m.delete()
     return HttpResponseRedirect('/add_members/%d' % id_proyecto)
+def delete_tipo_us(request, id, id_proyecto):
+    tipous = Tipo_User_Story.objects.get(id=id)
+    tipous.delete()
+    return HttpResponseRedirect('/tipos_us/%d' % id_proyecto)
+
+def delete_estado(request, id, id_proyecto, id_tipo_us):
+    e = Estados.objects.get(id=id)
+    e.delete()
+    return HttpResponseRedirect('/estados/' + str(id_proyecto) + '/' + str(id_tipo_us))
 
 def export_roles(request, id_proyecto):
     if request.method == 'POST':

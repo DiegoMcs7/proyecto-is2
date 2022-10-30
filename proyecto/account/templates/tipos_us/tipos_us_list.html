@@ -96,6 +96,9 @@
                     {% if 'Can change tipo_ user_ story' in out or request.user.is_superuser %}
                     <td style="padding:10px;"><a href="{% url 'update-tipos_us' id_proyecto p.pk %}">Editar</a></td>
                     {% endif %}
+                    {% if 'Can delete tipo_ user_ story' in out or request.user.is_superuser %}
+                    <td style="padding:10px;"><a href="{% url 'delete-tipos_us' p.pk id_proyecto %}">Eliminar</a></td>
+                    {% endif %}
                     <td style="padding:10px;"><a href="{% url 'tablero-kanban' id_proyecto p.pk %}">Tablero Kanban</a></td>
                 </tr>
                 {% endif %}
