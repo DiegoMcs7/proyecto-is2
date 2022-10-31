@@ -1,11 +1,14 @@
 import operator
+from datetime import datetime
+
 from .permisos import permisos
-from .models import Estados, Miembro_Sprint, Miembros, Profile, Proyectos, Rol, Sprint, Tipo_User_Story, UserStory
+from .models import Estados, Miembro_Sprint, Miembros, Profile, Proyectos, Rol, Sprint, Tipo_User_Story, UserStory, \
+    LogProyectos
 from django.shortcuts import render, redirect
 from .forms import AddMembersForm, AddMembersSprintForm, EstadosForm, ProyectosForm, RolForm, TipoUsForm, \
     UsPrioridadForm, UserEditForm, \
     UserRegistrationForm, \
-    SprintForm, UserStoryForm, UserStorySprintForm, UsHorasForm, EditarPosicionEstadoForm
+    SprintForm, UserStoryForm, UserStorySprintForm, UsHorasForm, EditarPosicionEstadoForm, LogProyectosForm
 from django.contrib.auth.decorators import login_required
 from tablib import Dataset
 from django.contrib import messages
@@ -102,10 +105,21 @@ def add_project(request):
     submitted = False
     if request.method == "POST":
         form = ProyectosForm(request.POST, initial={'scrum_master': request.user.id})
+
         if form.is_valid():
             project = form.save(commit=False)
             project.manager = request.user
             project.save()
+
+            #creacion de registro en la tabla log
+            fecha = datetime.now().strftime(("%d/%m/%Y - %H:%M:%S"))
+            fecha_str = str(fecha)
+            log = LogProyectos(usuario_responsable=request.user.username, descripcion_accion='Creación de proyecto',
+                               nombre_proyecto=project.nombre_proyecto, desc_proyecto=project.desc_proyecto,
+                               estado_proyecto=project.estado_proyecto, fecha_inicio=project.fecha_inicio,
+                               fecha_fin=project.fecha_fin, scrum_master=project.scrum_master, fecha_creacion=fecha_str)
+            log.save()
+
             #Creacion de los roles por defecto
             project_member = Proyectos.objects.filter(scrum_master=project.scrum_master.id).last()
             permisos= Permission.objects.all()
@@ -172,6 +186,18 @@ def action_project(request, id):
     project = Proyectos.objects.get(id=id)
 
     return render(request, 'project/action_project.html', {'project': project})
+
+
+def log_project(request):
+    '''
+        Seleccionar accion por proyecto
+        fecha: 16/10/2022
+
+            Funcion en la cual se seleccionan las acciones por proyecto
+    '''
+    project = LogProyectos.objects.all()
+
+    return render(request, 'project/log_project.html', {'project_list': project})
 
 def inicializar_proyecto(request, id):
 
@@ -527,16 +553,17 @@ def finalizar_sprint(request, id_proyecto,id_sprint):
     mensaje_error=0
     sprint_list = Sprint.objects.all().order_by('id')
     project = Proyectos.objects.get(id=id_proyecto)
-    sprint = Sprint.objects.filter(estado_sprint='Iniciado').values_list('id') #Trae el sprint inicializado
+    sprint = Sprint.objects.filter(id=id_sprint).values_list('id')
     out = [item for t in sprint for item in t]
     permiso = permisos(request.user.id,id_proyecto)
-    if len(out) != 0:
-        user_story_list = UserStory.objects.filter(id_sprint=out[0]).values_list('estado') #Trae los estados de los us que pertenecen al sprint
-        user_story_list = [item for t in user_story_list for item in t]
 
-        tipo_us_list = UserStory.objects.filter(id_sprint=out[0]).values_list('id_tipo_user_story') #Trae el tipo de US al que pertenece el US
-        tipo_us_list = [item for t in tipo_us_list for item in t]
+    user_story_list = UserStory.objects.filter(id_sprint=out[0]).values_list('estado') #Trae los estados de los us que pertenecen al sprint
+    user_story_list = [item for t in user_story_list for item in t]
 
+    tipo_us_list = UserStory.objects.filter(id_sprint=out[0]).values_list('id_tipo_user_story') #Trae el tipo de US al que pertenece el US
+    tipo_us_list = [item for t in tipo_us_list for item in t]
+
+    if len(user_story_list) != 0:
         aux = 0
         for indice in range(len(user_story_list)):
             estados_posicion = Estados.objects.filter(id_tipo_user_story=tipo_us_list[indice]).values_list('posicion') # se obtienen todos los estados pertenecientes al tipo de user story que pertenece el US
@@ -549,17 +576,17 @@ def finalizar_sprint(request, id_proyecto,id_sprint):
             print(nombre_estado[0])
             if user_story_list[indice] != nombre_estado[0]:
                 aux = 1
-        print(aux)
         if aux == 0:  # si todos los user story ya se han finalizados(estan ubicados en la ultima columna del kanban)
             Sprint.objects.filter(id=id_sprint).update(estado_sprint='Finalizado')  # se finaliza el sprint
         else:
             mensaje_error = 1
             return render(request, 'sprint/sprint_list.html',
                           {'sprint_list': sprint_list, 'id_project': id_proyecto, 'project': project, 'out': permiso, 'mensaje_error': mensaje_error})
+    else:
+        Sprint.objects.filter(id=id_sprint).update(estado_sprint='Finalizado')  # se finaliza el sprint
 
     return render(request, 'sprint/sprint_list.html',
                   {'sprint_list': sprint_list,'id_project': id_proyecto, 'project': project, 'out': permiso,  'mensaje_error': mensaje_error})
-
 
 
 @login_required

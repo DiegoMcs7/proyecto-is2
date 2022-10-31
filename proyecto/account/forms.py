@@ -5,7 +5,8 @@ from django import forms
 from django.contrib.auth.models import User
 from django.db.models import Q
 from matplotlib import widgets
-from .models import Estados, Miembro_Sprint, Profile, Proyectos, Miembros, Rol, Sprint, Tipo_User_Story, UserStory
+from .models import Estados, Miembro_Sprint, Profile, Proyectos, Miembros, Rol, Sprint, Tipo_User_Story, UserStory, \
+    LogProyectos, LogSprint
 from django.conf import settings
 from django.forms import ModelForm
 from django.contrib.auth.models import Permission
@@ -65,8 +66,6 @@ class UserEditForm(forms.ModelForm):
         }
 
 
-
-
 class ProfileEditForm(forms.ModelForm):
     class Meta:
         model = Profile
@@ -104,10 +103,27 @@ class ProyectosForm(ModelForm):
         widgets = {
             'nombre_proyecto': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nombre del Proyecto'}),
             'desc_proyecto': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Descripcion del Proyecto', 'style': 'height: 30%;'}),
-            'estado_proyecto': forms.Select(attrs={'class': 'form-select', 'placeholder': 'Estado del Proyecto'}),
+            'estado_proyecto': forms.HiddenInput(attrs={'class': 'form-select', 'placeholder': 'Estado del Proyecto'}),
             'fecha_inicio': forms.DateInput(attrs={'type': 'date', 'class': 'form-control', 'placeholder': 'Fecha Inicio'}),
             'fecha_fin': forms.DateInput(attrs={'type': 'date', 'class': 'form-control', 'placeholder': 'Fecha Fin'}),
             'scrum_master': forms.Select(attrs={'class': 'form-select', 'placeholder': 'Scrum Master'}),
+        }
+
+
+class LogProyectosForm(ModelForm):
+    class Meta:
+        model = LogProyectos
+        fields = ('nombre_proyecto', 'desc_proyecto', 'estado_proyecto', 'fecha_inicio', 'fecha_fin', 'scrum_master', 'usuario_responsable','descripcion_accion', )
+
+        widgets = {
+            'usuario_responsable': forms.HiddenInput(attrs={'class': 'form-control'}),
+            'descripcion_accion': forms.HiddenInput(attrs={'class': 'form-control'}),
+            'nombre_proyecto': forms.HiddenInput(attrs={'class': 'form-control', 'placeholder': 'Nombre del Proyecto'}),
+            'desc_proyecto': forms.HiddenInput(attrs={'class': 'form-control', 'placeholder': 'Descripcion del Proyecto', 'style': 'height: 30%;'}),
+            'estado_proyecto': forms.HiddenInput(attrs={'class': 'form-select', 'placeholder': 'Estado del Proyecto'}),
+            'fecha_inicio': forms.HiddenInput(attrs={'type': 'date', 'class': 'form-control', 'placeholder': 'Fecha Inicio'}),
+            'fecha_fin': forms.HiddenInput(attrs={'type': 'date', 'class': 'form-control', 'placeholder': 'Fecha Fin'}),
+            'scrum_master': forms.HiddenInput(attrs={'class': 'form-select', 'placeholder': 'Scrum Master'}),
         }
 
 
@@ -183,6 +199,23 @@ class SprintForm(ModelForm):
             'capacidad': forms.HiddenInput(attrs={'class': 'form-control', 'placeholder': 'Duración en días hábiles'}),
             'id_proyecto': forms.HiddenInput(attrs={'class': 'form-control', 'placeholder': 'Proyecto'}),
         }
+
+class LogSprintForm(ModelForm):
+    class Meta:
+        model = LogSprint
+        fields = ('nombre_sprint', 'desc_sprint', 'estado_sprint', 'duracion_dias','capacidad','id_proyecto','usuario_responsable','descripcion_accion',)
+
+        widgets = {
+            'usuario_responsable': forms.HiddenInput(attrs={'class': 'form-control'}),
+            'descripcion_accion': forms.HiddenInput(attrs={'class': 'form-control'}),
+            'nombre_sprint': forms.HiddenInput(attrs={'class': 'form-control', 'placeholder': 'Nombre del sprint'}),
+            'desc_sprint': forms.HiddenInput(attrs={'class': 'form-control', 'placeholder': 'Descripcion del sprint', 'style': 'height: 30%;'}),
+            'estado_sprint': forms.HiddenInput(attrs={'class': 'form-select', 'placeholder': 'Estado del sprint'}),
+            'duracion_dias': forms.HiddenInput(attrs={'class': 'form-control', 'placeholder': 'Duración en días hábiles'}),
+            'capacidad': forms.HiddenInput(attrs={'class': 'form-control', 'placeholder': 'Duración en días hábiles'}),
+            'id_proyecto': forms.HiddenInput(attrs={'class': 'form-control', 'placeholder': 'Proyecto'}),
+        }
+
 
 class AddMembersSprintForm(ModelForm):
     class Meta:

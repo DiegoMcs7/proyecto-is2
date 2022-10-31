@@ -28,6 +28,27 @@ class Miembros(models.Model):
             Se define el modelo que cuenta con los campos que referencian a
     '''
 
+    id_usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    id_proyecto = models.ForeignKey("Proyectos",on_delete=models.CASCADE)
+    id_rol = models.ManyToManyField("Rol")
+
+
+class LogMiembros(models.Model):
+    '''
+        Modelo LogMiembros
+        fecha: 30/10/2022
+
+         El modelo es utilizado para la creación de los diferentes miembros por proyecto con sus respectivos roles
+        Se define el modelo que cuenta con los campos que referencian a
+        En todos los modelos se agregaron los siguientes campos nuevos:
+            -usuario_responsable
+            -descripcion_accion
+            -fecha_creacion
+    '''
+    fecha_creacion = models.DateTimeField(auto_now_add=True)
+    usuario_responsable = models.TextField()
+   # usuario_responsable = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE, related_name="usuario_responsable_miembros")
+    descripcion_accion = models.CharField(max_length=30)
     id_usuario = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE)
     id_proyecto = models.ForeignKey("Proyectos",on_delete=models.CASCADE)
     id_rol = models.ManyToManyField("Rol")
@@ -45,6 +66,7 @@ class Usuarios(models.Model):
     nombre_usuario = models.CharField(max_length=15)
     contrasena_usuario = models.CharField(max_length=10)
     estado_usuario = models.CharField(max_length=30)
+
 
 class Proyectos(models.Model):
     '''
@@ -80,6 +102,42 @@ class Proyectos(models.Model):
     def project_exist(self):
         return self.id_proyecto>0
 
+
+class LogProyectos(models.Model):
+    '''
+        Modelo LogProyecto
+        fecha: 30/10/2022
+
+        En el modelo se queda registrado el historial de los proyectos, como los cambios de estados o modificaciones en general
+        En todos los modelos se agregaron los siguientes campos nuevos:
+            -usuario_responsable
+            -descripcion_accion
+            -fecha_creacion
+    '''
+    fecha_creacion = models.TextField(null=True)
+    usuario_responsable = models.TextField()
+    # usuario_responsable = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.CASCADE, related_name="usuario_responsable_proyectos")
+    descripcion_accion = models.CharField(max_length=30)
+    estados = [
+
+        ('Planificado','Planificado'),
+        ('Iniciado','Iniciado'),
+        ('Cancelado','Cancelado'),
+        ('Finalizado','Finalizado'),
+
+    ]
+
+    nombre_proyecto = models.CharField(max_length=30)
+    desc_proyecto = models.TextField()
+    estado_proyecto = models.CharField(max_length=11,choices=estados,default='Planificado')
+    fecha_inicio = models.DateField()
+    fecha_fin = models.DateField()
+    scrum_master = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
+
+    def __str__(self):
+        return self.nombre_proyecto
+
+
 class Rol(models.Model):
     '''
         Roles
@@ -96,10 +154,30 @@ class Rol(models.Model):
 
     def __str__(self):
         return self.rol
-    
-    @property
-    def rol_exist(self):
-        return self.id_rol>0
+
+class LogRol(models.Model):
+    '''
+        Roles
+        fecha: 30/10/2022
+
+        En el modelo se queda registrado el historial de los roles, como los cambios de estados o modificaciones en general
+        En todos los modelos se agregaron los siguientes campos nuevos:
+         -usuario_responsable
+         -descripcion_accion
+         -fecha_creacion = models.DateTimeField(auto_now_add=True)
+    '''
+
+    fecha_creacion = models.DateTimeField(auto_now_add=True)
+    usuario_responsable = models.TextField()
+   # usuario_responsable = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE, related_name="usuario_responsable_rol")
+    descripcion_accion = models.CharField(max_length=30)
+    rol = models.CharField(max_length=20,blank=True, null=True)
+    desc_rol = models.TextField()
+    permisos = models.ManyToManyField(Permission)
+    proyecto = models.ForeignKey("Proyectos", on_delete=models.CASCADE, null=True)
+
+    def __str__(self):
+        return self.rol
 
 
 class UserStory(models.Model):
@@ -120,6 +198,46 @@ class UserStory(models.Model):
     desc_us = models.TextField()
     #com_us = models.TextField()
     #historial_us = models.CharField(max_length=30)
+    horas_estimadas = models.IntegerField(default=0)
+    horas_trabajadas = models.IntegerField(default=0)
+    encargado = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True)
+    prioridad = [
+
+        ('Baja','Baja'),
+        ('Media','Media'),
+        ('Alta','Alta'),
+
+    ]
+    prioridad_us = models.CharField(choices=prioridad, max_length=10, default='Baja')
+    id_proyecto = models.ForeignKey("Proyectos", on_delete=models.CASCADE, null=True)
+    id_sprint = models.ForeignKey("Sprint", on_delete=models.CASCADE, null=True, blank=True)
+    id_tipo_user_story = models.ForeignKey("Tipo_User_Story", on_delete=models.CASCADE, null=True, blank=True)
+    estado = models.TextField(default="To Do")
+    @property
+    def us_exist(self):
+        return self.id_user_story>0
+
+
+class LogUserStory(models.Model):
+    '''
+        Modelo LogUserStory
+        fecha: 30/10/2022
+
+        En el modelo se queda registrado el historial de los UserStories, como los cambios de estados o modificaciones en general
+        En todos los modelos se agregaron los siguientes campos nuevos:
+            -usuario_responsable
+            -descripcion_accion
+            -fecha_creacion = models.DateTimeField(auto_now_add=True)
+
+    '''
+    fecha_creacion = models.DateTimeField(auto_now_add=True)
+    usuario_responsable = models.TextField()
+
+   # usuario_responsable = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE, related_name="usuario_responsable_user_story")
+    descripcion_accion = models.CharField(max_length=30)
+    id = models.AutoField(primary_key=True)
+    nombre_us = models.CharField(max_length=30)
+    desc_us = models.TextField()
     horas_estimadas = models.IntegerField(default=0)
     horas_trabajadas = models.IntegerField(default=0)
     encargado = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True)
@@ -178,6 +296,35 @@ class Tipo_User_Story(models.Model):
         return self.id_tipo_user_story_id>0
 
 
+class LogTipo_User_Story(models.Model):
+    '''
+        Modelo LogTipo_User_Story
+        fecha: 30/10/2022
+
+        En el modelo se queda registrado el historial de los tipos de US, como los cambios de estados o modificaciones en general
+           En todos los modelos se agregaron los siguientes campos nuevos:
+            -usuario_responsable
+            -descripcion_accion
+            -fecha_creacion = models.DateTimeField(auto_now_add=True)
+
+    '''
+
+    fecha_creacion = models.DateTimeField(auto_now_add=True)
+    usuario_responsable = models.TextField()
+    #usuario_responsable = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE, related_name="usuario_responsable_tipo_user_story")
+    descripcion_accion = models.CharField(max_length=30)
+    nombre_tipo_us = models.CharField(max_length=30)
+    # id_estado = models.ManyToManyField("Estados", blank=True, db_table='estados_tipo_us')
+    id_proyecto = models.ForeignKey("Proyectos", on_delete=models.CASCADE, null=True, blank=True)
+
+    def __str__(self):
+        return self.nombre_tipo_us
+
+    @property
+    def tipo_us_exist(self):
+        return self.id_tipo_user_story_id > 0
+
+
 class Estados(models.Model):
     '''
         Modelo Estados
@@ -196,8 +343,30 @@ class Estados(models.Model):
         return self.nombre_estado
 
 
-# lista_default = {to do, doing, done}
-# Estados.objects.filter(id_estado__in_lista_default | id_tipo_user_story=id_tipo_user_story)
+class LogEstados(models.Model):
+    '''
+        Modelo LogEstados
+        fecha: 30/10/2022
+
+        En el modelo se queda registrado el historial de los Estados, como los cambios de estados o modificaciones en general
+           En todos los modelos se agregaron los siguientes campos nuevos:
+            -usuario_responsable
+            -descripcion_accion
+            -fecha_creacion = models.DateTimeField(auto_now_add=True)
+
+    '''
+
+    fecha_creacion = models.DateTimeField(auto_now_add=True)
+    usuario_responsable = models.TextField()
+    #usuario_responsable = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE, related_name="usuario_responsable_estados")
+    descripcion_accion = models.CharField(max_length=30)
+    nombre_estado = models.CharField(max_length=30)
+    posicion = models.IntegerField(default=0)
+    id_tipo_user_story = models.ForeignKey("Tipo_User_Story", on_delete=models.CASCADE, null=True)
+
+    def __str__(self):
+        return self.nombre_estado
+
 
 class SprintBacklog(models.Model):
     id = models.AutoField(primary_key=True)
@@ -248,7 +417,72 @@ class Sprint(models.Model):
         return self.id_sprint>0
 
 
+class LogSprint(models.Model):
+    '''
+        Modelo LogSprint
+        fecha: 30/10/2022
+
+        En el modelo se queda registrado el historial de los Sprints, como los cambios de estados o modificaciones en general
+           En todos los modelos se agregaron los siguientes campos nuevos:
+            -usuario_responsable
+            -descripcion_accion
+            -fecha_creacion = models.DateTimeField(auto_now_add=True)
+
+    '''
+
+    fecha_creacion = models.DateTimeField(auto_now_add=True)
+    usuario_responsable = models.TextField()
+    #usuario_responsable = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE, related_name="usuario_responsable_sprint")
+    descripcion_accion = models.CharField(max_length=30)
+    id = models.AutoField(primary_key=True)
+    nombre_sprint = models.CharField(max_length=30)
+    desc_sprint = models.TextField()
+    estado = [
+
+        ('Planificado', 'Planificado'),
+        ('Iniciado', 'Iniciado'),
+        ('Cancelado', 'Cancelado'),
+        ('Terminado', 'Terminado'),
+
+    ]
+    estado_sprint = models.CharField(choices=estado, default='Planificado', max_length=12)
+    fecha_inicio = models.DateField(auto_now=True, blank=True, null=True)
+    duracion_dias = models.IntegerField(null=True)  # Duracion en dias habiles
+    capacidad = models.IntegerField(default=0)  # Capacidad de produccion
+    id_proyecto = models.ForeignKey("Proyectos", on_delete=models.CASCADE, blank=True, null=True)
+
+    def __str__(self):
+        return self.nombre_sprint
+
+    @property
+    def sprint_exist(self):
+        return self.id_sprint > 0
+
+
 class Miembro_Sprint(models.Model):
+    usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    sprint = models.ForeignKey("Sprint", on_delete=models.CASCADE)
+    horas_trabajo = models.IntegerField(null=True)
+
+    def __str__(self):
+        return self.usuario
+
+
+class LogMiembro_Sprint(models.Model):
+    '''
+        Modelo LogMiembro_Sprint
+        fecha: 30/10/2022
+
+        En el modelo se queda registrado el historial de los miembros de un sprint(modificaciones en general)
+        En todos los modelos se agregaron los siguientes campos nuevos:
+            -usuario_responsable
+            -descripcion_accion
+            -fecha_creacion
+    '''
+    fecha_creacion = models.DateTimeField(auto_now_add=True)
+    usuario_responsable = models.TextField()
+    #usuario_responsable = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE, related_name="usuario_responsable_miembro_sprint")
+    descripcion_accion = models.CharField(max_length=30)
     usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     sprint = models.ForeignKey("Sprint", on_delete=models.CASCADE)
     horas_trabajo = models.IntegerField(null=True)

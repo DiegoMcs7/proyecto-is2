@@ -4,12 +4,17 @@
 {% block content %}
 
 <body>
-  <h2 style="text-align: center; padding-bottom: 15px;">Proyectos</h2>
-{% if 'Can add proyectos' in out or request.user.is_superuser %}
- <p class="display-3">
-    <a class="button-create" href="{% url "add-project" %}">
-        <i class="bi bi-plus text-primary"></i> Agregar</a></p>
-{% endif %}
+     <h2 style="text-align: center; padding-bottom: 15px;">Proyectos</h2>
+
+     <div style="margin-left: 3%; display:flex" >
+        {% if 'Can add proyectos' in out or request.user.is_superuser %}
+<!--                <p class="display-3">-->
+<!--                <a class="button-create" href="{% url "add-project" %}">-->
+<!--                <i class="bi bi-plus text-primary"></i> Agregar</a></p>-->
+         <a class="button-create" href="{% url "add-project" %}"> Agregar Proyecto</a>
+         {% endif %}
+         <a class="button-create" style="margin-left: 10px;" href="{% url "log-project" %}"> Historial</a>
+     </div>
     <div>
         <script>
             document.addEventListener("DOMContentLoaded", () => {
