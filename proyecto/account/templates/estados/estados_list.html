@@ -59,10 +59,12 @@
       <h1 style="color:#A0A7AC">{{tipoUs.nombre_tipo_us}}</h1>
     </div>
 <div style="margin-left: 3%;margin-top: 3%;">
-  
+ 
 {% if 'Can add estados' in pout or request.user.is_superuser %}
     <div style="display:flex;">
+      {% if project.estado_proyecto == 'Planificado' or project.estado_proyecto == 'Iniciado' %} 
         <p class="display-3" ><a class="button-create" href="{% url "add-estados" id_proyecto id_tipo_us %}">Crear Estado</a></p>
+        {% endif %}
         <p class="display-3" > <a class="button" href="{% url "tipos_us-list" id_proyecto %}" style="margin-left: 15px; text-decoration: none; font-family: Arial, Helvetica, sans-serif; background-color: slategray;">Volver</a></p>
 
     </div>
@@ -99,12 +101,14 @@
                            <td style="padding:10px;">{{p.posicion}}</td>
                          {% endif %}
 
-                        {% if 'Can change estados' in pout or request.user.is_superuser %}
+                        {% if project.estado_proyecto == 'Planificado' or project.estado_proyecto == 'Iniciado' %}
+                        {% if 'Can change estados' in pout or request.user.is_superuser %} 
                         <td style="padding:10px;"><a href="{% url 'editar-posicion-estado' id_proyecto id_tipo_us p.pk %}">Gestionar Posición</a></td>
                         <td style="padding:10px;"><a href="{% url 'update-estados' id_proyecto id_tipo_us p.pk %}">Editar</a></td>
                         {% endif %}
                         {% if 'Can delete estados' in pout or request.user.is_superuser %}
                         <td style="padding:10px;"><a href="{% url 'delete-estados' p.pk id_proyecto id_tipo_us %}">Eliminar</a></td>
+                        {% endif %}
                         {% endif %}
                     </tr>
                   {% endif %}

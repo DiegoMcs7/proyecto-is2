@@ -70,9 +70,11 @@
                             <li style="padding:1px;">{{permisos}}</li>
                          {% endif %}
                     {% endfor %}</td>
+                    <td><a class="button" href="{% url "list-roles" project.id %}" style="margin-left: 10px; text-decoration: none; font-family: Arial, Helvetica, sans-serif; background-color: slategray;">Volver</a></td>
                 </tr>
                 {% endif %}
                 {% endfor %}
+                
            </table>
 
 </body>

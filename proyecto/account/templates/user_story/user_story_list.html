@@ -53,10 +53,12 @@
               {% endif %}
           </span>
     </div>
-
+    <h1>Product Backlog</h1>
 {% if 'Can add user story' in out or request.user.is_superuser %}
 <div style="margin-left: 3%;margin-top: 3%;">
+{% if project.estado_proyecto == 'Planificado' or project.estado_proyecto == 'Iniciado' %}
 <a class="button-create" href="{% url 'add-user_story' id_project %}">Agregar User Story</a>
+{% endif %}
     <a class="button" href="{% url "add-members" id_project %}" style="margin-left: 15px; text-decoration: none; font-family: Arial, Helvetica, sans-serif; background-color: slategray;">Volver</a>
 
 </div>
@@ -87,9 +89,11 @@
                     <td style="padding:10px;">{{p.desc_us}}</td>
                     <td style="padding:10px;">{{p.prioridad_us}}</td>
                     <!--Solo el product owner puede cambiar la prioridad de un us-->
+                    {% if project.estado_proyecto == 'Planificado' or project.estado_proyecto == 'Iniciado' %}
                     <td style="padding:10px;"><a href="{% url 'update-prioridad-user_story' id_project p.id %}">Prioridad</a></td>
                     {% if 'Can change user story' in out or request.user.is_superuser %}
                     <td style="padding:10px;"><a href="{% url 'update-user_story' id_project p.id %}">Editar</a></td>
+                    {% endif %}
                     {% endif %}
                 </tr>
 

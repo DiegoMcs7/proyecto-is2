@@ -54,6 +54,7 @@
               {% endif %}
           </span>
     </div>
+    <h1>Lista de Sprints</h1>
     {% if mensaje_error == 1 %}
         <div class="alert alert-danger" role="alert">
             No puedes realizar la acción ya que existen User Stories no finalizados
@@ -62,7 +63,9 @@
 
 {% if 'Can add sprint' in out or request.user.is_superuser %}
         <div style="margin-left: 3%;margin-top: 3%;">
+            {% if project.estado_proyecto == 'Planificado' or project.estado_proyecto == 'Iniciado' %}
            <a class="button-create" href="{% url "add-sprint" id_project %}">Agregar Sprint</a>
+           {% endif %}
            <a class="button" href="{% url "add-members" id_project %}" style="margin-left: 15px; text-decoration: none; font-family: Arial, Helvetica, sans-serif; background-color: slategray;">Volver</a>
         </div>
 {% endif %}
@@ -112,9 +115,11 @@
                             <!--Si esta finalizado o cancelado ya no se puede editar-->
                            {% if 'Can change sprint' in out and p.estado_sprint != 'Cancelado' and p.estado_sprint != 'Finalizado'%}
                               <div class="btn-group">
+                                {% if project.estado_proyecto == 'Planificado' or project.estado_proyecto == 'Iniciado' %}
                                   <button type="button" class="btn btn-success dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
                                     Acciones
                                   </button>
+                                  {% endif %}
 
                                   <ul class="dropdown-menu">
                                     {% if 'Can change sprint' in out and p.estado_sprint != 'Cancelado'%}

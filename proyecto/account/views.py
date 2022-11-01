@@ -159,10 +159,6 @@ def update_project(request, id):
     '''
     project = Proyectos.objects.get(id=id)
     form = ProyectosForm(request.POST or None, instance=project)
-
-    # a = Sprint.objects.filter(Q(id_proyecto_id=id),
-    #                           Q(estado_sprint="Iniciado") | Q(estado_sprint="Iniciado")).values_list('id')
-    # out = [item for t in a for item in t]
     project_state = Proyectos.objects.get(id=id)
     if project_state.estado_proyecto == 'Cancelado':
         messages.error(request, 'No puedes realizar la acción ya que el proyecto ha sido cancelado')
@@ -170,7 +166,31 @@ def update_project(request, id):
         messages.error(request, 'No puedes realizar la acción ya que el proyecto ha sido finalizado')
     else:
         if form.is_valid():
-            form.save()
+            #creacion de registro en la tabla log
+            fecha = datetime.now().strftime(("%d/%m/%Y - %H:%M:%S"))
+            fecha_str = str(fecha)
+            descripcion_personalizado = ''
+            update_project = form.save()
+
+            # Se guarda en una cadena los cambios realizados, y los valores anteriores como nuevos
+            if project.nombre_proyecto != update_project.nombre_proyecto:
+                descripcion_personalizado = descripcion_personalizado + 'Modificación al nombre del proyecto  (%s)  ->  (%s), ' %(project.nombre_proyecto,update_project.nombre_proyecto)
+            elif project.desc_proyecto != update_project.desc_proyecto:
+                descripcion_personalizado = 'Modificación a la descripción del proyecto  (%s)  ->  (%s), ' %(project.desc_proyecto,update_project.desc_proyecto)
+            elif project.estado_proyecto != update_project.estado_proyecto:
+                descripcion_personalizado = 'Modificación al estado del proyecto  (%s)  ->  (%s), ' %(project.estado_proyecto,update_project.estado_proyecto)
+            elif project.fecha_inicio != update_project.fecha_inicio:
+                descripcion_personalizado = 'Modificación a la fecha de inicio del proyecto  (%s)  ->  (%s), ' %(project.fecha_inicio,update_project.fecha_inicio)
+            elif project.fecha_fin != update_project.fecha_fin:
+                descripcion_personalizado = 'Modificación a la decha de fin del proyecto  (%s)  ->  (%s), ' %(project.fecha_fin,update_project.fecha_fin)
+            elif project.scrum_master != update_project.scrum_master:
+                descripcion_personalizado = 'Modificación del Scrum Master del proyecto  (%s)  ->  (%s), ' %(project.scrum_master,update_project.scrum_master)
+
+            log = LogProyectos(usuario_responsable=request.user.username, descripcion_accion=descripcion_personalizado,
+                               nombre_proyecto=project.nombre_proyecto, desc_proyecto=project.desc_proyecto,
+                               estado_proyecto=project.estado_proyecto, fecha_inicio=project.fecha_inicio,
+                               fecha_fin=project.fecha_fin, scrum_master=project.scrum_master, fecha_creacion=fecha_str)
+            log.save()
             return redirect('list-projects')
 
     return render(request, 'project/update_project.html', {'project': project, 'form': form})
@@ -185,7 +205,9 @@ def action_project(request, id):
     '''
     project = Proyectos.objects.get(id=id)
 
-    return render(request, 'project/action_project.html', {'project': project})
+    out = permisos(request.user.id,id)
+
+    return render(request, 'project/action_project.html', {'project': project,'out': out})
 
 
 def log_project(request):
@@ -727,7 +749,7 @@ def all_user_story_sprint_backlog(request, id):
     out = permisos(request.user.id,id)
 
     return render(request, 'user_story/user_story_list_sprint_backlog.html',
-                  {'user_story_list': user_story, 'id_sprint': id, 'id_proyecto': s.id_proyecto_id, 'project': project, 'out': out})
+                  {'user_story_list': user_story, 'id_sprint': id, 'id_proyecto': s.id_proyecto_id, 'project': project, 'out': out,'s':s})
 
 def product_backlog_sprint(request, id_proyecto, id_sprint):
 

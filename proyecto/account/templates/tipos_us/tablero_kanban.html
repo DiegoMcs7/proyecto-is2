@@ -83,9 +83,11 @@
                             <td style="padding:10px;">{{string_vacio}}</td>
                         {% endif %}
                     {% endfor %}
+                    {% if project.estado_proyecto == 'Planificado' or project.estado_proyecto == 'Iniciado' %}
                     {% if i.encargado == request.user %}
                     <td style="padding:10px;"><a href="{% url 'update-user-story-kanban-atras' id_proyecto i.id id_tipo_us %}">Atras</a></td>
                     <td style="padding:10px;"><a href="{% url 'update-user-story-kanban-avanzar' id_proyecto i.id id_tipo_us %}">Avanzar</a></td>
+                    {% endif %}
                     {% endif %}
                     </tr>
                 {% endfor %}

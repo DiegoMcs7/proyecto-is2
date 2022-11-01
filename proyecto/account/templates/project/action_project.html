@@ -59,7 +59,8 @@
 <br/>
     <div id="content" style="margin-top:20px; margin-bottom:20px;margin-left: 15px;">
         <td class="btn-group" role="group" aria-label="Basic mixed styles example">
-                {% if 'Can change proyectos' in out and project.estado_proyecto != 'Cancelado'%}
+                {% if 'Can change proyectos' in out %}
+                {% if project.estado_proyecto == 'Planificado' %}
                 <button type="button" class="btn btn-secondary" ><a href="{% url 'update-project' project.id %}"  style="color:#ffff; margin-left:-7%; margin-top:7px; text-decoration: none;" >Editar</a></button>
                 {% endif %}
                 {% if project.estado_proyecto != 'Iniciado' and project.estado_proyecto != 'Cancelado' and project.estado_proyecto != 'Finalizado'%}
@@ -70,6 +71,7 @@
                 {% endif %}
                 {% if project.estado_proyecto == 'Iniciado' or project.estado_proyecto == 'Planificado' %}
                 <button type="button" class="btn btn-danger" ><a href="{% url 'cancelar_proyecto' project.id %}"style="color:#ffff; margin-left:-7%; margin-top:7px; text-decoration: none;">Cancelar</a></button>
+                {% endif %}
                 {% endif %}
                 {% if request.user.is_superuser %}
                 <button type="button" class="btn btn-danger" ><a href="{% url 'delete-project' project.id %}"style="color:black; margin-left:-7%; margin-top:7px; text-decoration: none;">Eliminar</a></button>

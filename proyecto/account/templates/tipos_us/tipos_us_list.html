@@ -52,12 +52,14 @@
               {% endif %}
           </span>
     </div>
-
+    <h1>Lista de Tipos US</h1>
 {% if 'Can add tipo_ user_ story' in out or request.user.is_superuser %}
 <div style="margin-left: 3%;margin-top: 3%;">
+    {% if project.estado_proyecto == 'Planificado' or project.estado_proyecto == 'Iniciado' %}
      <a class="button-create" href="{% url "add-tipos_us" id_proyecto  %}">Agregar Tipo de User Story</a>
     <a class="button-create" href="{% url "tipos_us-export" id_proyecto  %}">Exportar Tipos de User Story</a>
     <a class="button-create" href="{% url "tipos_us-import" id_proyecto  %}">Importar Tipos de User Story</a>
+    {%endif%}
     <a class="button" href="{% url "add-members" id_proyecto %}" style="margin-left: 15px; text-decoration: none; font-family: Arial, Helvetica, sans-serif; background-color: slategray;">Volver</a>
 
 </div>
@@ -90,15 +92,19 @@
                     <td style="padding:10px;">{{p.id}} </a></td>
                     <td style="padding:10px;">{{p.nombre_tipo_us}}</td>
                     <td style="padding:10px;">{{p.id_proyecto}}</td>
+                    
                     {% if 'Can change estados' in out or request.user.is_superuser %}
                     <td style="padding:10px;"><a href="{% url 'estados-list' id_proyecto p.pk %}">Gestionar</a></td>
                     {% endif %}
+                    {% if project.estado_proyecto == 'Planificado' or project.estado_proyecto == 'Iniciado' %}
                     {% if 'Can change tipo_ user_ story' in out or request.user.is_superuser %}
                     <td style="padding:10px;"><a href="{% url 'update-tipos_us' id_proyecto p.pk %}">Editar</a></td>
                     {% endif %}
                     {% if 'Can delete tipo_ user_ story' in out or request.user.is_superuser %}
                     <td style="padding:10px;"><a href="{% url 'delete-tipos_us' p.pk id_proyecto %}">Eliminar</a></td>
                     {% endif %}
+                    {% endif %}
+
                     <td style="padding:10px;"><a href="{% url 'tablero-kanban' id_proyecto p.pk %}">Tablero Kanban</a></td>
                 </tr>
                 {% endif %}
