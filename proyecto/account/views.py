@@ -38,16 +38,6 @@ def kanban(request):
 
     return render(request, 'kanban/index.html')
 
-
-# def perfil_image(request):
-#     user = request.user
-#     form = PerfilImagenForm(instance=user)
-#     context = {'form':}
-#     return render()
-
-
-
-
 def register(request):
     '''  
         Registrar usuario

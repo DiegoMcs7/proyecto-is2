@@ -58,12 +58,12 @@
          <p class="display-3" style="margin-left:550px; padding-top: 12;">
              <div style="display: flex; margin-left:15px;">
                 {% if project.estado_proyecto == 'Planificado' or project.estado_proyecto == 'Iniciado' %}
-                {% if sprint.estado_sprint == 'Planificado' %}
-                {% if 'Can view miembro_ sprint' in out or request.user.is_superuser%}
+                {% if sprint.estado_sprint == 'Planificado' or sprint.estado_sprint == 'Iniciado' %}
+                {% if 'Can view miembro_ sprint' in out%}
                 <a class="button-create" href="{% url "add-miembros-sprint" project.id id_sprint %}">
                     <i class="bi bi-plus text-primary"></i> Agregar Miembros </a>
                 {% endif %}
-                {% if 'Can view backlogs' in out or request.user.is_superuser %}
+                {% if 'Can view backlogs' in out  %}
                 <a style="margin-left:10px;" class="button-create" href="{% url "user_story_sprint_backlog-list" id_sprint %}">
                 <i class="bi bi-plus text-primary"></i> Sprint Backlog </a>
                 <a style="margin-left:10px;" class="button-create" href="{% url "product-backlog-sprint" project.id id_sprint %}">

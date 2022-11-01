@@ -92,7 +92,9 @@
                         <td style="padding:10px;">{{p.encargado}}</td>
                     {% endif %}
                     {% if 'Can change miembro_ sprint' in out or p.encargado == request.user %}
+                    {% if sprint.estado_sprint == 'Planificado' %}
                     <td style="padding:10px;"><a href="{% url 'update-sprint-user-story' id_project p.id sprint.id %}">Asignar</a></td>
+                    {% endif %}
                     {% endif %}
                 </tr>
                 {% endif %}
