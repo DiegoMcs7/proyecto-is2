@@ -5,7 +5,7 @@ from datetime import datetime
 
 from .permisos import permisos
 from .models import Estados, Miembro_Sprint, Miembros, Profile, Proyectos, Rol, Sprint, Tipo_User_Story, UserStory, \
-    LogProyectos
+    LogProyectos, LogSprint
 from django.shortcuts import render, redirect
 from .forms import AddMembersForm, AddMembersSprintForm, EstadosForm, ProyectosForm, RolForm, TipoUsForm, \
     UsPrioridadForm, UserEditForm, \
@@ -112,10 +112,12 @@ def add_project(request):
             #creacion de registro en la tabla log
             fecha = datetime.now().strftime(("%d/%m/%Y - %H:%M:%S"))
             fecha_str = str(fecha)
-            log = LogProyectos(usuario_responsable=request.user.username, descripcion_accion='Creación de proyecto',
+            log = LogProyectos(usuario_responsable=request.user.username, descripcion_action='Creación de proyecto',
                                nombre_proyecto=project.nombre_proyecto, desc_proyecto=project.desc_proyecto,
                                estado_proyecto=project.estado_proyecto, fecha_inicio=project.fecha_inicio,
-                               fecha_fin=project.fecha_fin, scrum_master=project.scrum_master, fecha_creacion=fecha_str)
+                               fecha_fin=project.fecha_fin, scrum_master=project.scrum_master, fecha_creacion=fecha_str,
+                               id_proyecto=project
+                               )
             log.save()
 
             #Creacion de los roles por defecto
@@ -156,6 +158,13 @@ def update_project(request, id):
             Funcion en la cual se pueden editar proyectos.        
     '''
     project = Proyectos.objects.get(id=id)
+    project_nombre_proyecto = project.nombre_proyecto
+    project_desc_proyecto = project.desc_proyecto
+    project_estado_proyecto = project.estado_proyecto
+    project_fecha_inicio =  project.fecha_inicio
+    project_fecha_fin =  project.fecha_fin
+    project_scrum_master = project.scrum_master
+
     form = ProyectosForm(request.POST or None, instance=project)
     project_state = Proyectos.objects.get(id=id)
     if project_state.estado_proyecto == 'Cancelado':
@@ -167,27 +176,30 @@ def update_project(request, id):
             #creacion de registro en la tabla log
             fecha = datetime.now().strftime(("%d/%m/%Y - %H:%M:%S"))
             fecha_str = str(fecha)
-            descripcion_personalizado = ''
+            descripcion_personalizado = ' '
             update_project = form.save()
 
-            # Se guarda en una cadena los cambios realizados, y los valores anteriores como nuevos
-            if project.nombre_proyecto != update_project.nombre_proyecto:
-                descripcion_personalizado = descripcion_personalizado + 'Modificación al nombre del proyecto  (%s)  ->  (%s), ' %(project.nombre_proyecto,update_project.nombre_proyecto)
-            elif project.desc_proyecto != update_project.desc_proyecto:
-                descripcion_personalizado = 'Modificación a la descripción del proyecto  (%s)  ->  (%s), ' %(project.desc_proyecto,update_project.desc_proyecto)
-            elif project.estado_proyecto != update_project.estado_proyecto:
-                descripcion_personalizado = 'Modificación al estado del proyecto  (%s)  ->  (%s), ' %(project.estado_proyecto,update_project.estado_proyecto)
-            elif project.fecha_inicio != update_project.fecha_inicio:
-                descripcion_personalizado = 'Modificación a la fecha de inicio del proyecto  (%s)  ->  (%s), ' %(project.fecha_inicio,update_project.fecha_inicio)
-            elif project.fecha_fin != update_project.fecha_fin:
-                descripcion_personalizado = 'Modificación a la decha de fin del proyecto  (%s)  ->  (%s), ' %(project.fecha_fin,update_project.fecha_fin)
-            elif project.scrum_master != update_project.scrum_master:
-                descripcion_personalizado = 'Modificación del Scrum Master del proyecto  (%s)  ->  (%s), ' %(project.scrum_master,update_project.scrum_master)
 
-            log = LogProyectos(usuario_responsable=request.user.username, descripcion_accion=descripcion_personalizado,
+            # Se guarda en una cadena los cambios realizados, y los valores anteriores como nuevos
+            if project_nombre_proyecto != update_project.nombre_proyecto:
+                descripcion_personalizado = descripcion_personalizado + 'Modificación al nombre del proyecto  (%s)  ->  (%s)\n ' %(project_nombre_proyecto,update_project.nombre_proyecto)
+            if project_desc_proyecto != update_project.desc_proyecto:
+                descripcion_personalizado = descripcion_personalizado + 'Modificación a la descripción del proyecto  (%s)  ->  (%s)\n' %(project_desc_proyecto,update_project.desc_proyecto)
+            if project_estado_proyecto != update_project.estado_proyecto:
+                descripcion_personalizado = descripcion_personalizado + 'Modificación al estado del proyecto  (%s)  ->  (%s)\n' %(project_estado_proyecto,update_project.estado_proyecto)
+            if project_fecha_inicio != update_project.fecha_inicio:
+                descripcion_personalizado = descripcion_personalizado + 'Modificación a la fecha de inicio del proyecto  (%s)  ->  (%s)\n' %(project_fecha_inicio,update_project.fecha_inicio)
+            if project_fecha_fin != update_project.fecha_fin:
+                descripcion_personalizado = descripcion_personalizado + 'Modificación a la fecha de fin del proyecto  (%s)  ->  (%s)\n' %(project_fecha_fin,update_project.fecha_fin)
+            if project_scrum_master != update_project.scrum_master:
+                descripcion_personalizado = descripcion_personalizado + 'Modificación del Scrum Master del proyecto  (%s)  ->  (%s)\n' %(project_scrum_master,update_project.scrum_master)
+
+            log = LogProyectos(usuario_responsable=request.user.username, descripcion_action=descripcion_personalizado,
                                nombre_proyecto=project.nombre_proyecto, desc_proyecto=project.desc_proyecto,
                                estado_proyecto=project.estado_proyecto, fecha_inicio=project.fecha_inicio,
-                               fecha_fin=project.fecha_fin, scrum_master=project.scrum_master, fecha_creacion=fecha_str)
+                               fecha_fin=project.fecha_fin, scrum_master=project.scrum_master, fecha_creacion=fecha_str,
+                               id_proyecto=project
+                               )
             log.save()
             return redirect('list-projects')
 
@@ -208,7 +220,7 @@ def action_project(request, id):
     return render(request, 'project/action_project.html', {'project': project,'out': out})
 
 
-def log_project(request):
+def log_project(request, id_proyecto):
     '''
         Seleccionar accion por proyecto
         fecha: 16/10/2022
@@ -217,7 +229,7 @@ def log_project(request):
     '''
     project = LogProyectos.objects.all()
 
-    return render(request, 'project/log_project.html', {'project_list': project})
+    return render(request, 'project/log_project.html', {'project_list': project, 'id_proyecto': id_proyecto})
 
 def inicializar_proyecto(request, id):
 
@@ -273,7 +285,7 @@ def all_projects(request):
             Esta vista es la encargada de llamar al archivo project_list.html con el fin de mostrar en pantalla la lista
             de todos los proyectos registrados en el sistema.       
     '''
-    project_list = Proyectos.objects.all()
+    project_list = Proyectos.objects.all().order_by('id')
     members = Miembros.objects.all()
     user = request.user.id
 
@@ -309,6 +321,7 @@ def add_members(request, id):
         return redirect('/add_members/%d'%project.id)
     return render(request, 'project/add_members.html', {'project': project, 'form': form, 'members': members, 'roles': roles, 'out': out})
 
+
 def add_miembros(request, id):
     '''
         Agregar mimembro a un proyecto
@@ -329,6 +342,7 @@ def add_miembros(request, id):
         return redirect('/add_members/%d'%project.id)
     return render(request, 'project/add_miembro.html', {'project': project, 'form': form, 'members': members, 'roles': roles, 'out': out})
 
+
 def update_members_project(request, id_proyecto, id_miembro):
     '''
         Editar un miembro del proyecto
@@ -345,6 +359,7 @@ def update_members_project(request, id_proyecto, id_miembro):
         return redirect('/add_members/%d'%id_proyecto)
 
     return render(request, 'project/update_members_project.html', {'project': project, 'members': members, 'form': form, 'roles': roles})
+
 
 @login_required
 def all_roles(request, id_proyecto):
@@ -552,6 +567,7 @@ def inicializar_sprint(request, id_proyecto,id_sprint):
 
     return redirect('/sprint/%d'%id_proyecto)
 
+
 def cancelar_sprint(request, id_proyecto,id_sprint):
 
     sprint = Sprint.objects.filter(id=id_sprint).values_list('estado_sprint') #Trae el sprint inicializado
@@ -650,6 +666,17 @@ def add_sprint(request,id):
             sprint.manager = request.user
             sprint.save()
 
+            # creacion de registro en la tabla log
+            fecha = datetime.now().strftime(("%d/%m/%Y - %H:%M:%S"))
+            fecha_str = str(fecha)
+            log = LogSprint(usuario_responsable=request.user.username, descripcion_action='Creación de sprint',
+                               nombre_sprint=sprint.nombre_sprint, desc_sprint=sprint.desc_sprint,
+                               estado_sprint=sprint.estado_sprint, duracion_dias=sprint.duracion_dias,
+                               fecha_inicio=sprint.fecha_inicio,
+                               id_proyecto=project, id_sprint=sprint,fecha_creacion=fecha_str,
+                               )
+            log.save()
+
             return HttpResponseRedirect('/sprint/%d'%id)
         else:
             messages.error(request, 'Sprints no finalizados.')
@@ -672,14 +699,68 @@ def update_sprint(request, id_proyecto, id_sprint):
     '''
     sprint = Sprint.objects.get(id=id_sprint)
     project = Proyectos.objects.get(id=id_proyecto)
+    nombre_sprint = sprint.nombre_sprint
+    desc_sprint = sprint.desc_sprint
+    estado_sprint = sprint.estado_sprint
+    duracion_dias = sprint.duracion_dias
+    fecha_inicio = sprint.fecha_inicio
+    capacidad = sprint.capacidad
+    id_proyecto = project
+    id_sprint = sprint
 
 
     form = SprintForm(request.POST or None, instance=sprint, initial={'id_proyecto': id_proyecto})
     if form.is_valid():
-        form.save()
+        # creacion de registro en la tabla log
+        fecha = datetime.now().strftime(("%d/%m/%Y - %H:%M:%S"))
+        fecha_str = str(fecha)
+        descripcion_personalizado = ' '
+        update_sprint = form.save()
+
+        # Se guarda en una cadena los cambios realizados, y los valores anteriores como nuevos
+        if nombre_sprint != update_sprint.nombre_sprint:
+            descripcion_personalizado = descripcion_personalizado + 'Modificación al nombre del sprint  (%s)  ->  (%s)\n ' % (
+            nombre_sprint, update_sprint.nombre_sprint)
+
+        if desc_sprint != update_sprint.desc_sprint:
+            descripcion_personalizado = descripcion_personalizado + 'Modificación a la descripción del sprint  (%s)  ->  (%s)\n' % (
+            desc_sprint, update_sprint.desc_sprint)
+
+        if estado_sprint != update_sprint.estado_sprint:
+            descripcion_personalizado = descripcion_personalizado + 'Modificación al estado del proyecto  (%s)  ->  (%s)\n' % (
+            estado_sprint, update_sprint.estado_sprint)
+
+        if duracion_dias != update_sprint.duracion_dias:
+            descripcion_personalizado = descripcion_personalizado + 'Modificación a la duración del sprint (%s)  ->  (%s)\n' % (
+            duracion_dias, update_sprint.duracion_dias)
+
+        if fecha_inicio != update_sprint.fecha_inicio:
+            descripcion_personalizado = descripcion_personalizado + 'Modificación a la fecha de inicio del sprint  (%s)  ->  (%s)\n' % (
+            fecha_inicio, update_sprint.fecha_inicio)
+
+        log = LogSprint(usuario_responsable=request.user.username, descripcion_action=descripcion_personalizado,
+                        nombre_sprint=sprint.nombre_sprint, desc_sprint=sprint.desc_sprint,
+                        estado_sprint=sprint.estado_sprint, duracion_dias=sprint.duracion_dias,
+                        fecha_fin=sprint.fecha_fin,
+                        id_proyecto=project, id_sprint=sprint,fecha_creacion=fecha_str,
+                        )
+
+        log.save()
         return redirect('/sprint/%d' %id_proyecto)
 
     return render(request, 'sprint/update_sprint.html', {'sprint': sprint, 'form': form, 'id_proyecto': id_proyecto, 'project': project})
+
+
+def log_sprint(request,id_proyecto, id_sprint):
+    '''
+        Seleccionar accion por proyecto
+        fecha: 16/10/2022
+
+            Funcion en la cual se seleccionan las acciones por proyecto
+    '''
+    sprint_list = LogSprint.objects.all()
+
+    return render(request, 'sprint/log_sprint.html', {'sprint_list': sprint_list, 'id_sprint': id_sprint, 'id_proyecto': id_proyecto})
 
 
 def add_members_sprint(request, id_proyecto, id_sprint):
@@ -696,7 +777,6 @@ def add_members_sprint(request, id_proyecto, id_sprint):
     x = id_proyecto
     y = id_sprint
 
-    print(form['horas_trabajo'].value())
     out = permisos(request.user.id,id_proyecto)
 
     if form.is_valid():
@@ -717,17 +797,34 @@ def add_miembros_sprint(request, id_proyecto, id_sprint):
     sprint = Sprint.objects.get(id=id_sprint)
     project = Proyectos.objects.get(id=id_proyecto)
     members_sprint = Miembro_Sprint.objects.all()
+
+    #campos para el log
+    nombre_sprint = sprint.nombre_sprint
+    id_proyecto = project
+    id_sprint = sprint
+
     form = AddMembersSprintForm(request.POST or None, pwd=id_proyecto, initial={'id': id_sprint,'sprint':id_sprint})
     x = id_proyecto
     y = id_sprint
-    print(form['horas_trabajo'].value())
+
     out = permisos(request.user.id,id_proyecto)
     if form.is_valid():
         new_user = form.save()
+
+        # creacion de registro en la tabla log
+        fecha = datetime.now().strftime(("%d/%m/%Y - %H:%M:%S"))
+        fecha_str = str(fecha)
+        descripcion_personalizado = 'Se agregó como miembro al siguiente usuario: (%s)\n ' %(new_user.usuario)
         sprint.capacidad = sprint.capacidad + new_user.horas_trabajo * sprint.duracion_dias
-        sprint.save()
-        print(sprint.capacidad)
         new_user.save()
+        sprint.save()
+
+        log = LogSprint(usuario_responsable=request.user.username, descripcion_action=descripcion_personalizado,
+                        nombre_sprint=sprint.nombre_sprint,
+                        id_proyecto=project, id_sprint=sprint,fecha_creacion=fecha_str,
+                        )
+        log.save()
+
         return redirect('/add_members_sprint/'+str(x)+'/'+str(y))
     return render(request, 'sprint/add_miembros_sprint.html',{'sprint': sprint, 'form': form, 'id_sprint': id_sprint, 'members_sprint': members_sprint, 'id_proyecto': id_proyecto, 'project': project,'out': out})
 
@@ -750,6 +847,7 @@ def all_user_story_sprint_backlog(request, id):
 
     return render(request, 'user_story/user_story_list_sprint_backlog.html',
                   {'user_story_list': user_story, 'id_sprint': id, 'id_proyecto': s.id_proyecto_id, 'project': project, 'out': out,'s':s})
+
 
 def product_backlog_sprint(request, id_proyecto, id_sprint):
 
@@ -806,21 +904,36 @@ def update_sprint_user_story(request, id_proyecto, id_user_story, id_sprint):
     user_story = UserStory.objects.get(id=id_user_story)
     sprint = Sprint.objects.get(id=id_sprint)
     project = Proyectos.objects.get(id=id_proyecto)
+
+    #campos para el log
+    nombre_sprint = sprint.nombre_sprint
+    id_proyecto = project
+    id_sprint = sprint
+
     form = UserStorySprintForm(request.POST or None, instance=user_story,pwd= id_sprint,initial={'id_sprint': id_sprint})
-    print('Entra')
     if form.is_valid():
         new_user = form.save()
         aux = sprint.capacidad - new_user.horas_estimadas
-        print(aux)
-        print()
         if aux >= 0:
             new_user.save()
             sprint.capacidad = sprint.capacidad - new_user.horas_estimadas
             sprint.save()
+
+            # creacion de registro en la tabla log
+            fecha = datetime.now().strftime(("%d/%m/%Y - %H:%M:%S"))
+            fecha_str = str(fecha)
+            descripcion_personalizado = 'Se agregó el siguiente User Story al sprint:  (%s)\n ' % (user_story.nombre_us)
+            log = LogSprint(usuario_responsable=request.user.username, descripcion_action=descripcion_personalizado,
+                            nombre_sprint=sprint.nombre_sprint,
+                            id_proyecto=project, id_sprint=sprint, fecha_creacion=fecha_str,
+                            )
+            log.save()
+
         else:
             user_story.id_sprint = None
             user_story.save()
             messages.error(request, 'La capacidad del sprint ya ha sido rebasada')
+
 
         return redirect('/product_backlog_sprint/'+str(id_proyecto)+'/'+str(id_sprint))
 

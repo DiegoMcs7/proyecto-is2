@@ -113,11 +113,11 @@ class ProyectosForm(ModelForm):
 class LogProyectosForm(ModelForm):
     class Meta:
         model = LogProyectos
-        fields = ('nombre_proyecto', 'desc_proyecto', 'estado_proyecto', 'fecha_inicio', 'fecha_fin', 'scrum_master', 'usuario_responsable','descripcion_accion', )
+        fields = ('nombre_proyecto', 'desc_proyecto', 'estado_proyecto', 'fecha_inicio', 'fecha_fin', 'scrum_master', 'usuario_responsable','descripcion_action', )
 
         widgets = {
             'usuario_responsable': forms.HiddenInput(attrs={'class': 'form-control'}),
-            'descripcion_accion': forms.HiddenInput(attrs={'class': 'form-control'}),
+            'descripcion_action': forms.HiddenInput(attrs={'class': 'form-control'}),
             'nombre_proyecto': forms.HiddenInput(attrs={'class': 'form-control', 'placeholder': 'Nombre del Proyecto'}),
             'desc_proyecto': forms.HiddenInput(attrs={'class': 'form-control', 'placeholder': 'Descripcion del Proyecto', 'style': 'height: 30%;'}),
             'estado_proyecto': forms.HiddenInput(attrs={'class': 'form-select', 'placeholder': 'Estado del Proyecto'}),
@@ -203,11 +203,11 @@ class SprintForm(ModelForm):
 class LogSprintForm(ModelForm):
     class Meta:
         model = LogSprint
-        fields = ('nombre_sprint', 'desc_sprint', 'estado_sprint', 'duracion_dias','capacidad','id_proyecto','usuario_responsable','descripcion_accion',)
+        fields = ('nombre_sprint', 'desc_sprint', 'estado_sprint', 'duracion_dias','capacidad','id_proyecto','usuario_responsable','descripcion_action',)
 
         widgets = {
             'usuario_responsable': forms.HiddenInput(attrs={'class': 'form-control'}),
-            'descripcion_accion': forms.HiddenInput(attrs={'class': 'form-control'}),
+            'descripcion_action': forms.HiddenInput(attrs={'class': 'form-control'}),
             'nombre_sprint': forms.HiddenInput(attrs={'class': 'form-control', 'placeholder': 'Nombre del sprint'}),
             'desc_sprint': forms.HiddenInput(attrs={'class': 'form-control', 'placeholder': 'Descripcion del sprint', 'style': 'height: 30%;'}),
             'estado_sprint': forms.HiddenInput(attrs={'class': 'form-select', 'placeholder': 'Estado del sprint'}),

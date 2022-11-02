@@ -144,7 +144,9 @@
                               </div>
                            {% endif %}
                     </td>
-                    <td style="padding:10px;" class="script" data-href="{% url 'burndown' id_project p.pk %}"><button type="button" class="btn btn-primary">BurnDownChart</td>
+                    <td><a href="{% url 'log-sprint' project.id p.pk %}">Historial</a></td>
+                    <td style="padding:10px;" class="script" data-href="{% url 'burndown' id_project p.pk %}"><button type="button" class="btn btn-primary">BurnDownChart</button></td>
+
                 </tr>
                 {% endif %}
             {% endfor %}

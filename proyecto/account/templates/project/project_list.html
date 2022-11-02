@@ -13,7 +13,6 @@
 <!--                <i class="bi bi-plus text-primary"></i> Agregar</a></p>-->
          <a class="button-create" href="{% url "add-project" %}"> Agregar Proyecto</a>
          {% endif %}
-         <a class="button-create" style="margin-left: 10px;" href="{% url "log-project" %}"> Historial</a>
      </div>
     <div>
         <script>
@@ -55,6 +54,7 @@
                       <td style="padding:10px;">{{i.fecha_inicio}}</td>
                       <td style="padding:10px;">{{i.fecha_fin}}</td>
                       <td><a href="{% url 'action-project' i.pk %}">Acciones</a></td>
+                      <td><a href="{% url 'log-project' i.pk %}">Historial</a></td>
                   </tr>
                   {% endif %}
                 {% endfor %}
@@ -67,6 +67,7 @@
                       <td style="padding:10px;">{{i.fecha_inicio}}</td>
                       <td style="padding:10px;">{{i.fecha_fin}}</td>
                     <td><a href="{% url 'action-project' i.pk %}">Acciones</a></td>
+                    <td><a href="{% url 'log-project' i.pk %}">Historial</a></td>
 
                 </tr>
                 {% endif %}

@@ -48,7 +48,7 @@ class LogMiembros(models.Model):
     fecha_creacion = models.DateTimeField(auto_now_add=True)
     usuario_responsable = models.TextField()
    # usuario_responsable = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE, related_name="usuario_responsable_miembros")
-    descripcion_accion = models.CharField(max_length=30)
+    descripcion_action = models.CharField(max_length=10000)
     id_usuario = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE)
     id_proyecto = models.ForeignKey("Proyectos",on_delete=models.CASCADE)
     id_rol = models.ManyToManyField("Rol")
@@ -117,19 +117,18 @@ class LogProyectos(models.Model):
     fecha_creacion = models.TextField(null=True)
     usuario_responsable = models.TextField()
     # usuario_responsable = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.CASCADE, related_name="usuario_responsable_proyectos")
-    descripcion_accion = models.CharField(max_length=30)
+    descripcion_action = models.CharField(max_length=10000)
     estados = [
-
-        ('Planificado','Planificado'),
-        ('Iniciado','Iniciado'),
-        ('Cancelado','Cancelado'),
-        ('Finalizado','Finalizado'),
-
+            ('Planificado','Planificado'),
+            ('Iniciado','Iniciado'),
+            ('Cancelado','Cancelado'),
+            ('Finalizado','Finalizado'),
     ]
 
+    id_proyecto = models.ForeignKey("Proyectos", on_delete=models.CASCADE, null=True)
     nombre_proyecto = models.CharField(max_length=30)
     desc_proyecto = models.TextField()
-    estado_proyecto = models.CharField(max_length=11,choices=estados,default='Planificado')
+    estado_proyecto = models.CharField(max_length=11, choices=estados, default='Planificado')
     fecha_inicio = models.DateField()
     fecha_fin = models.DateField()
     scrum_master = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
@@ -170,7 +169,7 @@ class LogRol(models.Model):
     fecha_creacion = models.DateTimeField(auto_now_add=True)
     usuario_responsable = models.TextField()
    # usuario_responsable = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE, related_name="usuario_responsable_rol")
-    descripcion_accion = models.CharField(max_length=30)
+    descripcion_action = models.CharField(max_length=10000)
     rol = models.CharField(max_length=20,blank=True, null=True)
     desc_rol = models.TextField()
     permisos = models.ManyToManyField(Permission)
@@ -234,7 +233,7 @@ class LogUserStory(models.Model):
     usuario_responsable = models.TextField()
 
    # usuario_responsable = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE, related_name="usuario_responsable_user_story")
-    descripcion_accion = models.CharField(max_length=30)
+    descripcion_action = models.CharField(max_length=10000)
     id = models.AutoField(primary_key=True)
     nombre_us = models.CharField(max_length=30)
     desc_us = models.TextField()
@@ -312,7 +311,7 @@ class LogTipo_User_Story(models.Model):
     fecha_creacion = models.DateTimeField(auto_now_add=True)
     usuario_responsable = models.TextField()
     #usuario_responsable = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE, related_name="usuario_responsable_tipo_user_story")
-    descripcion_accion = models.CharField(max_length=30)
+    descripcion_action = models.CharField(max_length=10000)
     nombre_tipo_us = models.CharField(max_length=30)
     # id_estado = models.ManyToManyField("Estados", blank=True, db_table='estados_tipo_us')
     id_proyecto = models.ForeignKey("Proyectos", on_delete=models.CASCADE, null=True, blank=True)
@@ -359,7 +358,7 @@ class LogEstados(models.Model):
     fecha_creacion = models.DateTimeField(auto_now_add=True)
     usuario_responsable = models.TextField()
     #usuario_responsable = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE, related_name="usuario_responsable_estados")
-    descripcion_accion = models.CharField(max_length=30)
+    descripcion_action = models.CharField(max_length=10000)
     nombre_estado = models.CharField(max_length=30)
     posicion = models.IntegerField(default=0)
     id_tipo_user_story = models.ForeignKey("Tipo_User_Story", on_delete=models.CASCADE, null=True)
@@ -433,7 +432,8 @@ class LogSprint(models.Model):
     fecha_creacion = models.DateTimeField(auto_now_add=True)
     usuario_responsable = models.TextField()
     #usuario_responsable = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE, related_name="usuario_responsable_sprint")
-    descripcion_accion = models.CharField(max_length=30)
+    descripcion_action = models.CharField(max_length=10000)
+    id_sprint = models.ForeignKey("Sprint", on_delete=models.CASCADE, null=True)
     id = models.AutoField(primary_key=True)
     nombre_sprint = models.CharField(max_length=30)
     desc_sprint = models.TextField()
@@ -482,7 +482,7 @@ class LogMiembro_Sprint(models.Model):
     fecha_creacion = models.DateTimeField(auto_now_add=True)
     usuario_responsable = models.TextField()
     #usuario_responsable = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE, related_name="usuario_responsable_miembro_sprint")
-    descripcion_accion = models.CharField(max_length=30)
+    descripcion_action = models.CharField(max_length=10000)
     usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     sprint = models.ForeignKey("Sprint", on_delete=models.CASCADE)
     horas_trabajo = models.IntegerField(null=True)
