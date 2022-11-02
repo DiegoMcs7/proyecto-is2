@@ -60,9 +60,9 @@ urlpatterns = [
     path('update_estados/<int:id_proyecto>/<int:id_tipo_us>/<int:id_estado>', views.update_estados, name='update-estados'),
     path('delete_estado/<int:id>/<int:id_proyecto>/<int:id_tipo_us>', views.delete_estado, name='delete-estados'),
     path('editar_posicion_estado/<int:id_proyecto>/<int:id_tipo_us>/<int:id_estado>', views.editar_posicion_estado, name='editar-posicion-estado'),
-    path('kanban', views.kanban, name='kanban'),
+    path('burndown/<int:id_proyecto>/<int:id_sprint>', views.burndown, name='burndown'),
     path('tablero_kanban/<int:id_proyecto>/<int:id_tipo_us>', views.tablero_kanban, name='tablero-kanban'),
     path('update_user_story_kanban_avanzar/<int:id_proyecto>/<int:id_user_story>/<int:id_tipo_us>', views.update_user_story_kanban_avanzar, name='update-user-story-kanban-avanzar'),
     path('update_user_story_kanban_atras/<int:id_proyecto>/<int:id_user_story>/<int:id_tipo_us>', views.update_user_story_kanban_atras, name='update-user-story-kanban-atras'),
-    path('update_horas_trabajadas/<int:id_proyecto>/<int:id_user_story>', views.update_horas_trabajadas,name="update-horas-trabajadas"),
+    path('update_horas_trabajadas/<int:id_proyecto>/<int:id_user_story>/<int:id_sprint>', views.update_horas_trabajadas,name="update-horas-trabajadas"),
 ]

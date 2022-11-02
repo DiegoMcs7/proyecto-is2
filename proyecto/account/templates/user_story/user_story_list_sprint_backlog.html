@@ -87,7 +87,7 @@
                     <td style="padding:10px;">{{p.prioridad_us}}</td>
                     <td style="padding:10px;">{{p.encargado}}</td>
                     {% if 'Can change miembro_ sprint' in out or p.encargado == request.user %}
-                    <td style="padding:10px;"><a href="{% url 'update-horas-trabajadas' project.id p.id  %}">Asignar</a></td>
+                    <td style="padding:10px;"><a href="{% url 'update-horas-trabajadas' project.id p.id s.id %}">Asignar</a></td>
                     {% endif %}
                 </tr>
                 {% endif %}

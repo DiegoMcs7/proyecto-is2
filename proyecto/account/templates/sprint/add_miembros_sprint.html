@@ -63,6 +63,7 @@
 				{% csrf_token %}
 				{{ form.as_p }}
 				<input type="submit" value="Agregar al equipo">
+                <a class="button" href="{% url "add-members-sprint" project.id sprint.id %}" style="margin-left: 15px; text-decoration: none; font-family: Arial, Helvetica, sans-serif; background-color: slategray;">Volver</a>
 			</form>
 		</div>
 	</div>

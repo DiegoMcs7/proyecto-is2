@@ -1,0 +1,179 @@
+{% extends "base_tablero.html" %}
+{% load static %}
+{% block title %} BurnDownChart {% endblock %}
+{% block content %}
+
+<html>
+  
+  <!-- See live at https://codepen.io/paulera/pen/ejGKEr -->
+  
+  <head>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script>
+    <script>
+    /**
+     * Sum elements of an array up to the index provided.
+     */
+
+    var data_sprint = JSON.parse("{{data_sprint|escapejs}}");
+    var data_us = JSON.parse("{{data_us|escapejs}}");
+
+    var fecha_inicio = data_sprint[0]['fields']['fecha_inicio'];
+    var duracion = data_sprint[0]['fields']['duracion_dias'];
+    var horas_trabajadas = data_us[0]['fields']['horas_trabajadas'];
+    var horas_estimadas = data_us[0]['fields']['horas_estimadas'];
+
+    fecha_fin = calcular(fecha_inicio, duracion);
+
+    var lista_ht = [];
+
+    for(let d in data_us){
+
+      lista_ht[d] = data_us[d]['fields']['horas_trabajadas'];
+
+    }
+
+    var lista_he = [];
+
+    for(let d in data_us){
+
+      lista_he[d] = data_us[d]['fields']['horas_estimadas'];
+
+    }
+
+    var h = 0;
+
+    for ( let d in data_us){
+
+      h = h + data_us[d]['fields']['horas_estimadas'];
+
+    }
+
+    function calcular(fecha, dias) {
+      var date = fecha.split("-"),
+      hoy = new Date(date[0], date[1], date[2]),
+      dias = parseInt(dias),
+      calculado = new Date(),
+      dateResul = hoy.getDate() + dias;
+      calculado.setDate(dateResul);
+
+      resultado = calculado.getFullYear() + "-"  + (calculado.getMonth() + 1) + "-" + calculado.getDate();
+      
+      return(resultado);
+
+    }
+
+    var listDate = [];
+    var startDate = fecha_inicio;
+    var endDate = fecha_fin;
+    var dateMove = new Date(startDate);
+    var strDate = startDate;
+
+    while (strDate < endDate){
+      var strDate = dateMove.toISOString().slice(0,10);
+      listDate.push(strDate);
+      dateMove.setDate(dateMove.getDate()+1);
+    };
+
+    console.log(listDate);
+
+    function sumArrayUpTo(arrData, index) {
+      var total = 0;
+      for (var i = 0; i <= index; i++) {
+        if (arrData.length > i) {
+          total += arrData[i];
+            }
+      }
+      return total;
+    }
+
+    function showBurnDown(elementId, burndownData, scopeChange = []) {
+
+      var speedCanvas = document.getElementById(elementId);
+
+      Chart.defaults.global.defaultFontFamily = "Arial";
+      Chart.defaults.global.defaultFontSize = 14;
+
+      const totalHoursInSprint = burndownData[0];
+      const idealHoursPerDay = totalHoursInSprint / (duracion +1);
+
+      var list = [];
+
+      c = 0;
+
+      for (var x = 0; x<=duracion; x++){
+
+          list[x] = Math.round(totalHoursInSprint - (idealHoursPerDay * c) + sumArrayUpTo(scopeChange, c));
+
+          c++;
+
+      }
+
+      i=0;
+      var speedData = {
+        labels: listDate,
+        datasets: [
+          {
+            label: "Burndown",
+            data: burndownData,
+            fill: false,
+            borderColor: "#EE6868",
+            backgroundColor: "#EE6868",
+            lineTension: 0,
+          },
+          {
+            label: "Ideal",
+            borderColor: "#6C8893",
+            backgroundColor: "#6C8893",
+            lineTension: 0,
+            borderDash: [5, 5],
+            fill: false,
+            data: list
+            
+          },
+        ]
+        
+      };
+
+      var chartOptions = {
+        legend: {
+          display: true,
+          position: 'top',
+          labels: {
+            boxWidth: 80,
+            fontColor: 'black'
+          }
+        },
+        scales: {
+            yAxes: [{
+                ticks: {
+                    min: 0,
+                    max: Math.round( h)
+                }
+            }]
+        }
+      };
+
+      var lineChart = new Chart(speedCanvas, {
+        type: 'line',
+        data: speedData,
+        options: chartOptions
+      });
+
+    }
+    </script>
+  </head>
+  
+  <body>
+
+    <div style="width:800px;"><canvas id="burndown43"></canvas></div>
+    <script>
+    showBurnDown (
+      "burndown43",
+      lista_ht, // burndown data horas trabajadas
+       [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,0] // scope change horas estimadas
+    );
+    </script>
+    
+  </body>
+</html>
+{% endblock %}

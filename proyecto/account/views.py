@@ -1,3 +1,5 @@
+from json import dumps
+from django.core import serializers
 import operator
 from datetime import datetime
 
@@ -34,9 +36,15 @@ def tablero(request):
 
     return render(request, 'account/tablero.html', {'section': 'tablero'})
 
-def kanban(request):
+def burndown(request,id_proyecto,id_sprint):
 
-    return render(request, 'kanban/index.html')
+    sprint = Sprint.objects.filter(id=id_sprint)
+    project = Proyectos.objects.get(id=id_proyecto)
+    sprint_js = serializers.serialize('json', sprint)
+    user_story = UserStory.objects.filter(id_sprint=id_sprint)
+    us_js = serializers.serialize('json', user_story)
+   
+    return render(request, 'burndown/index.html', {'project': project,'sprint': sprint,'data_sprint': sprint_js,'data_us': us_js})
 
 def register(request):
     '''  
@@ -587,8 +595,10 @@ def finalizar_sprint(request, id_proyecto,id_sprint):
             print(user_story_list[indice])
             print(nombre_estado[0])
             if user_story_list[indice] != nombre_estado[0]:
+                print('xxx')
                 aux = 1
         if aux == 0:  # si todos los user story ya se han finalizados(estan ubicados en la ultima columna del kanban)
+            print('yyy')
             Sprint.objects.filter(id=id_sprint).update(estado_sprint='Finalizado')  # se finaliza el sprint
         else:
             mensaje_error = 1
@@ -749,7 +759,7 @@ def product_backlog_sprint(request, id_proyecto, id_sprint):
     out = permisos(request.user.id,id_proyecto)
 
     return render(request, 'user_story/all_user_story_sprint_backlog.html',
-                  {'user_story_list': user_story, 'sprint': sprint, 'id_project': id_proyecto, 'out': out})
+                  {'user_story_list': user_story, 'sprint': sprint, 'id_project': id_proyecto, 'out': out, 'project': project})
 
 def add_user_story(request, id_proyecto):
     user_story = UserStory.objects.all()
@@ -814,7 +824,7 @@ def update_sprint_user_story(request, id_proyecto, id_user_story, id_sprint):
 
         return redirect('/product_backlog_sprint/'+str(id_proyecto)+'/'+str(id_sprint))
 
-    return render(request, 'user_story/update_user_story.html', {'user_story': user_story, 'form': form, 'id_proyecto': id_proyecto, 'project': project})
+    return render(request, 'user_story/update_user_story.html', {'user_story': user_story, 'form': form, 'id_proyecto': id_proyecto, 'project': project,'sprint':sprint})
 
 
 def update_prioridad_user_story(request, id_proyecto, id_user_story):
@@ -1229,13 +1239,14 @@ def update_user_story_kanban_atras(request, id_proyecto, id_user_story, id_tipo_
     return redirect('/tablero_kanban/' + str(id_proyecto) + '/' + str(id_tipo_us), posiciones_establecidas=posiciones_establecidas)
 
 
-def update_horas_trabajadas(request, id_proyecto, id_user_story):
+def update_horas_trabajadas(request, id_proyecto, id_user_story,id_sprint):
 
     user_story = UserStory.objects.get(id=id_user_story)
+    sprint = Sprint.objects.get(id=id_sprint)
     project = Proyectos.objects.get(id=id_proyecto)
     form = UsHorasForm(request.POST or None, instance=user_story, initial={'id_proyecto_id': id_proyecto})
     if form.is_valid():
         form.save()
-        return redirect('/user_story/%d'%id_proyecto)
+        return redirect('/all_user_story_sprint_backlog/%d'%id_sprint)
 
-    return render(request, 'user_story/update_prioridad_us.html', {'user_story': user_story, 'form': form, 'id_proyecto': id_proyecto, 'project': project})
+    return render(request, 'user_story/update_prioridad_us.html', {'user_story': user_story,'sprint': sprint, 'form': form, 'id_proyecto': id_proyecto, 'project': project})

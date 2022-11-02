@@ -351,7 +351,7 @@ class UsHorasForm(ModelForm):
     class Meta:
         model = UserStory
         fields = ('horas_trabajadas',)
-        labels = {'horas_trabajadas': 'Horas'}
+        labels = {'horas_trabajadas': 'Horas a Trabajar'}
         widgets = {
-            'horas_trabajadas': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Horas'}),
+            'horas_trabajadas': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Horas a Trabajar'}),
         }
