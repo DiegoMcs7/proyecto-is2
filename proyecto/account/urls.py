@@ -44,7 +44,6 @@ urlpatterns = [
     path('add_sprint/<int:id>', views.add_sprint, name='add-sprint'),
     path('update_sprint/<int:id_proyecto>/<int:id_sprint>', views.update_sprint, name='update-sprint'),
     path('user_story/<int:id>', views.all_user_story, name="user_story-list"),
-    path('user_story/<int:id>', views.all_user_story, name="user_story-list"),  
     path('add_user_story/<int:id_proyecto>', views.add_user_story, name='add-user_story'),
     path('update_user_story/<int:id_proyecto>/<int:id_user_story>', views.update_user_story, name='update-user_story'),
     path('update_sprint_user_story/<int:id_proyecto>/<int:id_user_story>/<int:id_sprint>', views.update_sprint_user_story, name='update-sprint-user-story'),

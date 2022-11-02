@@ -611,10 +611,8 @@ def finalizar_sprint(request, id_proyecto,id_sprint):
             print(user_story_list[indice])
             print(nombre_estado[0])
             if user_story_list[indice] != nombre_estado[0]:
-                print('xxx')
                 aux = 1
         if aux == 0:  # si todos los user story ya se han finalizados(estan ubicados en la ultima columna del kanban)
-            print('yyy')
             Sprint.objects.filter(id=id_sprint).update(estado_sprint='Finalizado')  # se finaliza el sprint
         else:
             mensaje_error = 1
@@ -705,8 +703,6 @@ def update_sprint(request, id_proyecto, id_sprint):
     duracion_dias = sprint.duracion_dias
     fecha_inicio = sprint.fecha_inicio
     capacidad = sprint.capacidad
-    id_proyecto = project
-    id_sprint = sprint
 
 
     form = SprintForm(request.POST or None, instance=sprint, initial={'id_proyecto': id_proyecto})
@@ -741,7 +737,6 @@ def update_sprint(request, id_proyecto, id_sprint):
         log = LogSprint(usuario_responsable=request.user.username, descripcion_action=descripcion_personalizado,
                         nombre_sprint=sprint.nombre_sprint, desc_sprint=sprint.desc_sprint,
                         estado_sprint=sprint.estado_sprint, duracion_dias=sprint.duracion_dias,
-                        fecha_fin=sprint.fecha_fin,
                         id_proyecto=project, id_sprint=sprint,fecha_creacion=fecha_str,
                         )
 
@@ -763,7 +758,7 @@ def log_sprint(request,id_proyecto, id_sprint):
     return render(request, 'sprint/log_sprint.html', {'sprint_list': sprint_list, 'id_sprint': id_sprint, 'id_proyecto': id_proyecto})
 
 
-def add_members_sprint(request, id_proyecto, id_sprint):
+def add_members_sprint(request,id_proyecto, id_sprint):
     '''
         Agregar mimembro a un sprint
         fecha: 25/9/2022
@@ -800,8 +795,6 @@ def add_miembros_sprint(request, id_proyecto, id_sprint):
 
     #campos para el log
     nombre_sprint = sprint.nombre_sprint
-    id_proyecto = project
-    id_sprint = sprint
 
     form = AddMembersSprintForm(request.POST or None, pwd=id_proyecto, initial={'id': id_sprint,'sprint':id_sprint})
     x = id_proyecto
@@ -841,7 +834,7 @@ def all_user_story(request, id):
 def all_user_story_sprint_backlog(request, id):
 
     user_story = UserStory.objects.all().order_by('id')
-    s= Sprint.objects.get(id=id)
+    s = Sprint.objects.get(id=id)
     project = Proyectos.objects.get(id=s.id_proyecto_id)
     out = permisos(request.user.id,id)
 
@@ -907,8 +900,6 @@ def update_sprint_user_story(request, id_proyecto, id_user_story, id_sprint):
 
     #campos para el log
     nombre_sprint = sprint.nombre_sprint
-    id_proyecto = project
-    id_sprint = sprint
 
     form = UserStorySprintForm(request.POST or None, instance=user_story,pwd= id_sprint,initial={'id_sprint': id_sprint})
     if form.is_valid():
