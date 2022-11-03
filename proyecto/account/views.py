@@ -958,6 +958,7 @@ def update_sprint_user_story(request, id_proyecto, id_user_story, id_sprint):
 
         return redirect('/product_backlog_sprint/'+str(id_proyecto)+'/'+str(id_sprint))
 
+
     return render(request, 'user_story/update_user_story_sprint.html', {'user_story': user_story, 'form': form, 'id_proyecto': id_proyecto, 'project': project,'sprint':sprint})
 
 

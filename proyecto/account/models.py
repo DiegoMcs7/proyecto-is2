@@ -422,7 +422,7 @@ class LogSprint(models.Model):
 
     '''
 
-    fecha_creacion = models.ImageField(null=True)
+    fecha_creacion = models.TextField(null=True)
     usuario_responsable = models.TextField()
     #usuario_responsable = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE, related_name="usuario_responsable_sprint")
     descripcion_action = models.CharField(max_length=10000)
