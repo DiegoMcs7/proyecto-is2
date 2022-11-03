@@ -24,11 +24,21 @@
 
     fecha_fin = calcular(fecha_inicio, duracion);
 
+    var h = 0;
+
+    for ( let d in data_sprint){
+
+      h = h + data_sprint[d]['fields']['capacidad'];
+
+    }
+
     var lista_ht = [];
 
     for(let d in data_us){
 
-      lista_ht[d] = data_us[d]['fields']['horas_trabajadas'];
+      lista_ht[d] = h - data_us[d]['fields']['horas_trabajadas'];
+
+      h = lista_ht[d];
 
     }
 
@@ -36,15 +46,7 @@
 
     for(let d in data_us){
 
-      lista_he[d] = data_us[d]['fields']['horas_estimadas'];
-
-    }
-
-    var h = 0;
-
-    for ( let d in data_us){
-
-      h = h + data_us[d]['fields']['horas_estimadas'];
+      lista_he[d] = 0;
 
     }
 
@@ -94,7 +96,7 @@
       Chart.defaults.global.defaultFontSize = 14;
 
       const totalHoursInSprint = burndownData[0];
-      const idealHoursPerDay = totalHoursInSprint / (duracion +1);
+      const idealHoursPerDay = totalHoursInSprint / duracion ;
 
       var list = [];
 
@@ -147,7 +149,7 @@
             yAxes: [{
                 ticks: {
                     min: 0,
-                    max: Math.round( h)
+                    max: Math.round(data_sprint[0]['fields']['capacidad'])
                 }
             }]
         }
@@ -165,15 +167,17 @@
   
   <body>
 
-    <div style="width:800px;"><canvas id="burndown43"></canvas></div>
+    <div style="width:1500px;display:block;margin:0 auto;"><canvas id="burndown43"></canvas></div>
     <script>
     showBurnDown (
       "burndown43",
       lista_ht, // burndown data horas trabajadas
-       [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,0] // scope change horas estimadas
+      lista_he // scope change horas estimadas
     );
     </script>
-    
+        <div style="margin-left: 3%;margin-top: 3%;">
+          <a class="button" href="{% url "sprint-list" project.id %}" style="text-decoration: none; font-family: Arial, Helvetica, sans-serif; background-color: slategray;">Volver</a>
+       </div>
   </body>
 </html>
 {% endblock %}

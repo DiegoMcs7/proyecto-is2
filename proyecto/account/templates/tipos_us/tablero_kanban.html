@@ -85,8 +85,8 @@
                     {% endfor %}
                     {% if project.estado_proyecto == 'Planificado' or project.estado_proyecto == 'Iniciado' %}
                     {% if i.encargado == request.user %}
-                    <td style="padding:10px;"><a href="{% url 'update-user-story-kanban-atras' id_proyecto i.id id_tipo_us %}">Atras</a></td>
-                    <td style="padding:10px;"><a href="{% url 'update-user-story-kanban-avanzar' id_proyecto i.id id_tipo_us %}">Avanzar</a></td>
+                    <td style="padding:10px;"><a href="{% url 'update-user-story-kanban-atras' id_proyecto i.id id_tipo_us sprint.id %}">Atras</a></td>
+                    <td style="padding:10px;"><a href="{% url 'update-user-story-kanban-avanzar' id_proyecto i.id id_tipo_us sprint.id %}">Avanzar</a></td>
                     {% endif %}
                     {% endif %}
                     </tr>
@@ -94,7 +94,7 @@
 
         </table>
     </div>
-    <a class="button" href="{% url "tipos_us-list" id_proyecto %}" style="margin-left: 15px; text-decoration: none; font-family: Arial, Helvetica, sans-serif; background-color: slategray;">Volver</a>
+    <a class="button" href="{% url "tipos_us-list-kbn" id_proyecto sprint.id %}" style="margin-left: 15px; text-decoration: none; font-family: Arial, Helvetica, sans-serif; background-color: slategray;">Volver</a>
 
 </body>
 </html>

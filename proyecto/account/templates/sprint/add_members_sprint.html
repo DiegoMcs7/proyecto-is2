@@ -63,13 +63,13 @@
                 <a class="button-create" href="{% url "add-miembros-sprint" project.id id_sprint %}">
                     <i class="bi bi-plus text-primary"></i> Agregar Miembros </a>
                 {% endif %}
+                {% endif %}
+                {% endif %}
                 {% if 'Can view backlogs' in out  %}
                 <a style="margin-left:10px;" class="button-create" href="{% url "user_story_sprint_backlog-list" id_sprint %}">
                 <i class="bi bi-plus text-primary"></i> Sprint Backlog </a>
                 <a style="margin-left:10px;" class="button-create" href="{% url "product-backlog-sprint" project.id id_sprint %}">
                 <i class="bi bi-plus text-primary"></i> Product Backlog </a>
-                {% endif %}
-                {% endif %}
                 {% endif %}
                 <a class="button" href="{% url "sprint-list" project.id %}"  style="margin-top: 20px; height: 40px; margin-left: 15px; text-decoration: none; font-family: Arial, Helvetica, sans-serif; background-color: slategray;">Volver</a>
                 
@@ -86,13 +86,14 @@
             <tr>
                 {% if sprint.id == i.sprint_id %}
                     <td style="padding:10px;">{{i.usuario}}</td>
-                    <td style="padding:10px;">{{i.horas_trabajo}}</td>
-                    {% if 'Can change miembro_sprint' in out or request.user.is_superuser %}
+                    <td style="padding:10px;">{{i.horas_trabajo}}hs/d</td>
+                    {% if 'Can change miembro_ sprint' in out or request.user.is_superuser %}
                     <td style="padding:10px;"><a href="{% url 'update-members_sprint' sprint.id_proyecto_id sprint.id i.pk %}">Editar</a></td>
                     {% endif %}
                 {% endif %}
             </tr>
             {% endfor %}
+            
     </table>
     </div>
 </body>

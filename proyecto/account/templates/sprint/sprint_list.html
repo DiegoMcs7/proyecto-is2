@@ -63,7 +63,7 @@
 
 {% if 'Can add sprint' in out or request.user.is_superuser %}
         <div style="margin-left: 3%;margin-top: 3%;">
-            {% if project.estado_proyecto == 'Planificado' or project.estado_proyecto == 'Iniciado' %}
+           {% if project.estado_proyecto == 'Planificado' or project.estado_proyecto == 'Iniciado' %}
            <a class="button-create" href="{% url "add-sprint" id_project %}">Agregar Sprint</a>
            {% endif %}
            <a class="button" href="{% url "add-members" id_project %}" style="margin-left: 15px; text-decoration: none; font-family: Arial, Helvetica, sans-serif; background-color: slategray;">Volver</a>
@@ -92,10 +92,10 @@
                       <th>Descripción</th>
                       <th>Estado de Sprint</th>
                       <th>Duracion</th>
-                      <th>Capacidad</th>
+                      <th>Capacidad Total</th>
+                      <th>Capacidad Restantes</th>
                       <th>Fecha inicio</th>
-                      <th> </th>
-                      <th> </th>
+
                     </tr>
                 </thead>
             {% for p in sprint_list %}
@@ -109,6 +109,11 @@
                     <td class="script" data-href="{% url 'add-members-sprint' id_project p.pk %}" style="padding:10px;">{{p.duracion_dias}} días</td>
                     {% if p.capacidad %}
                         <td style="padding:10px;" class="script" data-href="{% url 'add-members-sprint' id_project p.pk %}">{{ p.capacidad }} horas</td>
+                    {% else %}
+                        <td style="padding:10px;" class="script" data-href="{% url 'add-members-sprint' id_project p.pk %}"> </td>
+                    {% endif %}
+                    {% if p.capacidad_restante %}
+                        <td style="padding:10px;" class="script" data-href="{% url 'add-members-sprint' id_project p.pk %}">{{ p.capacidad_restante }} horas</td>
                     {% else %}
                         <td style="padding:10px;" class="script" data-href="{% url 'add-members-sprint' id_project p.pk %}"> </td>
                     {% endif %}
@@ -144,8 +149,9 @@
                               </div>
                            {% endif %}
                     </td>
-                    <td><a href="{% url 'log-sprint' project.id p.pk %}">Historial</a></td>
+                    <td style="padding:10px;" class="script" data-href="{% url 'tipos_us-list-kbn' project.id p.pk %}"><button type="button" class="btn btn-info">Kanban</button></td>
                     <td style="padding:10px;" class="script" data-href="{% url 'burndown' id_project p.pk %}"><button type="button" class="btn btn-primary">BurnDownChart</button></td>
+                    <td style="padding:10px;" class="script" data-href="{% url 'log-sprint' project.id p.pk %}"><button type="button" class="btn btn-secondary">Historial</button></td>
 
                 </tr>
                 {% endif %}

@@ -67,11 +67,12 @@
         <form  class="text-danger" style="margin-left:15px;" action="" method=POST>
             {% csrf_token %}
             {{ form.as_p }}
-
+            <div style="display: flex;">
             {% if 'Can add miembros' in out or request.user.is_superuser %}
             <input type="submit" value="Añadir Miembro">
             {% endif %}
             <a class="button" href="{% url "add-members" project.id %}" style="margin-left: 10px; text-decoration: none; font-family: Arial, Helvetica, sans-serif; background-color: slategray;">Cancelar</a>
+            </div>
         </form>
     </div>
 </div>

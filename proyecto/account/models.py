@@ -192,26 +192,18 @@ class UserStory(models.Model):
 
     id = models.AutoField(primary_key=True)
     nombre_us = models.CharField(max_length=30)
-    # tipo_us = models.CharField(max_length=30, default='si')
-    # tipo_us = models.ForeignKey("TipoUS",on_delete=models.CASCADE)
     desc_us = models.TextField()
-    #com_us = models.TextField()
-    #historial_us = models.CharField(max_length=30)
     horas_estimadas = models.IntegerField(default=0)
     horas_trabajadas = models.IntegerField(default=0)
     encargado = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True)
-    prioridad = [
-
-        ('Baja','Baja'),
-        ('Media','Media'),
-        ('Alta','Alta'),
-
-    ]
-    prioridad_us = models.CharField(choices=prioridad, max_length=10, default='Baja')
+    prioridad_tecnica = models.IntegerField(default=0)
+    prioridad_negocio = models.IntegerField(default=0)
+    prioridad_sprint = models.IntegerField(default=0)
     id_proyecto = models.ForeignKey("Proyectos", on_delete=models.CASCADE, null=True)
     id_sprint = models.ForeignKey("Sprint", on_delete=models.CASCADE, null=True, blank=True)
-    id_tipo_user_story = models.ForeignKey("Tipo_User_Story", on_delete=models.CASCADE, null=True, blank=True)
+    id_tipo_user_story = models.ForeignKey("Tipo_User_Story", on_delete=models.CASCADE,null=True,blank=True)
     estado = models.TextField(default="To Do")
+    prioridad_final = models.FloatField(default=0) #variable para calcular prioridad segun formula
     @property
     def us_exist(self):
         return self.id_user_story>0
@@ -406,6 +398,7 @@ class Sprint(models.Model):
     fecha_inicio = models.DateField(auto_now=True,blank=True,null=True)
     duracion_dias = models.IntegerField(null=True) #Duracion en dias habiles
     capacidad = models.IntegerField(default=0) #Capacidad de produccion
+    capacidad_restante = models.IntegerField(default=0) #Horas restantes del sprint
     id_proyecto = models.ForeignKey("Proyectos",on_delete=models.CASCADE,blank=True,null=True)
 
     def __str__(self):
@@ -429,7 +422,7 @@ class LogSprint(models.Model):
 
     '''
 
-    fecha_creacion = models.DateTimeField(auto_now_add=True)
+    fecha_creacion = models.ImageField(null=True)
     usuario_responsable = models.TextField()
     #usuario_responsable = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE, related_name="usuario_responsable_sprint")
     descripcion_action = models.CharField(max_length=10000)
