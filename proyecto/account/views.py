@@ -8,7 +8,7 @@ from .models import Estados, Miembro_Sprint, Miembros, Profile, Proyectos, Rol, 
     LogProyectos, LogSprint
 from django.shortcuts import render, redirect
 from .forms import AddMembersForm, AddMembersSprintForm, EstadosForm, ProyectosForm, RolForm, TipoUsForm, \
-    UsPrioridadForm, UserEditForm, \
+    UserEditForm, \
     UserRegistrationForm, \
     SprintForm, UserStoryForm, UserStorySprintForm, UsHorasForm, EditarPosicionEstadoForm, LogProyectosForm
 from django.contrib.auth.decorators import login_required
@@ -844,7 +844,7 @@ def all_user_story_sprint_backlog(request, id):
 
 def product_backlog_sprint(request, id_proyecto, id_sprint):
 
-    user_story = UserStory.objects.all().order_by('id')
+    user_story = UserStory.objects.all().order_by('-prioridad_final')
     sprint = Sprint.objects.get(id=id_sprint)
     project = Proyectos.objects.get(id=id_proyecto)
     out = permisos(request.user.id,id_proyecto)
@@ -857,8 +857,9 @@ def add_user_story(request, id_proyecto):
     project = Proyectos.objects.get(id=id_proyecto)
     form = UserStoryForm(request.POST or None, pwd=id_proyecto, initial={'id_proyecto': id_proyecto})
     if form.is_valid():
-
         new_user_story = form.save()
+        new_user_story.prioridad_final = (0.6 * new_user_story.prioridad_negocio + 0.4 * new_user_story.prioridad_tecnica) + new_user_story.prioridad_sprint
+        print ("--->", new_user_story.prioridad_final)
         new_user_story.save()
         return HttpResponseRedirect('/user_story/%d'%id_proyecto)
 
@@ -876,6 +877,7 @@ def update_user_story(request, id_proyecto, id_user_story):
     '''
 
     user_story = UserStory.objects.get(id=id_user_story)
+    user_story.prioridad_final = (0.6 * user_story.prioridad_negocio + 0.4 * user_story.prioridad_tecnica) + user_story.prioridad_sprint
     project = Proyectos.objects.get(id=id_proyecto)
     form = UserStoryForm(request.POST or None, instance=user_story, pwd=id_proyecto, initial={'id_proyecto_id': id_proyecto})
     if form.is_valid():
@@ -929,24 +931,6 @@ def update_sprint_user_story(request, id_proyecto, id_user_story, id_sprint):
         return redirect('/product_backlog_sprint/'+str(id_proyecto)+'/'+str(id_sprint))
 
     return render(request, 'user_story/update_user_story.html', {'user_story': user_story, 'form': form, 'id_proyecto': id_proyecto, 'project': project,'sprint':sprint})
-
-
-def update_prioridad_user_story(request, id_proyecto, id_user_story):
-
-    '''
-        Prioridad por cada tipo de US
-        fecha: 16/10/2022
-
-            Funcion en la cual se permite definir la prioridad por proyecto
-    '''
-    user_story = UserStory.objects.get(id=id_user_story)
-    project = Proyectos.objects.get(id=id_proyecto)
-    form = UsPrioridadForm(request.POST or None, instance=user_story, initial={'id_proyecto_id': id_proyecto})
-    if form.is_valid():
-        form.save()
-        return redirect('/user_story/%d'%id_proyecto)
-
-    return render(request, 'user_story/update_prioridad_us.html', {'user_story': user_story, 'form': form, 'id_proyecto': id_proyecto, 'project': project})
 
 
 #Edit de miembros del Equipo Proyecto y Sprint
@@ -1346,6 +1330,8 @@ def update_user_story_kanban_atras(request, id_proyecto, id_user_story, id_tipo_
 def update_horas_trabajadas(request, id_proyecto, id_user_story,id_sprint):
 
     user_story = UserStory.objects.get(id=id_user_story)
+    user_story.prioridad_sprint = 3
+    user_story.prioridad_final = (0.6 * user_story.prioridad_negocio + 0.4 * user_story.prioridad_tecnica) + user_story.prioridad_sprint
     sprint = Sprint.objects.get(id=id_sprint)
     project = Proyectos.objects.get(id=id_proyecto)
     form = UsHorasForm(request.POST or None, instance=user_story, initial={'id_proyecto_id': id_proyecto})

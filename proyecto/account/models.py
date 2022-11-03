@@ -200,18 +200,14 @@ class UserStory(models.Model):
     horas_estimadas = models.IntegerField(default=0)
     horas_trabajadas = models.IntegerField(default=0)
     encargado = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True)
-    prioridad = [
-
-        ('Baja','Baja'),
-        ('Media','Media'),
-        ('Alta','Alta'),
-
-    ]
-    prioridad_us = models.CharField(choices=prioridad, max_length=10, default='Baja')
+    prioridad_tecnica = models.IntegerField(default=0)
+    prioridad_negocio = models.IntegerField(default=0)
+    prioridad_sprint = models.IntegerField(default=0)
     id_proyecto = models.ForeignKey("Proyectos", on_delete=models.CASCADE, null=True)
     id_sprint = models.ForeignKey("Sprint", on_delete=models.CASCADE, null=True, blank=True)
-    id_tipo_user_story = models.ForeignKey("Tipo_User_Story", on_delete=models.CASCADE, null=True, blank=True)
+    id_tipo_user_story = models.ForeignKey("Tipo_User_Story", on_delete=models.CASCADE, default=None)
     estado = models.TextField(default="To Do")
+    prioridad_final = models.FloatField(default=0) #variable para calcular prioridad segun formula
     @property
     def us_exist(self):
         return self.id_user_story>0

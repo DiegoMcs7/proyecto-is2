@@ -47,7 +47,6 @@ urlpatterns = [
     path('add_user_story/<int:id_proyecto>', views.add_user_story, name='add-user_story'),
     path('update_user_story/<int:id_proyecto>/<int:id_user_story>', views.update_user_story, name='update-user_story'),
     path('update_sprint_user_story/<int:id_proyecto>/<int:id_user_story>/<int:id_sprint>', views.update_sprint_user_story, name='update-sprint-user-story'),
-    path('update-prioridad-user_story/<int:id_proyecto>/<int:id_user_story>', views.update_prioridad_user_story, name='update-prioridad-user_story'),
     path('tipos_us/<int:id_proyecto>', views.all_tipos_us, name="tipos_us-list"),
     path('export_tipos_us/<int:id_proyecto>', views.export_tipoUS, name="tipos_us-export"),
     path('import_tipos_us/<int:id_proyecto>', views.import_tipo_us, name="tipos_us-import"),

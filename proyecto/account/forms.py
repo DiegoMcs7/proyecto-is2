@@ -243,13 +243,14 @@ class AddMembersSprintForm(ModelForm):
 class UserStoryForm(ModelForm):
     class Meta:
         model = UserStory
-        fields = ('nombre_us', 'desc_us', 'horas_estimadas', 'encargado', 'prioridad_us', 'id_tipo_user_story', 'id_sprint', 'id_proyecto' )
+        fields = ('nombre_us', 'desc_us', 'horas_estimadas', 'encargado', 'prioridad_negocio', 'prioridad_tecnica', 'id_tipo_user_story', 'id_sprint', 'id_proyecto' )
         labels = {
             'nombre_us': 'Nombre',
             'desc_us': 'Descripción',
             'horas_estimadas': 'Horas estimadas',
             'encargado': 'Encargado',
-            'prioridad_us': 'Prioridad',
+            'prioridad_negocio' : 'Prioridad Negocio',
+            'prioridad_tecnica' : 'Prioridad Técnica',
             'id_proyecto': 'Proyecto',
             'id_tipo_user_story': 'Tipo de user story',
             'id_sprint': 'Sprint',
@@ -260,7 +261,8 @@ class UserStoryForm(ModelForm):
             'desc_us': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Descripcion del user story', 'style': 'height: 20%;'}),
             'horas_estimadas': forms.HiddenInput(attrs={'class': 'form-control'}),
             'encargado': forms.HiddenInput(attrs={'class': 'form-control', 'placeholder': 'Encargado'}),
-            'prioridad_us': forms.HiddenInput(attrs={'class': 'form-control', 'placeholder': 'Horas de trabajo por día'}),
+            'prioridad_negocio': forms.NumberInput(attrs={'class':'form-control'}), 
+            'prioridad_tecnica': forms.NumberInput(attrs={'class':'form-control'}),
             'id_tipo_user_story': forms.Select(attrs={'class': 'form-control', 'placeholder': 'Tipo de user story'}),
             'id_sprint': forms.HiddenInput(attrs={'class': 'form-control', 'placeholder': 'Sprint'}),
             'id_proyecto': forms.HiddenInput(attrs={'class': 'form-control', 'placeholder': 'Sprint'}),
@@ -297,14 +299,6 @@ class UserStorySprintForm(ModelForm):
         #Miembro_Sprint.sprint.through.objects.filter(tipo_user_story_id=id_tipo_us).values_list('estados_id')
 
 
-class UsPrioridadForm(ModelForm):
-    class Meta:
-        model = UserStory
-        fields = ('prioridad_us',)
-        labels = {'prioridad_us': 'Prioridad'}
-        widgets = {
-            'prioridad_us': forms.Select(attrs={'class': 'form-control', 'placeholder': 'Prioridad'}),
-        }
 
 class TipoUsForm(ModelForm):
     class Meta:

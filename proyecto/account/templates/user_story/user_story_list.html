@@ -79,7 +79,7 @@
                     <tr>
                       <th>Nombre</th>
                       <th>Descripción</th>
-                      <th>Prioridad de us</th>
+                      <th>Prioridad</th>
                     </tr>
                 </thead>
             {% for p in user_story_list %}
@@ -87,10 +87,9 @@
                 <tr scope="row" style="tr:hover {background-color: #77bdff;}">
                     <td style="padding:10px;">{{p.nombre_us}}</td>
                     <td style="padding:10px;">{{p.desc_us}}</td>
-                    <td style="padding:10px;">{{p.prioridad_us}}</td>
+                    <td style="padding:10px;">{{p.prioridad_final}}</td>
                     <!--Solo el product owner puede cambiar la prioridad de un us-->
                     {% if project.estado_proyecto == 'Planificado' or project.estado_proyecto == 'Iniciado' %}
-                    <td style="padding:10px;"><a href="{% url 'update-prioridad-user_story' id_project p.id %}">Prioridad</a></td>
                     {% if 'Can change user story' in out or request.user.is_superuser %}
                     <td style="padding:10px;"><a href="{% url 'update-user_story' id_project p.id %}">Editar</a></td>
                     {% endif %}
