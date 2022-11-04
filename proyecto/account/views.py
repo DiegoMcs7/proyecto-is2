@@ -558,14 +558,20 @@ def inicializar_sprint(request, id_proyecto,id_sprint):
 
     sprint = Sprint.objects.filter(id=id_sprint).values_list('estado_sprint') #Trae el sprint inicializado
     out = [item for t in sprint for item in t]
+    user_story = UserStory.objects.filter(id_sprint=id_sprint).values_list('id') #Trae el sprint inicializado
+    pout = [item for t in user_story for item in t]
     x = id_proyecto
     y = id_sprint
-    for i in out:
-        if i == 'Planificado':
-            Sprint.objects.filter(id=id_sprint).update(estado_sprint='Iniciado')
-        else :
-            messages.error(request, 'No se puede inicializar el sprint')
-            return redirect('/action_sprint/'+str(x)+'/'+str(y))
+    if len(pout)!=0:
+        for i in out:
+            if i == 'Planificado':
+                Sprint.objects.filter(id=id_sprint).update(estado_sprint='Iniciado')
+            else :
+                messages.error(request, 'No se puede inicializar el sprint')
+                return redirect('/action_sprint/'+str(x)+'/'+str(y))
+    else:
+        messages.error(request, 'No se asignaron los encargados a los User Story')
+        return redirect('/sprint/%d'%id_proyecto)
 
     return redirect('/sprint/%d'%id_proyecto)
 

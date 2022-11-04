@@ -77,8 +77,8 @@
                       <th>Horas Trabajadas</th>
                       <th>Encargado</th>
                       <th>Estado</th>
-
                       <th> </th>
+ 
                     </tr>
                 </thead>
             {% for p in user_story_list %}
@@ -94,12 +94,11 @@
                     {% if p.encargado == x.usuario %}
                         <td style="padding:10px;">{{p.encargado}}/{{x.horas_trabajo}}hs</td>
                     {% endif %}
-                     <td style="padding:10px;">{{p.estado_definitivo}}</td>
-
                     {% endfor %}
 <!--                    {% if 'Can change miembro_ sprint' in out and p.encargado == request.user %}-->
 <!--                    <td style="padding:10px;"><a href="{% url 'update-horas-trabajadas' project.id p.id s.id %}">Asignar</a></td>-->
 <!--                    {% endif %}-->
+                    <td style="padding:10px;">{{p.estado_definitivo}}</td>
                     {% if 'Can change miembro_ sprint' in out and p.estado_definitivo != 'Finalizado' %}
                      <td style="padding:10px;"><a href="{% url 'reasignar-encargado' project.id p.id s.id %}">Reasignar</a></td>
                     {% else %}

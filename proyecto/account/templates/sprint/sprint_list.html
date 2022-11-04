@@ -55,11 +55,20 @@
           </span>
     </div>
     <h1>Lista de Sprints</h1>
+    <br>
     {% if mensaje_error == 1 %}
         <div class="alert alert-danger" role="alert">
             No puedes realizar la acción ya que existen User Stories no finalizados
         </div>
     {% endif %}
+    {% for message in messages %}
+
+    <div class="alert alert-success">
+        <a class="close" href="#" data-dismiss="alert"></a>
+        {{ message }}
+    </div>
+
+    {% endfor %}
 
 {% if 'Can add sprint' in out or request.user.is_superuser %}
         <div style="margin-left: 3%;margin-top: 3%;">
@@ -137,7 +146,7 @@
                                         <li><a class="dropdown-item" href="{% url 'inicializar_sprint' id_project p.pk %}">Inicializar</a></li>
                                     {% endif %}
 
-                                    {% if p.estado_sprint != 'Finalizado' and p.estado_sprint != 'Cancelado' %}
+                                    {% if p.estado_sprint != 'Finalizado' and p.estado_sprint != 'Cancelado' and p.estado_sprint != 'Planificado' %}
                                         <li><a class="dropdown-item" href="{% url 'finalizar_sprint' id_project p.pk %}">Finalizar</a></li>
                                     {% endif %}
 
