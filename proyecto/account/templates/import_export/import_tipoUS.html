@@ -9,7 +9,7 @@
 
 
 
-    <title>Listar tipo de user story </title>
+    <title>Importar tipo de user story</title>
     <link rel="stylesheet" type="text/css" href="{% static "css/base.css" %}" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-iYQeCzEYFbKjA/T2uDLTpkwGzCiq6soy8tYaI1GyVh/UjpbCx/TYkiZhlZB6+fzT" crossorigin="anonymous">
@@ -55,11 +55,6 @@
           </span>
     </div>
 
-
-
-
-
-
 {% if user.is_authenticated %}
 	<h1>Importar tipo de user story</h1>
 <br/>
@@ -67,7 +62,6 @@
 	{% if submitted %}
 
 	Tipo_US importado correctamente.
-	<a href="{% url 'tipos_us-list' id_proyecto %}"> Atras</a>
 	{% else %}
 	<div class="row">
 		<div class="col-5">

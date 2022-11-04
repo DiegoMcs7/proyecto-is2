@@ -70,11 +70,11 @@
 			{% csrf_token %}
 
 			{{ form.as_p }}
+
             <div style="display: flex;">
                 <input type="submit" value="Actualizar" class="btn btn-secondary">
                 <a class="button" href="{% url "add-members" project.id %}" style="margin-left: 10px; text-decoration: none; font-family: Arial, Helvetica, sans-serif; background-color: slategray;">Cancelar</a>
             </div>
-
 		</form>
 		{% endif %}
 		</div>

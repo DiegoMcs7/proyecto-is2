@@ -104,47 +104,55 @@ def add_project(request):
     '''
     submitted = False
     if request.method == "POST":
-        form = ProyectosForm(request.POST, initial={'scrum_master': request.user.id})
+        form = ProyectosForm(request.POST, pwd=False)
 
         if form.is_valid():
-            project = form.save(commit=False)
-            project.manager = request.user
-            project.save()
+            subject = form.cleaned_data['fecha_fin']
+            subject2 = form.cleaned_data['fecha_inicio']
+            print(subject <= subject2)
+            if subject >= subject2:
+                project = form.save(commit=False)
+                project.manager = request.user
+                project.save()
 
-            #creacion de registro en la tabla log
-            fecha = datetime.now().strftime(("%d/%m/%Y - %H:%M:%S"))
-            fecha_str = str(fecha)
-            log = LogProyectos(usuario_responsable=request.user.username, descripcion_action='Creación de proyecto',
-                               nombre_proyecto=project.nombre_proyecto, desc_proyecto=project.desc_proyecto,
-                               estado_proyecto=project.estado_proyecto, fecha_inicio=project.fecha_inicio,
-                               fecha_fin=project.fecha_fin, scrum_master=project.scrum_master, fecha_creacion=fecha_str,
-                               id_proyecto=project
-                               )
-            log.save()
+                #creacion de registro en la tabla log
+                fecha = datetime.now().strftime(("%d/%m/%Y - %H:%M:%S"))
+                fecha_str = str(fecha)
+                log = LogProyectos(usuario_responsable=request.user.username, descripcion_action='Creación de proyecto',
+                                   nombre_proyecto=project.nombre_proyecto, desc_proyecto=project.desc_proyecto,
+                                   estado_proyecto=project.estado_proyecto, fecha_inicio=project.fecha_inicio,
+                                   fecha_fin=project.fecha_fin, scrum_master=project.scrum_master, fecha_creacion=fecha_str,
+                                   id_proyecto=project
+                                   )
+                log.save()
 
-            #Creacion de los roles por defecto
-            project_member = Proyectos.objects.filter(scrum_master=project.scrum_master.id).last()
-            permisos= Permission.objects.all()
-            permisos_prodOwner = permisos.filter(Q(content_type_id=1) | Q(content_type_id=9) | Q(content_type_id=11) | Q(codename__icontains="view"))
-            permisos_miembros = permisos.filter(codename__icontains="view")
-            permisos_prodOwner.union(permisos_miembros)
-            rol_member1 = Rol.objects.create(rol="Scrum Master",desc_rol= "Scrum Master", proyecto=project_member)
-            rol_member1.permisos.set(permisos)
-            rol_member2 = Rol.objects.create(rol="Product Owner", desc_rol="Product Owner", proyecto=project_member)
-            rol_member2.permisos.set(permisos_prodOwner)
-            rol_member3 = Rol.objects.create(rol="Miembro", desc_rol="Miembro", proyecto=project_member)
-            rol_member3.permisos.set(permisos_miembros)
-            rol_member1.save()
-            rol_member2.save()
-            rol_member3.save()
-            user_member = project.scrum_master
-            miembro= Miembros.objects.create(id_usuario=user_member, id_proyecto=project_member)
-            miembro.id_rol.add(rol_member1)
-            miembro.save()
-            return HttpResponseRedirect('/add_project?submitted=True')
+                #Creacion de los roles por defecto
+                project_member = Proyectos.objects.filter(scrum_master=project.scrum_master.id).last()
+                permisos= Permission.objects.exclude(Q(codename="add_userstory") | Q(codename="change_userstory"))
+                permisos_prodOwner = permisos.filter(Q(content_type_id=9) | Q(content_type_id=11) | Q(codename__icontains="view"))
+                permisos_miembros = permisos.filter(codename__icontains="view")
+                permisos_prodOwner.union(permisos_miembros)
+                rol_member1 = Rol.objects.create(rol="Scrum Master",desc_rol= "Scrum Master", proyecto=project_member)
+                rol_member1.permisos.set(permisos)
+                rol_member2 = Rol.objects.create(rol="Product Owner", desc_rol="Product Owner", proyecto=project_member)
+                rol_member2.permisos.set(permisos_prodOwner)
+                rol_member3 = Rol.objects.create(rol="Miembro", desc_rol="Miembro", proyecto=project_member)
+                rol_member3.permisos.set(permisos_miembros)
+                rol_member1.save()
+                rol_member2.save()
+                rol_member3.save()
+                user_member = project.scrum_master
+                miembro= Miembros.objects.create(id_usuario=user_member, id_proyecto=project_member)
+                miembro.id_rol.add(rol_member1)
+                miembro.save()
+                return HttpResponseRedirect('/add_project?submitted=True')
+            else:
+                mensaje_error = 1
+                return render(request, 'project/add_project.html',
+                              {'form': form, 'submitted': submitted, 'mensaje_error': mensaje_error})
     else:
 
-        form = ProyectosForm(initial= {'scrum_master': request.user.id})
+        form = ProyectosForm(pwd=False)
 
         if 'submitted' in request.GET:
             submitted = True
@@ -167,7 +175,7 @@ def update_project(request, id):
     project_fecha_fin =  project.fecha_fin
     project_scrum_master = project.scrum_master
 
-    form = ProyectosForm(request.POST or None, instance=project)
+    form = ProyectosForm(request.POST or None, instance=project, pwd=False)
     project_state = Proyectos.objects.get(id=id)
     if project_state.estado_proyecto == 'Cancelado':
         messages.error(request, 'No puedes realizar la acción ya que el proyecto ha sido cancelado')
@@ -175,35 +183,57 @@ def update_project(request, id):
         messages.error(request, 'No puedes realizar la acción ya que el proyecto ha sido finalizado')
     else:
         if form.is_valid():
-            #creacion de registro en la tabla log
-            fecha = datetime.now().strftime(("%d/%m/%Y - %H:%M:%S"))
-            fecha_str = str(fecha)
-            descripcion_personalizado = ' '
-            update_project = form.save()
+            subject = form.cleaned_data['fecha_fin']
+            subject2 = form.cleaned_data['fecha_inicio']
+            if subject >= subject2:
+                #creacion de registro en la tabla log
+                fecha = datetime.now().strftime(("%d/%m/%Y - %H:%M:%S"))
+                fecha_str = str(fecha)
+                descripcion_personalizado = ' '
 
+                update_project = form.save()
+                miembros_project = Miembros.objects.filter(id_usuario=update_project.scrum_master, id_proyecto=update_project)
+                rol_scrum_exist = Rol.objects.filter(rol="Scrum Master", desc_rol="Scrum Master",proyecto_id=update_project)
+                if not(miembros_project.exists()):
+                    rol_scrum = Rol.objects.get(rol= "Scrum Master",desc_rol= "Scrum Master", proyecto_id= update_project.id)
+                    user_member = update_project.scrum_master
+                    miembro = Miembros.objects.create(id_usuario=user_member, id_proyecto=update_project)
+                    miembro.id_rol.add(rol_scrum)
+                    miembro.save()
+                else:
+                    if not (rol_scrum_exist.exists()):
+                        permisos = Permission.objects.exclude(Q(codename="add_userstory") | Q(codename="change_userstory"))
+                        rol_scrum1 = Rol.objects.create(rol="Scrum Master", desc_rol="Scrum Master",proyecto_id=update_project)
+                        rol_scrum1.permisos.set(permisos)
+                        rol_scrum1.save()
+                    current_memeber = miembros_project.get(id_usuario=update_project.scrum_master, id_proyecto=update_project)  # Miembro ya existente dentro del proyecto solo que solo miembro
+                    if not(current_memeber.id_rol.filter(rol= "Scrum Master", desc_rol= "Scrum Master").exists()):
+                        rol_scrum = Rol.objects.get(rol="Scrum Master", desc_rol="Scrum Master",proyecto_id=update_project)
+                        current_memeber.id_rol.clear()
+                        current_memeber.id_rol.add(rol_scrum)
+                        current_memeber.save()
+                # Se guarda en una cadena los cambios realizados, y los valores anteriores como nuevos
+                if project_nombre_proyecto != update_project.nombre_proyecto:
+                    descripcion_personalizado = descripcion_personalizado + 'Modificación al nombre del proyecto  (%s)  ->  (%s)\n ' %(project_nombre_proyecto,update_project.nombre_proyecto)
+                if project_desc_proyecto != update_project.desc_proyecto:
+                    descripcion_personalizado = descripcion_personalizado + 'Modificación a la descripción del proyecto  (%s)  ->  (%s)\n' %(project_desc_proyecto,update_project.desc_proyecto)
+                if project_estado_proyecto != update_project.estado_proyecto:
+                    descripcion_personalizado = descripcion_personalizado + 'Modificación al estado del proyecto  (%s)  ->  (%s)\n' %(project_estado_proyecto,update_project.estado_proyecto)
+                if project_fecha_inicio != update_project.fecha_inicio:
+                    descripcion_personalizado = descripcion_personalizado + 'Modificación a la fecha de inicio del proyecto  (%s)  ->  (%s)\n' %(project_fecha_inicio,update_project.fecha_inicio)
+                if project_fecha_fin != update_project.fecha_fin:
+                    descripcion_personalizado = descripcion_personalizado + 'Modificación a la fecha de fin del proyecto  (%s)  ->  (%s)\n' %(project_fecha_fin,update_project.fecha_fin)
+                if project_scrum_master != update_project.scrum_master:
+                    descripcion_personalizado = descripcion_personalizado + 'Modificación del Scrum Master del proyecto  (%s)  ->  (%s)\n' %(project_scrum_master,update_project.scrum_master)
 
-            # Se guarda en una cadena los cambios realizados, y los valores anteriores como nuevos
-            if project_nombre_proyecto != update_project.nombre_proyecto:
-                descripcion_personalizado = descripcion_personalizado + 'Modificación al nombre del proyecto  (%s)  ->  (%s)\n ' %(project_nombre_proyecto,update_project.nombre_proyecto)
-            if project_desc_proyecto != update_project.desc_proyecto:
-                descripcion_personalizado = descripcion_personalizado + 'Modificación a la descripción del proyecto  (%s)  ->  (%s)\n' %(project_desc_proyecto,update_project.desc_proyecto)
-            if project_estado_proyecto != update_project.estado_proyecto:
-                descripcion_personalizado = descripcion_personalizado + 'Modificación al estado del proyecto  (%s)  ->  (%s)\n' %(project_estado_proyecto,update_project.estado_proyecto)
-            if project_fecha_inicio != update_project.fecha_inicio:
-                descripcion_personalizado = descripcion_personalizado + 'Modificación a la fecha de inicio del proyecto  (%s)  ->  (%s)\n' %(project_fecha_inicio,update_project.fecha_inicio)
-            if project_fecha_fin != update_project.fecha_fin:
-                descripcion_personalizado = descripcion_personalizado + 'Modificación a la fecha de fin del proyecto  (%s)  ->  (%s)\n' %(project_fecha_fin,update_project.fecha_fin)
-            if project_scrum_master != update_project.scrum_master:
-                descripcion_personalizado = descripcion_personalizado + 'Modificación del Scrum Master del proyecto  (%s)  ->  (%s)\n' %(project_scrum_master,update_project.scrum_master)
-
-            log = LogProyectos(usuario_responsable=request.user.username, descripcion_action=descripcion_personalizado,
-                               nombre_proyecto=project.nombre_proyecto, desc_proyecto=project.desc_proyecto,
-                               estado_proyecto=project.estado_proyecto, fecha_inicio=project.fecha_inicio,
-                               fecha_fin=project.fecha_fin, scrum_master=project.scrum_master, fecha_creacion=fecha_str,
-                               id_proyecto=project
-                               )
-            log.save()
-            return redirect('list-projects')
+                log = LogProyectos(usuario_responsable=request.user.username, descripcion_action=descripcion_personalizado,
+                                   nombre_proyecto=project.nombre_proyecto, desc_proyecto=project.desc_proyecto,
+                                   estado_proyecto=project.estado_proyecto, fecha_inicio=project.fecha_inicio,
+                                   fecha_fin=project.fecha_fin, scrum_master=project.scrum_master, fecha_creacion=fecha_str,
+                                   id_proyecto=project
+                                   )
+                log.save()
+                return redirect('list-projects')
 
     return render(request, 'project/update_project.html', {'project': project, 'form': form})
 
@@ -335,13 +365,19 @@ def add_miembros(request, id):
     members = Miembros.objects.all()
     roles = Rol.objects.all()
     form = AddMembersForm(request.POST or None, pwd=project.id, initial={'id_proyecto': id})
-
     out = permisos(request.user.id,id)
-    
     if form.is_valid():
-        new_user = form.save()
-        new_user.save()
-        return redirect('/add_members/%d'%project.id)
+        subject = form.cleaned_data['id_usuario']
+        user= User.objects.get(username=subject)
+        existe = members.filter(id_proyecto=project, id_usuario=user)
+        print(existe.exists())
+        if not(existe.exists()):
+            new_user = form.save()
+            new_user.save()
+            return redirect('/add_members/%d'%project.id)
+        else:
+            mensaje_error = 1
+            return render(request, 'project/add_miembro.html', {'project': project, 'form': form, 'members': members, 'roles': roles, 'out': out, 'mensaje_error': mensaje_error})
     return render(request, 'project/add_miembro.html', {'project': project, 'form': form, 'members': members, 'roles': roles, 'out': out})
 
 
@@ -359,7 +395,6 @@ def update_members_project(request, id_proyecto, id_miembro):
     if form.is_valid():
         form.save()
         return redirect('/add_members/%d'%id_proyecto)
-
     return render(request, 'project/update_members_project.html', {'project': project, 'members': members, 'form': form, 'roles': roles})
 
 
@@ -802,7 +837,6 @@ def add_members_sprint(request,id_proyecto, id_sprint):
     form = AddMembersSprintForm(request.POST or None, pwd=id_proyecto, initial={'id': id_sprint,'sprint':id_sprint})
     x = id_proyecto
     y = id_sprint
-
     out = permisos(request.user.id,id_proyecto)
 
     if form.is_valid():
@@ -811,7 +845,8 @@ def add_members_sprint(request,id_proyecto, id_sprint):
         new_user = form.save()
         new_user.save()
         return redirect('/add_members_sprint/'+str(x)+'/'+str(y))
-    return render(request, 'sprint/add_members_sprint.html',{'sprint': sprint, 'form': form, 'id_sprint': id_sprint, 'members_sprint': members_sprint, 'id_proyecto': id_proyecto, 'project': project, 'out': out})
+
+    return render(request, 'sprint/add_members_sprint.html', {'sprint': sprint, 'form': form, 'id_sprint': id_sprint, 'members_sprint': members_sprint, 'id_proyecto': id_proyecto, 'project': project, 'out': out})
 
 
 def add_miembros_sprint(request, id_proyecto, id_sprint):
@@ -834,24 +869,33 @@ def add_miembros_sprint(request, id_proyecto, id_sprint):
 
     out = permisos(request.user.id,id_proyecto)
     if form.is_valid():
-        new_user = form.save()
+        subject = form.cleaned_data['usuario']
+        user = User.objects.get(username= subject)
+        existe = members_sprint.filter(sprint=sprint, usuario=user)
+        if not(existe.exists()):
+            new_user = form.save()
 
-        # creacion de registro en la tabla log
-        fecha = datetime.now().strftime(("%d/%m/%Y - %H:%M:%S"))
-        fecha_str = str(fecha)
-        descripcion_personalizado = 'Se agregó como miembro al siguiente usuario: (%s)\n ' %(new_user.usuario)
-        sprint.capacidad = sprint.capacidad + new_user.horas_trabajo * sprint.duracion_dias
-        sprint.capacidad_restante = sprint.capacidad_restante + new_user.horas_trabajo * sprint.duracion_dias
-        new_user.save()
-        sprint.save()
+            # creacion de registro en la tabla log
+            fecha = datetime.now().strftime(("%d/%m/%Y - %H:%M:%S"))
+            fecha_str = str(fecha)
+            descripcion_personalizado = 'Se agregó como miembro al siguiente usuario: (%s)\n ' %(new_user.usuario)
+            sprint.capacidad = sprint.capacidad + new_user.horas_trabajo * sprint.duracion_dias
+            sprint.capacidad_restante = sprint.capacidad_restante + new_user.horas_trabajo * sprint.duracion_dias
+            new_user.save()
+            sprint.save()
 
-        log = LogSprint(usuario_responsable=request.user.username, descripcion_action=descripcion_personalizado,
-                        nombre_sprint=sprint.nombre_sprint,
-                        id_proyecto=project, id_sprint=sprint,fecha_creacion=fecha_str,
-                        )
-        log.save()
+            log = LogSprint(usuario_responsable=request.user.username, descripcion_action=descripcion_personalizado,
+                            nombre_sprint=sprint.nombre_sprint,
+                            id_proyecto=project, id_sprint=sprint,fecha_creacion=fecha_str,
+                            )
+            log.save()
 
-        return redirect('/add_members_sprint/'+str(x)+'/'+str(y))
+            return redirect('/add_members_sprint/'+str(x)+'/'+str(y))
+        else:
+            mensaje_error = 1
+            return render(request, 'sprint/add_miembros_sprint.html',
+                          {'sprint': sprint, 'form': form, 'id_sprint': id_sprint, 'members_sprint': members_sprint,
+                           'id_proyecto': id_proyecto, 'project': project, 'out': out, 'mensaje_error': mensaje_error})
     return render(request, 'sprint/add_miembros_sprint.html',{'sprint': sprint, 'form': form, 'id_sprint': id_sprint, 'members_sprint': members_sprint, 'id_proyecto': id_proyecto, 'project': project,'out': out})
 
 
@@ -990,17 +1034,17 @@ def update_sprint_user_story(request, id_proyecto, id_user_story, id_sprint):
 #Edit de miembros del Equipo Proyecto y Sprint
 
 
-def update_members_sprint(request, id_proyecto, id_sprint,id_usuario):
+def update_members_sprint(request, id_proyecto, id_sprint,id_miembro):
     '''
         Editar un miembro del sprint
         fecha: 25/9/2022
 
             Funcion en la cual se pueden editar miembros de un sprint.        
     '''
-    members = Miembro_Sprint.objects.get(id=id_usuario)
     sprint = Sprint.objects.get(id=id_sprint)
+    members = Miembro_Sprint.objects.get(id=id_miembro)
     project = Proyectos.objects.get(id=id_proyecto)
-    form = AddMembersSprintForm(request.POST or None, instance=members, initial={'usuario':id_usuario,'id_proyecto': id_proyecto,'sprint': id_sprint})
+    form = AddMembersSprintForm(request.POST or None, instance=members, pwd=project.id)
     x = id_proyecto
     y = id_sprint
     if form.is_valid():

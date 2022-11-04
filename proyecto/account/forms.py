@@ -109,6 +109,12 @@ class ProyectosForm(ModelForm):
             'scrum_master': forms.Select(attrs={'class': 'form-select', 'placeholder': 'Scrum Master'}),
         }
 
+    def __init__(self, *args, **kwargs):
+        self._pwd = kwargs.pop('pwd', None)
+        print(self._pwd)
+        super().__init__(*args, **kwargs)
+        self.fields['scrum_master'].queryset = User.objects.filter(is_superuser=self._pwd)
+
 
 class LogProyectosForm(ModelForm):
     class Meta:
@@ -146,6 +152,7 @@ class AddMembersForm(ModelForm):
         print(self._pwd)
         super().__init__(*args, **kwargs)
         self.fields['id_rol'].queryset = Rol.objects.filter(proyecto_id=self._pwd)
+        self.fields['id_usuario'].queryset = User.objects.filter(is_superuser=False)
 
 
 class RolForm(ModelForm):
@@ -236,8 +243,7 @@ class AddMembersSprintForm(ModelForm):
         self._pwd = kwargs.pop('pwd', None)
         print(self._pwd)
         super().__init__(*args, **kwargs)
-        print(User.objects.filter(miembros__id_proyecto=self._pwd))
-        self.fields['usuario'].queryset = User.objects.filter(miembros__id_proyecto=self._pwd)
+        self.fields['usuario'].queryset = User.objects.filter(miembros__id_proyecto=self._pwd, is_superuser=False)
 
 
 class UserStoryForm(ModelForm):

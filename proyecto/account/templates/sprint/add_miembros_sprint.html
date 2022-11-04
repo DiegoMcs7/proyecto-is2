@@ -56,6 +56,12 @@
 
     <h1> {{sprint.nombre_sprint}}</h1>
 
+    {% if mensaje_error == 1 %}
+        <div class="alert alert-danger" role="alert">
+            El usuario ya forma parte del sprint " {{sprint.nombre_sprint}} "
+        </div>
+    {% endif %}
+
     {% if 'Can add miembros' in out or request.user.is_superuser %}
     <div class="row">
 		<div class="col-4">
