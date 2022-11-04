@@ -427,6 +427,12 @@ def all_roles(request, id_proyecto):
 
 
 def list_permisos(request, id_proyecto, id_rol):
+    '''
+        Visualizar lista de permisos 
+        fecha: 24/10/2022
+
+            Funcion para ver lista de permisos
+    '''
 
     roles_list = Rol.objects.all()
     project = Proyectos.objects.get(id=id_proyecto)
@@ -482,32 +488,70 @@ def update_rol(request, id,id_proyecto):
 
 
 def delete_proyecto(request, id):
+    '''
+        Eliminar proyecto 
+        fecha: 24/10/2022
+
+            Funcion para eliminar proyecto
+    '''
     project = Proyectos.objects.get(id=id)
     project.delete()
     return HttpResponseRedirect('/projects')
 
 
 def delete_rol(request, id, id_proyecto):
+    '''
+        Eliminar rol 
+        fecha: 24/10/2022
+
+            Funcion para eliminar rol
+    '''
+    
     role = Rol.objects.get(id=id)
     role.delete()
     return HttpResponseRedirect('/roles/%d' % id_proyecto)
 
 
 def delete_miembro_proyecto(request, id, id_proyecto):
+    '''
+        Eliminar miembro de un proyecto 
+        fecha: 24/10/2022
+
+            Funcion para eliminar miembro de un proyecto
+    '''
+    
     m = Miembros.objects.get(id=id)
     m.delete()
     return HttpResponseRedirect('/add_members/%d' % id_proyecto)
 def delete_tipo_us(request, id, id_proyecto):
+    '''
+        Eliminar tipo de US 
+        fecha: 24/10/2022
+
+            Funcion para eliminar tipo de US
+    '''
     tipous = Tipo_User_Story.objects.get(id=id)
     tipous.delete()
     return HttpResponseRedirect('/tipos_us/%d' % id_proyecto)
 
 def delete_estado(request, id, id_proyecto, id_tipo_us):
+    '''
+        Eliminar estados 
+        fecha: 24/10/2022
+
+            Funcion para eliminar estados
+    '''
     e = Estados.objects.get(id=id)
     e.delete()
     return HttpResponseRedirect('/estados/' + str(id_proyecto) + '/' + str(id_tipo_us))
 
 def export_roles(request, id_proyecto):
+    '''
+        Exportar Roles 
+        fecha: 24/10/2022
+
+            Funcion para exportar roles
+    '''
     if request.method == 'POST':
         # Get selected option from form
         file_format = request.POST['file-format']
@@ -529,6 +573,12 @@ def export_roles(request, id_proyecto):
     return render(request, 'import_export/export.html', {'proyecto': id_proyecto})
 
 def import_roles(request,id_proyecto):
+    '''
+        Importar Roles 
+        fecha: 24/10/2022
+
+            Funcion para importar roles
+    '''
     if request.method == 'POST':
         file_format = request.POST['file-format']
         rol_resource = RolResource()
@@ -612,6 +662,12 @@ def inicializar_sprint(request, id_proyecto,id_sprint):
 
 
 def cancelar_sprint(request, id_proyecto,id_sprint):
+    '''
+        Cancelar Sprint 
+        fecha: 3/11/2022
+
+            Funcion para cancelar un Sprint
+    '''
 
     sprint = Sprint.objects.filter(id=id_sprint).values_list('estado_sprint') #Trae el sprint inicializado
     out = [item for t in sprint for item in t]
@@ -628,6 +684,12 @@ def cancelar_sprint(request, id_proyecto,id_sprint):
 
 
 def finalizar_sprint(request, id_proyecto,id_sprint):
+    '''
+        Finalizar Sprint 
+        fecha: 3/11/2022
+
+            Funcion para finalizar un Sprint
+    '''
 
     mensaje_error=0
     sprint_list = Sprint.objects.all().order_by('id')
@@ -900,6 +962,12 @@ def add_miembros_sprint(request, id_proyecto, id_sprint):
 
 
 def all_user_story(request, id):
+    '''
+        Visualizar todos los US
+        fecha: 3/11/2022
+
+            Funcion en la cual se visualizan la lista de US
+    '''
 
     user_story = UserStory.objects.all().order_by('id')
     project = Proyectos.objects.get(id=id)
@@ -909,6 +977,12 @@ def all_user_story(request, id):
                   {'user_story_list': user_story, 'id_project': id, 'project': project, 'out': out})
 
 def all_user_story_sprint_backlog(request, id):
+    '''
+        Visualizar Sprint Backlog
+        fecha: 3/11/2022
+
+            Funcion en la cual se visualizan Sprint Backlog
+    '''
 
     user_story = UserStory.objects.all().order_by('id')
     s = Sprint.objects.get(id=id)
@@ -922,6 +996,12 @@ def all_user_story_sprint_backlog(request, id):
 
 
 def product_backlog_sprint(request, id_proyecto, id_sprint):
+    '''
+        Visualizar product backlog
+        fecha: 3/11/2022
+
+            Funcion en la cual se visualiza el product backlog
+    '''
 
     user_story = UserStory.objects.all().order_by('-prioridad_final')
     sprint = Sprint.objects.get(id=id_sprint)
@@ -932,6 +1012,13 @@ def product_backlog_sprint(request, id_proyecto, id_sprint):
                   {'user_story_list': user_story, 'sprint': sprint, 'id_project': id_proyecto, 'out': out, 'project': project})
 
 def add_user_story(request, id_proyecto):
+    '''
+        Agregar US
+        fecha: 3/11/2022
+
+            Funcion en la cual se agregan US
+    '''
+
     user_story = UserStory.objects.all()
     project = Proyectos.objects.get(id=id_proyecto)
     form = UserStoryForm(request.POST or None, pwd=id_proyecto, initial={'id_proyecto': id_proyecto})
@@ -980,8 +1067,6 @@ def finalizar_user_story(request, id_proyecto, id_user_story, id_tipo_us,id_spri
     user_story.estado_definitivo = 'Finalizado'
     user_story.save()
     return redirect('/tablero_kanban/' + str(id_proyecto) + '/' + str(id_tipo_us) + '/' + str(id_sprint))
-
-
 
 
 def update_sprint_user_story(request, id_proyecto, id_user_story, id_sprint):
@@ -1216,6 +1301,12 @@ def update_tipos_us(request,id_proyecto,id_tipo_us):
     return render(request, 'tipos_us/update_tipos_us.html', {'tipous': tipous, 'form': form,'id_proyecto': id_proyecto, 'project': project})
 
 def export_tipoUS(request, id_proyecto):
+    '''
+        Exportar tipos de US
+        fecha: 3/11/2022
+
+            Funcion en la cual se exportan Tipos de US
+    '''
 
     if request.method == 'POST':
         # Get selected option from form
@@ -1238,7 +1329,12 @@ def export_tipoUS(request, id_proyecto):
     return render(request, 'import_export/export_tipoUS.html', {'id_proyecto': id_proyecto})
 
 def import_tipo_us(request, id_proyecto):
+    '''
+    Importar tipos de US
+    fecha: 3/11/2022
 
+        Funcion en la cual se importan Tipos de US
+    '''
     if request.method == 'POST':
         file_format = request.POST['file-format']
         tipoUS_resource = Tipo_USResource()
@@ -1453,6 +1549,12 @@ def update_user_story_kanban_atras(request, id_proyecto, id_user_story, id_tipo_
 
 
 def update_horas_trabajadas(request, id_proyecto, id_user_story,id_sprint):
+    '''
+        Actualizar Horas trabajadas de un US
+        fecha: 3/11/2022
+
+            Funcion en la cual se actualizan las Horas trabajadas de un US
+    '''
 
     user_story = UserStory.objects.get(id=id_user_story)
     user_story.prioridad_sprint = 3
@@ -1490,6 +1592,12 @@ def tipos_us_list_kbn(request,id_proyecto,id_sprint):
 
 
 def reasignar_encargado(request, id_proyecto, id_user_story,id_sprint):
+    '''
+        Reasignar Encargado del User Story
+        fecha: 3/11/2022
+
+            Funcion en la cual se reasigana al encargado de un User Story
+    '''
 
     user_story = UserStory.objects.get(id=id_user_story)
     sprint = Sprint.objects.get(id=id_sprint)
@@ -1503,6 +1611,12 @@ def reasignar_encargado(request, id_proyecto, id_user_story,id_sprint):
 
 
 def add_tarea_us(request, id_proyecto, id_user_story, id_tipo_us, id_sprint):
+    '''
+        Agregar tarea a un User Story
+        fecha: 3/11/2022
+
+            Funcion en la cual se agregan las tareas a User Story
+    '''
     user_story = UserStory.objects.get(id=id_user_story)
     sprint = Sprint.objects.get(id=id_sprint)
     project = Proyectos.objects.get(id=id_proyecto)
