@@ -5,12 +5,14 @@ from datetime import datetime
 
 from .permisos import permisos
 from .models import Estados, Miembro_Sprint, Miembros, Profile, Proyectos, Rol, Sprint, Tipo_User_Story, UserStory, \
-    LogProyectos, LogSprint
+    LogProyectos, LogSprint, TareaUserStory, LogUserStory
 from django.shortcuts import render, redirect
-from .forms import AddMembersForm, AddMembersSprintForm, EstadosForm, ProyectosForm, ReasignarEncargadoForm, RolForm, TipoUsForm, \
+from .forms import AddMembersForm, AddMembersSprintForm, EstadosForm, ProyectosForm, ReasignarEncargadoForm, RolForm, \
+    TipoUsForm, \
     UserEditForm, \
     UserRegistrationForm, \
-    SprintForm, UserStoryForm, UserStorySprintForm, UsHorasForm, EditarPosicionEstadoForm, LogProyectosForm
+    SprintForm, UserStoryForm, UserStorySprintForm, UsHorasForm, EditarPosicionEstadoForm, LogProyectosForm, \
+    TareaUserStoryForm
 from django.contrib.auth.decorators import login_required
 from tablib import Dataset
 from django.contrib import messages
@@ -222,10 +224,10 @@ def action_project(request, id):
 
 def log_project(request, id_proyecto):
     '''
-        Seleccionar accion por proyecto
-        fecha: 16/10/2022
+        LogProyecto
+        fecha: 3/11/2022
 
-            Funcion en la cual se seleccionan las acciones por proyecto
+            La vista se encarga de invocar el html que contiene el log del proyecto
     '''
     project = LogProyectos.objects.all()
 
@@ -598,28 +600,27 @@ def finalizar_sprint(request, id_proyecto,id_sprint):
 
     tipo_us_list = UserStory.objects.filter(id_sprint=out[0]).values_list('id_tipo_user_story') #Trae el tipo de US al que pertenece el US
     tipo_us_list = [item for t in tipo_us_list for item in t]
-
-    if len(user_story_list) != 0:
-        aux = 0
-        for indice in range(len(user_story_list)):
-            estados_posicion = Estados.objects.filter(id_tipo_user_story=tipo_us_list[indice]).values_list('posicion') # se obtienen todos los estados pertenecientes al tipo de user story que pertenece el US
-            estados_posicion = [item for t in estados_posicion for item in t] # se obtienen las posiciones en una lista [1,2,4,3]
-            estados_posicion.sort() # se ordena de forma creciente
-
-            nombre_estado = Estados.objects.filter(posicion=estados_posicion[len(estados_posicion) - 1]).values_list('nombre_estado') # se obtienen todos los estados pertenecientes al tipo de user story que pertenece el US
-            nombre_estado = [item for t in nombre_estado for item in t]
-            print(user_story_list[indice])
-            print(nombre_estado[0])
-            if user_story_list[indice] != nombre_estado[0]:
-                aux = 1
-        if aux == 0:  # si todos los user story ya se han finalizados(estan ubicados en la ultima columna del kanban)
-            Sprint.objects.filter(id=id_sprint).update(estado_sprint='Finalizado')  # se finaliza el sprint
-        else:
-            mensaje_error = 1
-            return render(request, 'sprint/sprint_list.html',
-                          {'sprint_list': sprint_list, 'id_project': id_proyecto, 'project': project, 'out': permiso, 'mensaje_error': mensaje_error})
-    else:
-        Sprint.objects.filter(id=id_sprint).update(estado_sprint='Finalizado')  # se finaliza el sprint
+    #
+    # if len(user_story_list) != 0:
+    #     aux = 0
+    #     for indice in range(len(user_story_list)):
+    #         estados_posicion = Estados.objects.filter(id_tipo_user_story=tipo_us_list[indice]).values_list('posicion') # se obtienen todos los estados pertenecientes al tipo de user story que pertenece el US
+    #         estados_posicion = [item for t in estados_posicion for item in t] # se obtienen las posiciones en una lista [1,2,4,3]
+    #         estados_posicion.sort() # se ordena de forma creciente
+    #
+    #         nombre_estado = Estados.objects.filter(posicion=estados_posicion[len(estados_posicion) - 1]).values_list('nombre_estado') # se obtienen todos los estados pertenecientes al tipo de user story que pertenece el US
+    #         nombre_estado = [item for t in nombre_estado for item in t]
+    #         if user_story_list[indice] != nombre_estado[0]:
+    #             aux = 1
+    #     if aux == 0:  # si todos los user story ya se han finalizados(estan ubicados en la ultima columna del kanban)
+    #         Sprint.objects.filter(id=id_sprint).update(estado_sprint='Finalizado')  # se finaliza el sprint
+    #     else:
+    #         mensaje_error = 1
+    #         return render(request, 'sprint/sprint_list.html',
+    #                       {'sprint_list': sprint_list, 'id_project': id_proyecto, 'project': project, 'out': permiso, 'mensaje_error': mensaje_error})
+    # else:
+    user_stories_list = UserStory.objects.filter(id_sprint=id_sprint, estado_definitivo='Pendiente').update(id_sprint=None)
+    Sprint.objects.filter(id=id_sprint).update(estado_sprint='Finalizado')  # se finaliza el sprint
 
     return render(request, 'sprint/sprint_list.html',
                   {'sprint_list': sprint_list,'id_project': id_proyecto, 'project': project, 'out': permiso,  'mensaje_error': mensaje_error})
@@ -772,10 +773,10 @@ def update_sprint(request, id_proyecto, id_sprint):
 
 def log_sprint(request,id_proyecto, id_sprint):
     '''
-        Seleccionar accion por proyecto
+        LogSprint
         fecha: 16/10/2022
 
-            Funcion en la cual se seleccionan las acciones por proyecto
+        La vista se encarga de invocar a la plantilla que mostrará en pantalla el log correspondiente al sprint
     '''
     sprint_list = LogSprint.objects.all()
 
@@ -864,10 +865,10 @@ def all_user_story_sprint_backlog(request, id):
     miembro_sprint = Miembro_Sprint.objects.filter(sprint=id)
     project = Proyectos.objects.get(id=s.id_proyecto_id)
     out = permisos(request.user.id,project.id)
-    print("---->",out)
+    dir=1
 
     return render(request, 'user_story/user_story_list_sprint_backlog.html',
-                  {'user_story_list': user_story, 'id_sprint': id, 'id_proyecto': s.id_proyecto_id, 'project': project, 'out': out,'s':s,'miembro_sprint':miembro_sprint})
+                  {'user_story_list': user_story, 'id_sprint': id, 'id_proyecto': s.id_proyecto_id, 'project': project, 'out': out,'s':s,'miembro_sprint':miembro_sprint, 'dir': dir})
 
 
 def product_backlog_sprint(request, id_proyecto, id_sprint):
@@ -913,6 +914,24 @@ def update_user_story(request, id_proyecto, id_user_story):
         return HttpResponseRedirect('/user_story/%d'%id_proyecto)
 
     return render(request, 'user_story/update_user_story.html', {'user_story': user_story, 'form': form, 'id_proyecto': id_proyecto, 'project': project})
+
+
+def finalizar_user_story(request, id_proyecto, id_user_story, id_tipo_us,id_sprint):
+
+    '''
+        Accion finalizar user story
+        fecha: 4/11/2022
+
+            Funcion en la cual se permite finalizar un user story
+    '''
+    print('entra')
+    user_story = UserStory.objects.get(id=id_user_story)
+
+    user_story.estado_definitivo = 'Finalizado'
+    user_story.save()
+    return redirect('/tablero_kanban/' + str(id_proyecto) + '/' + str(id_tipo_us) + '/' + str(id_sprint))
+
+
 
 
 def update_sprint_user_story(request, id_proyecto, id_user_story, id_sprint):
@@ -996,11 +1015,9 @@ def all_estados(request, id_proyecto, id_tipo_us):
             de todos los sprints creados para cada proyecto.       
     '''
     estados_list = Estados.objects.filter(id_tipo_user_story=id_tipo_us).values_list('id')
-    print(estados_list)
     project = Proyectos.objects.get(id=id_proyecto)
     tipoUs = Tipo_User_Story.objects.get(id=id_tipo_us)
-    all_estados = Estados.objects.all()
-    # estados = Tipo_User_Story.id_estado.through.objects.filter(tipo_user_story_id=id_tipo_us).values_list('estados_id')
+    all_estados = Estados.objects.all().order_by('id')
     out = [item for t in estados_list for item in t]
 
     pout = permisos(request.user.id, id_proyecto)
@@ -1036,6 +1053,7 @@ def add_estados(request,id_proyecto,id_tipo_us):
 
     return render(request, 'estados/add_estados.html', {'form': form,'id_proyecto': id_proyecto,'id_tipo_us': id_tipo_us, 'submitted': submitted, 'project': project})
 
+
 def update_estados(request,id_proyecto,id_tipo_us,id_estado):
     '''
         Editar estados de un proyecto
@@ -1050,7 +1068,6 @@ def update_estados(request,id_proyecto,id_tipo_us,id_estado):
     y = id_tipo_us
     form = EstadosForm(request.POST or None, instance=tipous, initial={'id_tipo_user_story': id_tipo_us, 'nombre_estado': nombre_estado.nombre_estado})
     if form.is_valid():
-        print(form)
         form.save()
         return redirect('/estados/'+str(x)+'/'+str(y))
 
@@ -1239,6 +1256,7 @@ def tablero_kanban(request,id_proyecto,id_tipo_us,id_sprint):
             En el desarrollo le obtiene el lisado de los estados correspondientes al tipo de user story
             que posteriormente se utilizaran para las columnas de la tabla kanban
     '''
+    posiciones_no_definidas = 0  # indica si las posiciones de los estados en el tipo estan definidos o no
     posiciones_establecidas = 1
     project = Proyectos.objects.get(id=id_proyecto)
     sprint = Sprint.objects.get(id=id_sprint)
@@ -1246,7 +1264,11 @@ def tablero_kanban(request,id_proyecto,id_tipo_us,id_sprint):
     estados = Estados.objects.filter(id_tipo_user_story_id=id_tipo_us).values_list('nombre_estado') # estados del tipo de user story
     out = [item for t in estados for item in t]  # todos los nombres de los estados
     posicion = Estados.objects.filter(id_tipo_user_story_id=id_tipo_us).values_list('posicion')
-    posiciones = [item for t in posicion for item in t]  # todos los nombres de los estados
+    posiciones = [item for t in posicion for item in t]  # todas las posicion de los estados
+    for p in range(len(posiciones)):
+        if posiciones[p] == 0:
+            posiciones_no_definidas = 1  # se indica que la posicion no esta definida
+
     diccionario = {}  # contedra el nombre del estado y su posicion en el kanban
     nombres_estados = []
     for index in range(len(out)):
@@ -1258,13 +1280,31 @@ def tablero_kanban(request,id_proyecto,id_tipo_us,id_sprint):
         nombres_estados.append(tupla[0])  # contiene nombres de los estados ordenados de acuerdo a su posicion
 
     list_user_story = UserStory.objects.filter(id_sprint=id_sprint,id_tipo_user_story=id_tipo_us).order_by('id')
-
     string_vacio = ""
+    permisos_list = permisos(request.user.id,id_proyecto)
 
-    return render(request, 'tipos_us/tablero_kanban.html',
-                  {'string_vacio': string_vacio, 'project': project, 'tipous': tipous, 'id_proyecto': id_proyecto,
-                   'estados': estados, 'nombres_estados': nombres_estados, 'id_tipo_us': id_tipo_us,
-                   'list_user_story': list_user_story,'posiciones_establecidas': posiciones_establecidas,'sprint':sprint})
+
+    estados_posicion_finalizar_us = Estados.objects.filter(id_tipo_user_story=id_tipo_us).values_list('posicion')  # se obtienen todos los estados pertenecientes al tipo de user story que pertenece el US
+    estados_posicion_finalizar_us = [item for t in estados_posicion_finalizar_us for item in t]  # se obtienen las posiciones en una lista [1,2,4,3]
+    estados_posicion_finalizar_us.sort()  # se ordena de forma creciente
+    longitud_finalizar_us=len(estados_posicion_finalizar_us)-1
+    nombre_estado_final_finalizar_us = Estados.objects.filter(id_tipo_user_story=id_tipo_us, posicion=estados_posicion_finalizar_us[longitud_finalizar_us]).values_list('nombre_estado') # contiene el nombre del ulitmo estado, si esta en el ultimo estado entonces se puede finalizar el us
+    nombre_utimo_estado_tupla = nombre_estado_final_finalizar_us[0]
+    nombre_utimo_estado = nombre_utimo_estado_tupla[0]
+    dir = 2
+
+
+    if posiciones_no_definidas == 0:
+        return render(request, 'tipos_us/tablero_kanban.html',
+                      {'string_vacio': string_vacio, 'project': project, 'tipous': tipous, 'id_proyecto': id_proyecto,
+                       'estados': estados, 'nombres_estados': nombres_estados, 'id_tipo_us': id_tipo_us,
+                       'list_user_story': list_user_story,'posiciones_establecidas': posiciones_establecidas,'sprint':sprint, 'mensaje_error': 0, 'permisos_list': permisos_list, 'nombre_utimo_estado': nombre_utimo_estado, 'dir': dir})
+    else:
+        return render(request, 'tipos_us/tablero_kanban.html',
+                      {'string_vacio': string_vacio, 'project': project, 'tipous': tipous, 'id_proyecto': id_proyecto,
+                       'estados': estados, 'nombres_estados': nombres_estados, 'id_tipo_us': id_tipo_us,
+                       'list_user_story': list_user_story, 'posiciones_establecidas': posiciones_establecidas,
+                       'sprint': sprint, 'mensaje_error': 1, 'permisos_list': permisos_list, 'nombre_utimo_estado': nombre_utimo_estado, 'dir': dir})
 
 
 def update_user_story_kanban_avanzar(request, id_proyecto, id_user_story, id_tipo_us,id_sprint):
@@ -1376,7 +1416,8 @@ def update_horas_trabajadas(request, id_proyecto, id_user_story,id_sprint):
 
     return render(request, 'user_story/update_prioridad_us.html', {'user_story': user_story,'sprint': sprint, 'form': form, 'id_proyecto': id_proyecto, 'project': project})
 
-def all_tipos_us_kanban(request,id_proyecto,id_sprint):
+
+def tipos_us_list_kbn(request,id_proyecto,id_sprint):
     '''
         Vista de todos los tipo de user story para cada proyecto
         fecha: 25/9/2022
@@ -1397,6 +1438,7 @@ def all_tipos_us_kanban(request,id_proyecto,id_sprint):
     return render(request, 'tipos_us/tipos_us_list_kbn.html',
                   {'sprint': sprint,'user_story': user_story, 'project': project, 'out': out, 'list_tipo_us': list_tipo_us})
 
+
 def reasignar_encargado(request, id_proyecto, id_user_story,id_sprint):
 
     user_story = UserStory.objects.get(id=id_user_story)
@@ -1408,3 +1450,52 @@ def reasignar_encargado(request, id_proyecto, id_user_story,id_sprint):
         return redirect('/all_user_story_sprint_backlog/%d'%id_sprint)
 
     return render(request, 'user_story/reasignar_encargado.html', {'user_story': user_story,'sprint': sprint, 'form': form, 'id_proyecto': id_proyecto, 'project': project})
+
+
+def add_tarea_us(request, id_proyecto, id_user_story, id_tipo_us, id_sprint):
+    user_story = UserStory.objects.get(id=id_user_story)
+    sprint = Sprint.objects.get(id=id_sprint)
+    project = Proyectos.objects.get(id=id_proyecto)
+    form = TareaUserStoryForm(request.POST or None, initial={'id_user_story_id': id_user_story})
+    if form.is_valid():
+        tarea_us = form.save()
+        user_story.horas_trabajadas = user_story.horas_trabajadas + form.cleaned_data['duracion']
+        user_story.prioridad_sprint = 3
+        user_story.prioridad_final = (0.6 * user_story.prioridad_negocio + 0.4 * user_story.prioridad_tecnica) + user_story.prioridad_sprint
+        user_story.save()
+
+        # creacion de registro en la tabla log
+        fecha = datetime.now().strftime(("%d/%m/%Y - %H:%M:%S"))
+        fecha_str = str(fecha)
+        descripcion_personalizado = 'Creación de tarea \n Fecha:            %s\n Descripción:  %s\n  Duración:          %shs\n ' % (tarea_us.fecha, tarea_us.desc_tarea, tarea_us.duracion)
+
+        log = LogUserStory(usuario_responsable=request.user.username,
+                           descripcion_action=descripcion_personalizado,
+                           fecha_creacion=fecha_str,
+                           id_user_story=user_story,
+                           nombre_us=user_story.nombre_us,
+                           )
+        log.save()
+
+        return redirect('/tablero_kanban/' + str(id_proyecto) + '/' + str(id_tipo_us) + '/' + str(id_sprint))
+
+    return render(request, 'user_story/add_tarea_us.html', {'user_story': user_story,'sprint': sprint, 'form': form, 'id_proyecto': id_proyecto, 'project': project, 'id_tipo_us': id_tipo_us})
+
+
+def log_user_story(request, id_proyecto, id_user_story, id_tipo_us,id_sprint, dir):
+    '''
+        Seleccionar accion por proyecto
+        fecha: 3/11/2022
+
+            Funcion en la cual se seleccionan las acciones por proyecto
+    '''
+    user_story_list = LogUserStory.objects.all()
+    project = Proyectos.objects.get(id=id_proyecto)
+    user_story = UserStory.objects.get(id=id_user_story)
+    sprint = Sprint.objects.get(id=id_sprint)
+
+    return render(request, 'user_story/log_user_story.html',
+                  {'user_story_list': user_story_list, 'id_user_story': id_user_story, 'project': project,
+                   'id_tipo_us': id_tipo_us, 'sprint': sprint, 'dir': dir})
+
+

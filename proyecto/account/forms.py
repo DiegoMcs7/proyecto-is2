@@ -6,7 +6,7 @@ from django.contrib.auth.models import User
 from django.db.models import Q
 from matplotlib import widgets
 from .models import Estados, Miembro_Sprint, Profile, Proyectos, Miembros, Rol, Sprint, Tipo_User_Story, UserStory, \
-    LogProyectos, LogSprint
+    LogProyectos, LogSprint, TareaUserStory
 from django.conf import settings
 from django.forms import ModelForm
 from django.contrib.auth.models import Permission
@@ -350,6 +350,7 @@ class UsHorasForm(ModelForm):
             'horas_trabajadas': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Horas a Trabajar'}),
         }
 
+
 class ReasignarEncargadoForm(ModelForm):
     class Meta:
         model = UserStory
@@ -370,3 +371,19 @@ class ReasignarEncargadoForm(ModelForm):
         #self.fields['encargado'].queryset = Miembro_Sprint.objects.filter(sprint=self._pwd)
         self.fields['encargado'].queryset = User.objects.filter(miembro_sprint__sprint=self._pwd)
         #Miembro_Sprint.sprint.through.objects.filter(tipo_user_story_id=id_tipo_us).values_list('estados_id')
+
+
+class TareaUserStoryForm(ModelForm):
+    class Meta:
+        model = TareaUserStory
+        fields = ('fecha', 'desc_tarea', 'duracion')
+        labels = {'duracion': 'Duración',
+                  'fecha': 'Fecha',
+                  'desc_tarea': 'Descripción',
+                  }
+        widgets = {
+            'fecha': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            'duracion': forms.NumberInput(attrs={'class': 'form-control',  'placeholder': 'Duración en horas'}),
+            'desc_tarea': forms.Textarea(attrs={'class': 'form-control', 'style': 'height: 30%;'}),
+
+        }

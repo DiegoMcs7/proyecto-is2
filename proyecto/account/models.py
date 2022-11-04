@@ -154,6 +154,7 @@ class Rol(models.Model):
     def __str__(self):
         return self.rol
 
+
 class LogRol(models.Model):
     '''
         Roles
@@ -204,9 +205,32 @@ class UserStory(models.Model):
     id_tipo_user_story = models.ForeignKey("Tipo_User_Story", on_delete=models.CASCADE,null=True,blank=True)
     estado = models.TextField(default="To Do")
     prioridad_final = models.FloatField(default=0) #variable para calcular prioridad segun formula
+    estados = [
+        ('Pendiente', 'Pendiente'),
+        ('Finalizado', 'Finalizado'),
+    ]
+    estado_definitivo = models.TextField(max_length=11, choices=estados, default='Pendiente')
+
     @property
     def us_exist(self):
         return self.id_user_story>0
+
+
+class TareaUserStory(models.Model):
+    '''
+        Modelo TareaUserStory
+        fecha: 3/11/2022
+
+            El modelo es utilizado para la creación de las diferentes tareas de los user story por proyecto
+
+            En este modelo se registran las horas trabajadas como la  descripcion de lo que se realizo en el user story
+            para que quede registrado en el historial
+    '''
+
+    fecha = models.DateField()
+    desc_tarea = models.TextField()
+    duracion = models.IntegerField(default=0)
+    id_user_story = models.ForeignKey("UserStory", on_delete=models.CASCADE, null=True, blank=True)
 
 
 class LogUserStory(models.Model):
@@ -221,11 +245,11 @@ class LogUserStory(models.Model):
             -fecha_creacion = models.DateTimeField(auto_now_add=True)
 
     '''
-    fecha_creacion = models.DateTimeField(auto_now_add=True)
+    fecha_creacion = models.TextField(null=True)
     usuario_responsable = models.TextField()
 
-   # usuario_responsable = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE, related_name="usuario_responsable_user_story")
     descripcion_action = models.CharField(max_length=10000)
+    id_user_story = models.ForeignKey("UserStory", on_delete=models.CASCADE, null=True)
     id = models.AutoField(primary_key=True)
     nombre_us = models.CharField(max_length=30)
     desc_us = models.TextField()
@@ -255,9 +279,6 @@ class Reuniones(models.Model):
     lugar_reunion = models.CharField(max_length=30)
     fecha_reunion = models.DateField()
     hora_reunion = models.DateTimeField()
-
-#class Calendario(models.Model):
-    #reuniones = models.ListField()
 
 
 class Permisos(models.Model):
