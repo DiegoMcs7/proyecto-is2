@@ -59,15 +59,15 @@
 
       </div>
     <div>
-{% if project.estado_proyecto == 'Planificado' or project.estado_proyecto == 'Iniciado' %}
-{% if 'Can add miembros' in out or request.user.is_superuser %}
-<p class="display-3">
-    <div style="display: flex;">
-    
-    <a style="margin-left: 15px; height: 40px; " class="button-create" href="{% url "add-miembros" project.id %}">
-    <i class="bi bi-plus text-primary"></i> Agregar Miembros</a></p>
-{% endif %}
-{% endif %}
+
+    {% if project.estado_proyecto == 'Planificado' or project.estado_proyecto == 'Iniciado' %}
+        {% if 'Can add miembros' in out or request.user.is_superuser %}
+        <p class="display-3">
+            <div style="display: flex;">
+            <a style="margin-left: 15px; height: 40px; " class="button-create" href="{% url "add-miembros" project.id %}">
+            <i class="bi bi-plus text-primary"></i> Agregar Miembros</a></p>
+        {% endif %}
+    {% endif %}
     <a class="button" href="{% url "list-projects" %}" style="margin-top: 20px; height: 40px; margin-left: 15px; text-decoration: none; font-family: Arial, Helvetica, sans-serif; background-color: slategray;">Volver</a>
 
     </div>

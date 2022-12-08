@@ -4,6 +4,7 @@ import operator
 from datetime import datetime
 
 from .permisos import permisos
+from .permisos_proyectos import permisos_proyectos
 from .models import Estados, Miembro_Sprint, Miembros, Profile, Proyectos, Rol, Sprint, Tipo_User_Story, UserStory, \
     LogProyectos, LogSprint, TareaUserStory, LogUserStory
 from django.shortcuts import render, redirect
@@ -321,8 +322,11 @@ def all_projects(request):
     members = Miembros.objects.all()
     user = request.user.id
 
+    #se obtiene el listado de permisos por cada proyecto en un diccionario.id_proyecto, permisos .{"1": ["can add proyecto"], "2": ["can delete proyecto"]}
+    permisos = permisos_proyectos(request.user.id)
+
     return render(request, 'project/project_list.html',
-                  {'project_list': project_list,'members': members,'user': user})
+                  {'project_list': project_list,'members': members,'user': user, 'permisos_por_proyecto': permisos})
 
 class proyecto_iterador:
 
