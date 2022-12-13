@@ -94,6 +94,7 @@ class Proyectos(models.Model):
     fecha_inicio = models.DateField()
     fecha_fin = models.DateField()
     scrum_master = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
+    cancelar = models.TextField(null=True)
 
     def __str__(self):
         return self.nombre_proyecto

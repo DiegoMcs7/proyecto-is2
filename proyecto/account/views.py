@@ -8,7 +8,7 @@ from .permisos_proyectos import permisos_proyectos
 from .models import Estados, Miembro_Sprint, Miembros, Profile, Proyectos, Rol, Sprint, Tipo_User_Story, UserStory, \
     LogProyectos, LogSprint, TareaUserStory, LogUserStory
 from django.shortcuts import render, redirect
-from .forms import AddMembersForm, AddMembersSprintForm, EstadosForm, ProyectosForm, ReasignarEncargadoForm, RolForm, \
+from .forms import AddMembersForm, AddMembersSprintForm, CancelarProyecto, EstadosForm, ProyectosForm, ReasignarEncargadoForm, RolForm, \
     TipoUsForm, \
     UserEditForm, \
     UserRegistrationForm, \
@@ -123,8 +123,7 @@ def add_project(request):
                                    nombre_proyecto=project.nombre_proyecto, desc_proyecto=project.desc_proyecto,
                                    estado_proyecto=project.estado_proyecto, fecha_inicio=project.fecha_inicio,
                                    fecha_fin=project.fecha_fin, scrum_master=project.scrum_master, fecha_creacion=fecha_str,
-                                   id_proyecto=project
-                                   )
+                                   id_proyecto=project)
                 log.save()
 
                 #Creacion de los roles por defecto
@@ -285,11 +284,25 @@ def cancelar_proyecto(request, id):
 
             Funcion en la cual se seleccionan las acciones por proyecto
     '''
-
+    #form = CancelarProyecto(request.POST or None)
+    #if form.is_valid():
+        #form.save()
     Proyectos.objects.filter(id=id).update(estado_proyecto='Cancelado')
-
+    Proyectos.objects.filter(id=id).update(cancelar=request.POST["cancelar"])
+    project = Proyectos.objects.get(id=id)
+    descripcion_personalizado = 'Cancelación de proyecto \n Motivo:              %s\n         ' % (request.POST["cancelar"])
+    #creacion de registro en la tabla log
+    fecha = datetime.now().strftime(("%d/%m/%Y - %H:%M:%S"))
+    fecha_str = str(fecha)
+    log = LogProyectos(usuario_responsable=request.user.username, descripcion_action=descripcion_personalizado,
+                                   nombre_proyecto=project.nombre_proyecto, desc_proyecto=project.desc_proyecto,
+                                   estado_proyecto=project.estado_proyecto, fecha_inicio=project.fecha_inicio,
+                                   fecha_fin=project.fecha_fin, scrum_master=project.scrum_master,
+                                   fecha_creacion=fecha_str,
+                                   id_proyecto=project)
+    log.save()
+    
     return redirect('list-projects')
-
 
 def finalizar_proyecto(request, id):
 

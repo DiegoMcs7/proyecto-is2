@@ -115,6 +115,16 @@ class ProyectosForm(ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['scrum_master'].queryset = User.objects.filter(is_superuser=self._pwd)
 
+class CancelarProyecto(ModelForm):
+    class Meta:
+        model = Proyectos
+        fields = ('cancelar',)
+        labels = {
+            'Motivo de cancelación': '',
+        }
+        widgets = {
+            'cancelar': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Motivo de cancelación', 'style': 'height: 30%;'}),
+        }
 
 class LogProyectosForm(ModelForm):
     class Meta:
