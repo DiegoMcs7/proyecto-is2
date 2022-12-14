@@ -8,7 +8,7 @@ from .permisos_proyectos import permisos_proyectos
 from .models import Estados, Miembro_Sprint, Miembros, Profile, Proyectos, Rol, Sprint, Tipo_User_Story, UserStory, \
     LogProyectos, LogSprint, TareaUserStory, LogUserStory
 from django.shortcuts import render, redirect
-from .forms import AddMembersForm, AddMembersSprintForm, CancelarProyecto, EstadosForm, ProyectosForm, ReasignarEncargadoForm, RolForm, \
+from .forms import AddMembersForm, AddMembersSprintForm, CancelarProyecto, EstadosForm, ProyectosForm, ReasignarEncargadoForm, ReasignarMiembroSprintForm, RolForm, \
     TipoUsForm, \
     UserEditForm, \
     UserRegistrationForm, \
@@ -25,6 +25,9 @@ from django.contrib.auth.models import User
 from django.db.models import Q
 from .sources import *
 from django.http import HttpResponseForbidden
+import smtplib
+from email.mime.text import MIMEText
+
 
 @login_required
 def tablero(request):
@@ -128,8 +131,8 @@ def add_project(request):
 
                 #Creacion de los roles por defecto
                 project_member = Proyectos.objects.filter(scrum_master=project.scrum_master.id).last()
-                permisos= Permission.objects.exclude(Q(codename="add_userstory") | Q(codename="change_userstory"))
-                permisos_prodOwner = permisos.filter(Q(content_type_id=9) | Q(content_type_id=11) | Q(codename__icontains="view"))
+                permisos= Permission.objects.exclude(Q(codename="change_userstory"))
+                permisos_prodOwner = permisos.filter(Q(content_type_id=29) | Q(content_type_id=11) | Q(codename__icontains="view"))
                 permisos_miembros = permisos.filter(codename__icontains="view")
                 permisos_prodOwner.union(permisos_miembros)
                 rol_member1 = Rol.objects.create(rol="Scrum Master",desc_rol= "Scrum Master", proyecto=project_member)
@@ -301,7 +304,41 @@ def cancelar_proyecto(request, id):
                                    fecha_creacion=fecha_str,
                                    id_proyecto=project)
     log.save()
-    
+
+    scrum_master = User.objects.get(id=project.scrum_master.id)
+    miembros = Miembros.objects.filter(id_proyecto=id).values_list('id_usuario')
+    out = [item for t in miembros for item in t]
+    emm = User.objects.filter(id__in=out).values_list('email')
+    emails = [item for t in emm for item in t]
+
+    def send_email():
+        try:
+            print('smtp.gmail.com')
+            mailServer = smtplib.SMTP('smtp.gmail.com', 587)
+            print(mailServer.ehlo())
+            mailServer.starttls()
+            print(mailServer.ehlo())
+            mailServer.login('robertocarlos2022is2@gmail.com', 'xovoykuzzuuhqlbn')
+            print('Conectado..')
+
+            email_to = emails
+            # Construimos el mensaje simple
+            mensaje = MIMEText("El proyecto con el nombre \'" + project.nombre_proyecto + "\' ha sido cancelado!" + "\n" + "Motivo de cancelación: " + project.cancelar)
+            mensaje['From'] = 'robertocarlos2022is2@gmail.com'
+            mensaje['To'] = ", ".join(email_to)
+            mensaje['Subject'] = "Tienes un correo"
+
+            mailServer.sendmail('robertocarlos2022is2@gmail.com',
+                                email_to,
+                                mensaje.as_string())
+
+            print('Correo enviado correctamente')
+        except Exception as e:
+            print(e)
+
+
+    send_email()
+        
     return redirect('list-projects')
 
 def finalizar_proyecto(request, id):
@@ -989,6 +1026,7 @@ def all_user_story(request, id):
     user_story = UserStory.objects.all().order_by('id')
     project = Proyectos.objects.get(id=id)
     out = permisos(request.user.id,id)
+    print(out)
 
     return render(request, 'user_story/user_story_list.html',
                   {'user_story_list': user_story, 'id_project': id, 'project': project, 'out': out})
@@ -1155,6 +1193,33 @@ def update_members_sprint(request, id_proyecto, id_sprint,id_miembro):
 
     return render(request, 'project/update_members_sprint.html', {'id_proyecto': id_proyecto, 'members': members, 'form': form, 'project': project, 'sprint': sprint})
 
+def reasignar_miembros_sprint(request, id_proyecto, id_sprint,id_miembro):
+    '''
+        Reasignar un miembro del sprint
+        fecha: 13/12/2022
+
+            Funcion en la cual se pueden reasignar miembros de un sprint.        
+    '''
+    sprint = Sprint.objects.get(id=id_sprint)
+    members = Miembro_Sprint.objects.get(id=id_miembro)
+    users = Miembro_Sprint.objects.filter(id=id_miembro).values_list('usuario')
+    project = Proyectos.objects.get(id=id_proyecto)
+    outmiembros = [item for t in users for item in t]
+    user_story = UserStory.objects.filter(id_sprint=id_sprint,encargado=outmiembros[0]).values_list('id')
+    outuserstory = [item for t in user_story for item in t]
+    print("ddddd",outuserstory) 
+    form = ReasignarMiembroSprintForm(request.POST or None, instance=members, pwd=project.id)
+    x = id_proyecto
+    y = id_sprint
+    if form.is_valid():
+        nuevo_usuario = form.cleaned_data['usuario']
+        UserStory.objects.filter(id__in=outuserstory).update(encargado = nuevo_usuario)
+        form.save()
+        return redirect('/add_members_sprint/'+str(x)+'/'+str(y))
+
+    return render(request, 'sprint/reasignar_miembro_sprint.html', {'id_proyecto': id_proyecto, 'members': members, 'form': form, 'project': project, 'sprint': sprint})
+
+
 #CRUD ESTADOS
 
 
@@ -1261,7 +1326,7 @@ def all_tipos_us(request,id_proyecto):
     tipos_us_list = Tipo_User_Story.objects.all().order_by('id')
     project = Proyectos.objects.get(id=id_proyecto)
 
-    out = permisos(request.user.id,id_proyecto)    
+    out = permisos(request.user.id,id_proyecto)
 
     return render(request, 'tipos_us/tipos_us_list.html',
                   {'tipos_us_list': tipos_us_list,'id_proyecto': id_proyecto, 'project': project, 'out': out})
@@ -1482,6 +1547,7 @@ def update_user_story_kanban_avanzar(request, id_proyecto, id_user_story, id_tip
     '''
     cantidad_posicion_definido = 0
     posiciones_establecidas = 1
+    project = Proyectos.objects.get(id=id_proyecto)
     user_story = UserStory.objects.get(id=id_user_story)
     sprint = Sprint.objects.get(id=id_sprint)
     estados = Estados.objects.filter(id_tipo_user_story_id=id_tipo_us).values_list('nombre_estado') # estados del tipo de user story
@@ -1510,8 +1576,45 @@ def update_user_story_kanban_avanzar(request, id_proyecto, id_user_story, id_tip
                     user_story.estado = valor[0]
                     user_story.save()
                 break
+        
+        aux = lista_tupla[-1]
+
+        if user_story.estado == aux[0]:
+
+            scrum_master = User.objects.get(id=project.scrum_master.id)
+
+            def send_email():
+                try:
+                    print('smtp.gmail.com')
+                    mailServer = smtplib.SMTP('smtp.gmail.com', 587)
+                    print(mailServer.ehlo())
+                    mailServer.starttls()
+                    print(mailServer.ehlo())
+                    mailServer.login('robertocarlos2022is2@gmail.com', 'xovoykuzzuuhqlbn')
+                    print('Conectado..')
+
+                    email_to = scrum_master.email
+                    # Construimos el mensaje simple
+                    mensaje = MIMEText("El User Story con el nombre \'" + user_story.nombre_us + "\' necesita aprovación para finalizar")
+                    mensaje['From'] = 'robertocarlos2022is2@gmail.com'
+                    mensaje['To'] = ", ".join(email_to)
+                    mensaje['Subject'] = "Tienes un correo"
+
+                    mailServer.sendmail('robertocarlos2022is2@gmail.com',
+                                        email_to,
+                                        mensaje.as_string())
+
+                    print('Correo enviado correctamente')
+                except Exception as e:
+                    print(e)
+
+
+            send_email()
+
+
     else:
         posiciones_establecidas = 0
+    
     return redirect('/tablero_kanban/' + str(id_proyecto) + '/' + str(id_tipo_us) + '/' + str(id_sprint), posiciones_establecidas=posiciones_establecidas)
 
 

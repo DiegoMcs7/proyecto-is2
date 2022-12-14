@@ -67,6 +67,7 @@ urlpatterns = [
     path('update_user_story_kanban_atras/<int:id_proyecto>/<int:id_user_story>/<int:id_tipo_us>/<int:id_sprint>', views.update_user_story_kanban_atras, name='update-user-story-kanban-atras'),
     path('update_horas_trabajadas/<int:id_proyecto>/<int:id_user_story>/<int:id_sprint>', views.update_horas_trabajadas,name="update-horas-trabajadas"),
     path('reasignar_encargado/<int:id_proyecto>/<int:id_user_story>/<int:id_sprint>', views.reasignar_encargado, name="reasignar-encargado"),
+    path('reasignar_miembros_sprint/<int:id_proyecto>/<int:id_sprint>/<int:id_miembro>', views.reasignar_miembros_sprint, name="reasignar-miembros-sprint"),
     path('add_tarea_us/<int:id_proyecto>/<int:id_user_story>/<int:id_tipo_us>/<int:id_sprint>', views.add_tarea_us, name='add-tarea-us'),
 
 ]

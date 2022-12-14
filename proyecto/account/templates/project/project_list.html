@@ -281,6 +281,11 @@
                                         {% if 'Can change proyectos' in value and i.estado_proyecto == 'Iniciado' or i.estado_proyecto == 'Planificado' %}
                                           <li><a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#cancelarModal-{{ i.id }}">Cancelar</a></li>
                                         {% endif %}
+
+                                        {% if request.user.is_superuser %}
+                                            <li><a class="dropdown-item" href="{% url 'delete-project' i.id %}" >Eliminar</a></li>
+                                       {% endif %}
+
                                     {% endif %}
                                 {% endfor %}
                                 </ul>

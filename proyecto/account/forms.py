@@ -255,6 +255,27 @@ class AddMembersSprintForm(ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['usuario'].queryset = User.objects.filter(miembros__id_proyecto=self._pwd, is_superuser=False)
 
+class ReasignarMiembroSprintForm(ModelForm):
+    class Meta:
+        model = Miembro_Sprint
+        fields = ('usuario', 'sprint', 'horas_trabajo')
+        labels = {
+            'usuario': 'Usuario',
+            'sprint': 'Sprint',
+            'horas_trabajo': 'Horas de trabajo por día',
+        }
+        widgets = {
+            'usuario': forms.Select(attrs={'class': 'form-control', 'placeholder': 'Usuario'}),
+            'sprint': forms.HiddenInput(attrs={'class': 'form-control', 'placeholder': 'Sprint'}),
+            'horas_trabajo': forms.HiddenInput(attrs={'class': 'form-control', 'placeholder': 'Horas de trabajo por día'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        self._pwd = kwargs.pop('pwd', None)
+        print(self._pwd)
+        super().__init__(*args, **kwargs)
+        self.fields['usuario'].queryset = User.objects.filter(miembros__id_proyecto=self._pwd, is_superuser=False)
+
 
 class UserStoryForm(ModelForm):
     class Meta:

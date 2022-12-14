@@ -216,3 +216,13 @@ SOCIAL_AUTH_PIPELINE = (
 STATIC_ROOT = os.path.join(BASE_DIR, "static/")
 
 IMPORT_EXPORT_USE_TRANSACTIONS = True
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+
+EMAIL_HOST = 'smtp.gmail.com'
+
+EMAIL_PORT = 587
+
+EMAIL_HOST_USER = 'robertocarlos2022is2@gmail.com'
+
+EMAIL_HOST_PASSWORD = 'Roberto2022is2'

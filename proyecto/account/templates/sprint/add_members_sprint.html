@@ -59,7 +59,7 @@
          <p class="display-3" style="margin-left:550px; padding-top: 12;">
              <div style="display: flex; margin-left:15px;">
                 {% if project.estado_proyecto == 'Planificado' or project.estado_proyecto == 'Iniciado' %}
-                {% if sprint.estado_sprint == 'Planificado' or sprint.estado_sprint == 'Iniciado' %}
+                {% if sprint.estado_sprint == 'Planificado' %}
                 {% if 'Can view miembro_ sprint' in out%}
                 <a class="button-create" href="{% url "add-miembros-sprint" project.id id_sprint %}">
                     <i class="bi bi-plus text-primary"></i> Agregar Miembros </a>
@@ -91,6 +91,7 @@
                     {% if 'Can change miembro_ sprint' in out or request.user.is_superuser %}
                     <td style="padding:10px;"><a href="{% url 'update-members_sprint' sprint.id_proyecto_id sprint.id i.pk %}">Editar</a></td>
                     {% endif %}
+                    <td style="padding:10px;"><a href="{% url 'reasignar-miembros-sprint' sprint.id_proyecto_id sprint.id i.pk %}">Reasignar</a></td>
                 {% endif %}
             </tr>
             {% endfor %}
