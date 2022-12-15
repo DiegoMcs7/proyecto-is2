@@ -48,6 +48,7 @@ urlpatterns = [
     path('add_user_story/<int:id_proyecto>', views.add_user_story, name='add-user_story'),
     path('update_user_story/<int:id_proyecto>/<int:id_user_story>', views.update_user_story, name='update-user_story'),
     path('finalizar_user_story/<int:id_proyecto>/<int:id_user_story>/<int:id_tipo_us>/<int:id_sprint>', views.finalizar_user_story,name="finalizar-user-story"),
+    path('rechazar_user_story/<int:id_proyecto>/<int:id_user_story>/<int:id_tipo_us>/<int:id_sprint>', views.rechazar_user_story,name="rechazar-user-story"),
     path('update_sprint_user_story/<int:id_proyecto>/<int:id_user_story>/<int:id_sprint>', views.update_sprint_user_story, name='update-sprint-user-story'),
     path('tipos_us/<int:id_proyecto>', views.all_tipos_us, name="tipos_us-list"),
     path('tipos_us_list_kbn/<int:id_proyecto>/<int:id_sprint>', views.tipos_us_list_kbn, name="tipos_us-list-kbn"),

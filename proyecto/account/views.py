@@ -326,7 +326,7 @@ def cancelar_proyecto(request, id):
             mensaje = MIMEText("El proyecto con el nombre \'" + project.nombre_proyecto + "\' ha sido cancelado!" + "\n" + "Motivo de cancelación: " + project.cancelar)
             mensaje['From'] = 'robertocarlos2022is2@gmail.com'
             mensaje['To'] = ", ".join(email_to)
-            mensaje['Subject'] = "Tienes un correo"
+            mensaje['Subject'] = "Gestor de Proyectos"
 
             mailServer.sendmail('robertocarlos2022is2@gmail.com',
                                 email_to,
@@ -350,12 +350,35 @@ def finalizar_proyecto(request, id):
             Funcion en la cual se permite finalizar un proyecto
     '''
 
-    Proyectos.objects.filter(id=id).update(estado_proyecto='Finalizado')
-    project_state = Proyectos.objects.get(id=id)
-    if project_state.estado_proyecto == 'Cancelado':
-        messages.error(request, 'No puedes realizar la acción ya que el proyecto ha sido cancelado')
-    elif project_state.estado_proyecto == 'Finalizado':
-        messages.error(request, 'No puedes realizar la acción ya que el proyecto ha sido finalizado')
+    project = Proyectos.objects.get(id=id)
+    sprint_id = Sprint.objects.filter(id_proyecto=id).values_list('id')
+    x = [item for t in sprint_id for item in t]
+    estado_sprint = Sprint.objects.filter(id__in=x).values_list('estado_sprint')
+    y = [item for t in estado_sprint for item in t]
+    sprints = Sprint.objects.filter(id__in=x)
+
+    lista_sprints = []
+
+    if 'Planificado' in y or 'Iniciado' in y:
+        for sprint in sprints:
+            if sprint.estado_sprint == 'Planificado' or sprint.estado_sprint == 'Iniciado' :
+                lista_sprints.append(sprint.nombre_sprint)
+        if len(lista_sprints) == 1:
+            messages.error(request, 'No puedes realizar la acción ya que el sprint '+lista_sprints[0]+' no ha sido finalizado o cancelado')
+        else:
+            c = ','.join(lista_sprints)
+            messages.error(request, 'No puedes realizar la acción ya que los sprints '+c+' no han sido finalizados o cancelado')
+    else:
+        Proyectos.objects.filter(id=id).update(estado_proyecto='Finalizado')
+        #creacion de registro en la tabla log
+        fecha = datetime.now().strftime(("%d/%m/%Y - %H:%M:%S"))
+        fecha_str = str(fecha)
+        log = LogProyectos(usuario_responsable=request.user.username, descripcion_action='Finalización del proyecto',
+                            nombre_proyecto=project.nombre_proyecto, desc_proyecto=project.desc_proyecto,
+                            estado_proyecto=project.estado_proyecto, fecha_inicio=project.fecha_inicio,
+                            fecha_fin=project.fecha_fin, scrum_master=project.scrum_master, fecha_creacion=fecha_str,
+                            id_proyecto=project)
+        log.save()
 
     return redirect('list-projects')
 
@@ -423,11 +446,50 @@ def add_miembros(request, id):
     if form.is_valid():
         subject = form.cleaned_data['id_usuario']
         user= User.objects.get(username=subject)
-        existe = members.filter(id_proyecto=project, id_usuario=user)
-        print(existe.exists())
+        existe = members.filter(id_proyecto=project, id_usuario=user)       
+
         if not(existe.exists()):
             new_user = form.save()
             new_user.save()
+
+            #creacion de registro en la tabla log
+            fecha = datetime.now().strftime(("%d/%m/%Y - %H:%M:%S"))
+            fecha_str = str(fecha)
+            descripcion_personalizado = 'Se agregó como miembro al siguiente usuario: (%s)\n ' %(new_user.id_usuario)
+            log = LogProyectos(usuario_responsable=request.user.username, descripcion_action=descripcion_personalizado,
+                                nombre_proyecto=project.nombre_proyecto, desc_proyecto=project.desc_proyecto,
+                                estado_proyecto=project.estado_proyecto, fecha_inicio=project.fecha_inicio,
+                                fecha_fin=project.fecha_fin, scrum_master=project.scrum_master, fecha_creacion=fecha_str,
+                                id_proyecto=project)
+            log.save()
+
+            def send_email():
+
+                try:
+                    print('smtp.gmail.com')
+                    mailServer = smtplib.SMTP('smtp.gmail.com', 587)
+                    print(mailServer.ehlo())
+                    mailServer.starttls()
+                    print(mailServer.ehlo())
+                    mailServer.login('robertocarlos2022is2@gmail.com', 'xovoykuzzuuhqlbn')
+                    print('Conectado..')
+
+                    email_to = new_user.id_usuario.email
+                    # Construimos el mensaje simple
+                    mensaje = MIMEText("El Usuario con el nombre \'" + new_user.id_usuario.username + "\' ha sido agregado al proyecto \'" + project.nombre_proyecto + "\'")
+                    mensaje['From'] = 'robertocarlos2022is2@gmail.com'
+                    mensaje['To'] = email_to
+                    mensaje['Subject'] = "Gestor de Proyectos"
+
+                    mailServer.sendmail('robertocarlos2022is2@gmail.com',
+                                        email_to,
+                                        mensaje.as_string())
+
+                    print('Correo enviado correctamente')
+                except Exception as e:
+                    print(e)
+            send_email() 
+
             return redirect('/add_members/%d'%project.id)
         else:
             mensaje_error = 1
@@ -727,9 +789,56 @@ def cancelar_sprint(request, id_proyecto,id_sprint):
     out = [item for t in sprint for item in t]
     x = id_proyecto
     y = id_sprint
+
     for i in out:
         if i != 'Finalizado' or i != 'Cancelado':
             Sprint.objects.filter(id=id_sprint).update(estado_sprint='Cancelado')
+            Sprint.objects.filter(id=id_sprint).update(cancel=request.POST["cancel"])
+            sprint = Sprint.objects.get(id=id_sprint)
+            miembros = Miembro_Sprint.objects.filter(sprint=id_sprint).values_list('usuario')
+            out = [item for t in miembros for item in t]
+            emm = User.objects.filter(id__in=out).values_list('email')
+            emails = [item for t in emm for item in t]
+            project = Proyectos.objects.get(id=id_proyecto)
+            descripcion_personalizado = 'Cancelación de sprint \n Motivo:              %s\n         ' % (request.POST["cancel"])
+            #creacion de registro en la tabla log
+            fecha = datetime.now().strftime(("%d/%m/%Y - %H:%M:%S"))
+            fecha_str = str(fecha)
+            log = LogSprint(usuario_responsable=request.user.username, descripcion_action=descripcion_personalizado,
+                            nombre_sprint=sprint.nombre_sprint, desc_sprint=sprint.desc_sprint,
+                            estado_sprint=sprint.estado_sprint, duracion_dias=sprint.duracion_dias,
+                            fecha_inicio=sprint.fecha_inicio,
+                            id_proyecto=project, id_sprint=sprint,fecha_creacion=fecha_str,
+                            )
+            log.save()
+
+
+            def send_email():
+                try:
+                    print('smtp.gmail.com')
+                    mailServer = smtplib.SMTP('smtp.gmail.com', 587)
+                    print(mailServer.ehlo())
+                    mailServer.starttls()
+                    print(mailServer.ehlo())
+                    mailServer.login('robertocarlos2022is2@gmail.com', 'xovoykuzzuuhqlbn')
+                    print('Conectado..')
+
+                    email_to = emails
+                    # Construimos el mensaje simple
+                    mensaje = MIMEText("El Sprint con el nombre \'" + sprint.nombre_sprint + "\' ha sido cancelado!" + "\n" + "Motivo de cancelación: " + sprint.cancel)
+                    mensaje['From'] = 'robertocarlos2022is2@gmail.com'
+                    mensaje['To'] = ", ".join(email_to)
+                    mensaje['Subject'] = "Gestor de Proyectos"
+
+                    mailServer.sendmail('robertocarlos2022is2@gmail.com',
+                                        email_to,
+                                        mensaje.as_string())
+
+                    print('Correo enviado correctamente')
+                except Exception as e:
+                    print(e)
+
+            send_email()   
         else :
             messages.error(request, 'No se puede inicializar el sprint')
             return redirect('/action_sprint/'+str(x)+'/'+str(y))
@@ -757,28 +866,29 @@ def finalizar_sprint(request, id_proyecto,id_sprint):
 
     tipo_us_list = UserStory.objects.filter(id_sprint=out[0]).values_list('id_tipo_user_story') #Trae el tipo de US al que pertenece el US
     tipo_us_list = [item for t in tipo_us_list for item in t]
-    #
-    # if len(user_story_list) != 0:
-    #     aux = 0
-    #     for indice in range(len(user_story_list)):
-    #         estados_posicion = Estados.objects.filter(id_tipo_user_story=tipo_us_list[indice]).values_list('posicion') # se obtienen todos los estados pertenecientes al tipo de user story que pertenece el US
-    #         estados_posicion = [item for t in estados_posicion for item in t] # se obtienen las posiciones en una lista [1,2,4,3]
-    #         estados_posicion.sort() # se ordena de forma creciente
-    #
-    #         nombre_estado = Estados.objects.filter(posicion=estados_posicion[len(estados_posicion) - 1]).values_list('nombre_estado') # se obtienen todos los estados pertenecientes al tipo de user story que pertenece el US
-    #         nombre_estado = [item for t in nombre_estado for item in t]
-    #         if user_story_list[indice] != nombre_estado[0]:
-    #             aux = 1
-    #     if aux == 0:  # si todos los user story ya se han finalizados(estan ubicados en la ultima columna del kanban)
-    #         Sprint.objects.filter(id=id_sprint).update(estado_sprint='Finalizado')  # se finaliza el sprint
-    #     else:
-    #         mensaje_error = 1
-    #         return render(request, 'sprint/sprint_list.html',
-    #                       {'sprint_list': sprint_list, 'id_project': id_proyecto, 'project': project, 'out': permiso, 'mensaje_error': mensaje_error})
-    # else:
-    user_stories_list = UserStory.objects.filter(id_sprint=id_sprint, estado_definitivo='Pendiente').update(id_sprint=None)
-    Sprint.objects.filter(id=id_sprint).update(estado_sprint='Finalizado')  # se finaliza el sprint
+    user_stories_list = UserStory.objects.filter(id_sprint=id_sprint, estado_definitivo='Pendiente').values_list('id')
+    lista_us = [item for t in user_stories_list for item in t]
 
+    for l in lista_us:
+        new_user_story = UserStory.objects.get(id=l)
+        new_user_story.save()
+        new_user_story.pk = None
+        new_user_story.save() 
+        UserStory.objects.filter(id=new_user_story.id).update(id_sprint=None,encargado=None)
+        sprint = Sprint.objects.get(id=id_sprint)
+        # creacion de registro en la tabla log
+        fecha = datetime.now().strftime(("%d/%m/%Y - %H:%M:%S"))
+        fecha_str = str(fecha)
+        log = LogSprint(usuario_responsable=request.user.username, descripcion_action='Finalización de sprint',
+                            nombre_sprint=sprint.nombre_sprint, desc_sprint=sprint.desc_sprint,
+                            estado_sprint=sprint.estado_sprint, duracion_dias=sprint.duracion_dias,
+                            fecha_inicio=sprint.fecha_inicio,
+                            id_proyecto=project, id_sprint=sprint,fecha_creacion=fecha_str,
+                            )
+        log.save()
+
+    Sprint.objects.filter(id=id_sprint).update(estado_sprint='Finalizado')  # se finaliza el sprint
+    
     return render(request, 'sprint/sprint_list.html',
                   {'sprint_list': sprint_list,'id_project': id_proyecto, 'project': project, 'out': permiso,  'mensaje_error': mensaje_error})
 
@@ -960,6 +1070,7 @@ def add_members_sprint(request,id_proyecto, id_sprint):
         sprint.capacidad_restante = sprint.capacidad_restante + int(form['horas_trabajo'].value())
         new_user = form.save()
         new_user.save()
+
         return redirect('/add_members_sprint/'+str(x)+'/'+str(y))
 
     return render(request, 'sprint/add_members_sprint.html', {'sprint': sprint, 'form': form, 'id_sprint': id_sprint, 'members_sprint': members_sprint, 'id_proyecto': id_proyecto, 'project': project, 'out': out})
@@ -990,6 +1101,33 @@ def add_miembros_sprint(request, id_proyecto, id_sprint):
         existe = members_sprint.filter(sprint=sprint, usuario=user)
         if not(existe.exists()):
             new_user = form.save()
+            def send_email():
+
+                try:
+                    print('smtp.gmail.com')
+                    mailServer = smtplib.SMTP('smtp.gmail.com', 587)
+                    print(mailServer.ehlo())
+                    mailServer.starttls()
+                    print(mailServer.ehlo())
+                    mailServer.login('robertocarlos2022is2@gmail.com', 'xovoykuzzuuhqlbn')
+                    print('Conectado..')
+
+                    email_to = new_user.usuario.email
+                    # Construimos el mensaje simple
+                    mensaje = MIMEText("El Usuario con el nombre \'" + new_user.usuario.username + "\' ha sido agregado al Sprint \'" + sprint.nombre_sprint + "\'")
+                    mensaje['From'] = 'robertocarlos2022is2@gmail.com'
+                    mensaje['To'] = email_to
+                    mensaje['Subject'] = "Gestor de Proyectos"
+
+                    mailServer.sendmail('robertocarlos2022is2@gmail.com',
+                                        email_to,
+                                        mensaje.as_string())
+
+                    print('Correo enviado correctamente')
+                except Exception as e:
+                    print(e)
+
+            send_email() 
 
             # creacion de registro en la tabla log
             fecha = datetime.now().strftime(("%d/%m/%Y - %H:%M:%S"))
@@ -1116,13 +1254,79 @@ def finalizar_user_story(request, id_proyecto, id_user_story, id_tipo_us,id_spri
 
             Funcion en la cual se permite finalizar un user story
     '''
-    print('entra')
+    
     user_story = UserStory.objects.get(id=id_user_story)
-
+    project = Proyectos.objects.get(id=id_proyecto)
     user_story.estado_definitivo = 'Finalizado'
     user_story.save()
+
+    dev = User.objects.get(id=user_story.encargado.id)
+
+    def send_email():
+
+        try:
+            print('smtp.gmail.com')
+            mailServer = smtplib.SMTP('smtp.gmail.com', 587)
+            print(mailServer.ehlo())
+            mailServer.starttls()
+            print(mailServer.ehlo())
+            mailServer.login('robertocarlos2022is2@gmail.com', 'xovoykuzzuuhqlbn')
+            print('Conectado..')
+
+            email_to = dev.email
+            print(email_to)
+            # Construimos el mensaje simple
+            mensaje = MIMEText("El User Story con el nombre \'" + user_story.nombre_us + "\' ha sido aprobado")
+            mensaje['From'] = 'robertocarlos2022is2@gmail.com'
+            mensaje['To'] = ", ".join(email_to)
+            mensaje['Subject'] = "Gestor de Proyectos"
+
+            mailServer.sendmail('robertocarlos2022is2@gmail.com',
+                                email_to,
+                                mensaje.as_string())
+
+            print('Correo enviado correctamente')
+        except Exception as e:
+            print(e)
+    send_email()        
+
     return redirect('/tablero_kanban/' + str(id_proyecto) + '/' + str(id_tipo_us) + '/' + str(id_sprint))
 
+def rechazar_user_story(request, id_proyecto, id_user_story, id_tipo_us,id_sprint):
+
+    project = Proyectos.objects.get(id=id_proyecto)
+    UserStory.objects.filter(id=id_user_story).update(rechazar=request.POST['rechazar'])
+    user_story = UserStory.objects.get(id=id_user_story)
+    dev = User.objects.get(id=user_story.encargado.id)
+    
+    def send_email():
+        try:
+            print('smtp.gmail.com')
+            mailServer = smtplib.SMTP('smtp.gmail.com', 587)
+            print(mailServer.ehlo())
+            mailServer.starttls()
+            print(mailServer.ehlo())
+            mailServer.login('robertocarlos2022is2@gmail.com', 'xovoykuzzuuhqlbn')
+            print('Conectado..')
+
+            email_to = dev.email
+            # Construimos el mensaje simple
+            mensaje = MIMEText("El User Story con el nombre \'" + user_story.nombre_us + "\' ha sido rechazado!" + "\n" + "Motivo de cancelación: " + user_story.rechazar)
+            mensaje['From'] = 'robertocarlos2022is2@gmail.com'
+            mensaje['To'] = email_to
+            mensaje['Subject'] = "Gestor de Proyectos"
+
+            mailServer.sendmail('robertocarlos2022is2@gmail.com',
+                                email_to,
+                                mensaje.as_string())
+
+            print('Correo enviado correctamente')
+        except Exception as e:
+            print(e)
+
+    send_email()       
+
+    return redirect('/tablero_kanban/' + str(id_proyecto) + '/' + str(id_tipo_us) + '/' + str(id_sprint))
 
 def update_sprint_user_story(request, id_proyecto, id_user_story, id_sprint):
 
@@ -1598,7 +1802,7 @@ def update_user_story_kanban_avanzar(request, id_proyecto, id_user_story, id_tip
                     mensaje = MIMEText("El User Story con el nombre \'" + user_story.nombre_us + "\' necesita aprovación para finalizar")
                     mensaje['From'] = 'robertocarlos2022is2@gmail.com'
                     mensaje['To'] = ", ".join(email_to)
-                    mensaje['Subject'] = "Tienes un correo"
+                    mensaje['Subject'] = "Gestor de Proyectos"
 
                     mailServer.sendmail('robertocarlos2022is2@gmail.com',
                                         email_to,
@@ -1607,7 +1811,6 @@ def update_user_story_kanban_avanzar(request, id_proyecto, id_user_story, id_tip
                     print('Correo enviado correctamente')
                 except Exception as e:
                     print(e)
-
 
             send_email()
 
@@ -1704,6 +1907,7 @@ def tipos_us_list_kbn(request,id_proyecto,id_sprint):
     tipo_us = UserStory.objects.filter(id__in=a).values_list('id_tipo_user_story')
     b = [item for t in tipo_us for item in t]
     list_tipo_us = Tipo_User_Story.objects.filter(id__in=b)
+    print(list_tipo_us)
 
     out = permisos(request.user.id,id_proyecto)    
 

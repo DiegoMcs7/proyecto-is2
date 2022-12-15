@@ -136,29 +136,91 @@
                                   </button>
                                   {% endif %}
 
+                                  <!--Modal para inicializar-->
+                                  <div class="modal fade" id="incializarModal-{{ p.id }}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                      <div class="modal-content">
+                                        <div class="modal-header">
+                                          <h1 class="modal-title fs-5" id="incializarModalLabel">Inicializar</h1>
+                                          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                          ¿Desea inicializar el Sprint?
+                                        </div>
+                                        <div class="modal-footer">
+                                          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" ><a href="{% url 'sprint-list' id_project %}" style="color:#ffff; text-decoration: none;">No</a></button>
+                                          <button type="button" class="btn btn-primary"> <a href="{% url 'inicializar_sprint' id_project p.pk %}" style="color:#ffff; text-decoration: none;">Si</a></button>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+  
+                               <!--Modal para finalizar-->
+                                   <div class="modal fade" id="finalizarModal-{{ p.id }}" tabindex="-1"  aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                      <div class="modal-content">
+                                        <div class="modal-header">
+                                          <h1 class="modal-title fs-5" id="finalizarModalLabel">Finalizar</h1>
+                                          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                          ¿Desea finalizar el Sprint?
+                                        </div>
+                                        <div class="modal-footer">
+                                          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" ><a href="{% url 'sprint-list' id_project %}" style="color:#ffff; text-decoration: none;">No</a></button>
+                                          <button type="button" class="btn btn-primary"> <a href="{% url 'finalizar_sprint' id_project p.pk %}" style="color:#ffff; text-decoration: none;">Si</a></button>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                               <!--Modal para cancelar-->
+                                <div class="modal fade" id="cancelarModal-{{ p.id }}" tabindex="-1"  aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                      <div class="modal-content">
+                                        <div class="modal-header">
+                                          <h1 class="modal-title fs-5" id="cancelarModalLabel">Cancelar</h1>
+                                          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                          ¿Desea cancelar el Sprint?
+                                        </div>
+                                        <form class="text-danger" style="margin-left:15px;" action="{% url 'cancelar_sprint' id_project p.pk %}" method="post">
+                                          {% csrf_token %}
+                                          <label for="cancel">Motivo de cancelación: </label>
+                                          <input id="cancel" type="text" name="cancel" value="{{ cancel }}">
+                                          <input style="margin-top:15px; margin-left:400px;" type="submit" value="OK">
+                                        </form>
+                                        <div class="modal-footer">
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+
                                   <ul class="dropdown-menu">
                                     {% if 'Can change sprint' in out and p.estado_sprint != 'Cancelado'%}
                                         <li><a class="dropdown-item" href="{% url 'update-sprint' id_project p.pk %}">Editar</a></li>
                                     {% endif %}
 
                                     {% if p.estado_sprint != 'Iniciado' and p.estado_sprint != 'Cancelado' and p.estado_sprint != 'Finalizado'%}
-                                        <li><a class="dropdown-item" href="{% url 'inicializar_sprint' id_project p.pk %}">Inicializar</a></li>
+                                        <li><a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#incializarModal-{{ p.id }}" href="{% url 'inicializar_sprint' id_project p.pk %}">Inicializar</a></li>
                                     {% endif %}
 
                                     {% if p.estado_sprint != 'Finalizado' and p.estado_sprint != 'Cancelado' and p.estado_sprint != 'Planificado' %}
-                                        <li><a class="dropdown-item" href="{% url 'finalizar_sprint' id_project p.pk %}">Finalizar</a></li>
+                                        <li><a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#finalizarModal-{{ p.id }}"  href="{% url 'finalizar_sprint' id_project p.pk %}">Finalizar</a></li>
                                     {% endif %}
 
                                     {% if p.estado_sprint == 'Iniciado' or p.estado_sprint == 'Planificado' %}
-                                        <li><a class="dropdown-item" href="{% url 'cancelar_sprint' id_project p.pk %}">Cancelar</a></li>
+                                        <li><a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#cancelarModal-{{ p.id }}" href="{% url 'cancelar_sprint' id_project p.pk %}">Cancelar</a></li>
                                     {% endif %}
 
                                   </ul>
                               </div>
                            {% endif %}
                     </td>
+                    {% if p.estado_sprint != 'Planificado' %}
                     <td style="padding:10px;" class="script" data-href="{% url 'tipos_us-list-kbn' project.id p.pk %}"><button type="button" class="btn btn-info">Kanban</button></td>
                     <td style="padding:10px;" class="script" data-href="{% url 'burndown' id_project p.pk %}"><button type="button" class="btn btn-primary">BurnDownChart</button></td>
+                    {% endif %}
                     <td style="padding:10px;" class="script" data-href="{% url 'log-sprint' project.id p.pk %}"><button type="button" class="btn btn-secondary">Historial</button></td>
 
                 </tr>

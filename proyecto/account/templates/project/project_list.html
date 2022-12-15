@@ -84,7 +84,6 @@
                                     </div>
                                   </div>
   
-  
                                <!--Modal para inicializar-->
                                    <div class="modal fade" id="incializarModal-{{ i.id }}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                                     <div class="modal-dialog">
@@ -133,15 +132,13 @@
                                         <div class="modal-body">
                                           ¿Desea cancelar el proyecto?
                                         </div>
-                                        <form action="{% url 'cancelar_proyecto' i.id %}" method="post">
-                                          {% csrf_token %}
-                                          <label for="cancelar">Motivo de cancelación: </label>
-                                          <input id="cancelar" type="text" name="cancelar" value="{{ cancelar }}">
-                                          <input type="submit" value="OK">
-                                        </form>
+                                            <form class="text-danger" style="margin-left:15px;" action="{% url 'cancelar_proyecto' i.id %}" method="post">
+                                              {% csrf_token %}
+                                              <label for="cancelar">Motivo de cancelación: </label>
+                                              <input id="cancelar" type="text" name="cancelar" value="{{ cancelar }}">
+                                              <input style="margin-top:15px; margin-left:400px;" type="submit" value="OK">
+                                            </form>
                                         <div class="modal-footer">
-                                          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" ><a href="{% url 'list-projects'%}" style="color:#ffff; text-decoration: none;">No</a></button>
-                                          <button type="button" class="btn btn-primary"> <a href="{% url 'cancelar_proyecto' i.id %}" style="color:#ffff; text-decoration: none;">Si</a></button>
                                         </div>
                                       </div>
                                     </div>

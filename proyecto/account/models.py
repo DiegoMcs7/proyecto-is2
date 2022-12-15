@@ -211,6 +211,7 @@ class UserStory(models.Model):
         ('Finalizado', 'Finalizado'),
     ]
     estado_definitivo = models.TextField(max_length=11, choices=estados, default='Pendiente')
+    rechazar = models.TextField(null=True)
 
     @property
     def us_exist(self):
@@ -422,6 +423,7 @@ class Sprint(models.Model):
     capacidad = models.IntegerField(default=0) #Capacidad de produccion
     capacidad_restante = models.IntegerField(default=0) #Horas restantes del sprint
     id_proyecto = models.ForeignKey("Proyectos",on_delete=models.CASCADE,blank=True,null=True)
+    cancel = models.TextField(null=True)
 
     def __str__(self):
         return self.nombre_sprint
