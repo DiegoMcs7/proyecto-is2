@@ -413,14 +413,16 @@ class ReasignarEncargadoForm(ModelForm):
 class TareaUserStoryForm(ModelForm):
     class Meta:
         model = TareaUserStory
-        fields = ('fecha', 'desc_tarea', 'duracion')
+        fields = ('fecha', 'desc_tarea', 'duracion','id_user_story')
         labels = {'duracion': 'Duración',
                   'fecha': 'Fecha',
                   'desc_tarea': 'Descripción',
+                  'id_user_story': 'User Story',
                   }
         widgets = {
             'fecha': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
             'duracion': forms.NumberInput(attrs={'class': 'form-control',  'placeholder': 'Duración en horas'}),
             'desc_tarea': forms.Textarea(attrs={'class': 'form-control', 'style': 'height: 30%;'}),
+            'id_user_story': forms.HiddenInput(attrs={'class': 'form-control', 'placeholder': 'User Story'}),
 
         }

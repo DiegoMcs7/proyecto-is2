@@ -43,14 +43,27 @@ def tablero(request):
     return render(request, 'account/tablero.html', {'section': 'tablero'})
 
 def burndown(request,id_proyecto,id_sprint):
+    '''
+         Accion generar burdown chart
+         fecha: 15/12/2022
+
+             Funcion que permite generar el burdown chart
+    '''
 
     sprint = Sprint.objects.filter(id=id_sprint)
+    s = Sprint.objects.get(id=id_sprint)
     project = Proyectos.objects.get(id=id_proyecto)
     sprint_js = serializers.serialize('json', sprint)
     user_story = UserStory.objects.filter(id_sprint=id_sprint)
+    x = UserStory.objects.filter(id_sprint=id_sprint).values_list('id')
+    out = [item for t in x for item in t]
+    y = TareaUserStory.objects.filter(id_user_story__in=out)
+    tarea_js = serializers.serialize('json', y)
     us_js = serializers.serialize('json', user_story)
-   
-    return render(request, 'burndown/index.html', {'project': project,'sprint': sprint,'data_sprint': sprint_js,'data_us': us_js})
+    #tarea_js = TareaUserStory.objects.filter(id_user_story=id_user_story)
+    #print(tarea_js)
+    
+    return render(request, 'burndown/index.html', {'project': project,'s': s,'data_sprint': sprint_js,'data_us': us_js,'data_tarea': tarea_js})
 
 def register(request):
     '''  
@@ -904,12 +917,14 @@ def all_sprints(request,id):
     '''
     sprint_list = Sprint.objects.all().order_by('id')
     project = Proyectos.objects.get(id=id)
+    id_us = UserStory.objects.filter(id_sprint=id)
+    print("aaaaaaa",id)
     mensaje_error = 0
 
     out = permisos(request.user.id,id)
                                                              
     return render(request, 'sprint/sprint_list.html',
-                  {'sprint_list': sprint_list,'id_project': id, 'project': project, 'out': out,  'mensaje_error': mensaje_error})
+                  {'sprint_list': sprint_list,'id_project': id, 'project': project, 'out': out,  'mensaje_error': mensaje_error, 'id_us': id_us})
 
 
 def add_sprint(request,id):
@@ -1249,10 +1264,11 @@ def update_user_story(request, id_proyecto, id_user_story):
 def finalizar_user_story(request, id_proyecto, id_user_story, id_tipo_us,id_sprint):
 
     '''
-        Accion finalizar user story
-        fecha: 4/11/2022
+         Accion finalizar user story
+         fecha: 15/12/2022
 
-            Funcion en la cual se permite finalizar un user story
+             Funcion que permite al Scrum Master finalizar user story, y posteriormente enviar un correo al desarrollador indicando
+             que el User Story fue finalizado
     '''
     
     user_story = UserStory.objects.get(id=id_user_story)
@@ -1293,6 +1309,12 @@ def finalizar_user_story(request, id_proyecto, id_user_story, id_tipo_us,id_spri
     return redirect('/tablero_kanban/' + str(id_proyecto) + '/' + str(id_tipo_us) + '/' + str(id_sprint))
 
 def rechazar_user_story(request, id_proyecto, id_user_story, id_tipo_us,id_sprint):
+    '''
+        Accion rechazar user story
+        fecha: 15/12/2022
+
+            Funcion que permite al Scrum Master rechazar un pedido de finalización del user story por parte de un desarrollador
+    '''
 
     project = Proyectos.objects.get(id=id_proyecto)
     UserStory.objects.filter(id=id_user_story).update(rechazar=request.POST['rechazar'])
@@ -1944,7 +1966,7 @@ def add_tarea_us(request, id_proyecto, id_user_story, id_tipo_us, id_sprint):
     user_story = UserStory.objects.get(id=id_user_story)
     sprint = Sprint.objects.get(id=id_sprint)
     project = Proyectos.objects.get(id=id_proyecto)
-    form = TareaUserStoryForm(request.POST or None, initial={'id_user_story_id': id_user_story})
+    form = TareaUserStoryForm(request.POST or None, initial={'id_user_story': user_story})
     if form.is_valid():
         tarea_us = form.save()
         user_story.horas_trabajadas = user_story.horas_trabajadas + form.cleaned_data['duracion']
