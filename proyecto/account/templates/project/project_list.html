@@ -159,7 +159,7 @@
                                           <li><a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#finalizarModal-{{ i.id }}">Finalizar</a></li>
   
                                        {% endif %}
-                                        {% if 'Can change proyectos' in value and i.estado_proyecto == 'Iniciado' or i.estado_proyecto == 'Planificado' %}
+                                        {% if 'Can change proyectos' in value and i.estado_proyecto == 'Planificado' or i.estado_proyecto == 'Iniciado' %}
                                           <li><a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#cancelarModal-{{ i.id }}">Cancelar</a></li>
                                         {% endif %}
                                     {% endif %}

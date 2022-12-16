@@ -20,6 +20,7 @@
         }
     </style>
 </head>
+
 <body style="overflow: overlay;">
     <div id="header">
              <a href="{% url "tablero" %}"><span class="logo" style="color:#df8a3d; margin-left:-5%; margin-top:7px"> <i class="bi bi-grid-3x3-gap-fill"></i></span></a>
@@ -92,12 +93,38 @@
                     <td style="padding:10px;">{{p.prioridad_final}}</td>
                     <td style="padding:10px;">{{p.id_sprint.nombre_sprint}}</td>
                     <td style="padding:10px;">{{p.estado_definitivo}}</td>
-                   
-                    <!--Solo el product owner puede cambiar la prioridad de un us-->
-                    {% if project.estado_proyecto == 'Planificado' or project.estado_proyecto == 'Iniciado' %}
-                    {% if 'Can change user story' in out or request.user.is_superuser %}
-                    <td style="padding:10px;"><a href="{% url 'update-user_story' id_project p.id %}">Editar</a></td>
-                    {% endif %}
+                    <div class="modal fade" id="cancelarModal-{{ i.id }}" tabindex="-1" aria-labelledby="exampleModalLabel"
+                     aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h1 class="modal-title fs-5" id="cancelarModalLabel">Cancelar</h1>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                ¿Desea rechazar el User Story?
+                            </div>
+                            <form class="text-danger" style="margin-left:15px;"
+                                  action="{% url 'cancelar-user_story' id_project p.id %}"
+                                  method="post">
+                                {% csrf_token %}
+                                <label for="cancelar">Motivo de cancelación: </label>
+                                <input id="cancelar" type="text" name="cancelar" value="{{ cancelar }}">
+                                <input style="margin-top:15px; margin-left:400px;" type="submit" value="OK">
+                            </form>
+                            <div class="modal-footer">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                   <!--Solo el product owner puede cambiar la prioridad de un us-->
+                    {% if project.estado_proyecto == 'Planificado' or project.estado_proyecto == 'Iniciado'%}
+                        {% if 'Can delete user story' in out or request.user.is_superuser %}
+
+                            <td style="padding:10px;"><a href="{% url 'update-user_story' id_project p.id %}">Editar</a></td>
+                            <td style="padding:10px;"><a data-bs-toggle="modal" data-bs-target="#cancelarModal-{{ i.id }}" href="{% url 'cancelar-user_story' id_project p.id %}">Cancelar</a></td>
+
+                        {% endif %}
                     {% endif %}
                 </tr>
 

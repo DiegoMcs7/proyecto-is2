@@ -368,19 +368,27 @@ def finalizar_proyecto(request, id):
     x = [item for t in sprint_id for item in t]
     estado_sprint = Sprint.objects.filter(id__in=x).values_list('estado_sprint')
     y = [item for t in estado_sprint for item in t]
+    us_pendientes = UserStory.objects.filter(id_proyecto=id, estado_definitivo='Pendiente').values_list('id')
     sprints = Sprint.objects.filter(id__in=x)
 
     lista_sprints = []
 
-    if 'Planificado' in y or 'Iniciado' in y:
-        for sprint in sprints:
-            if sprint.estado_sprint == 'Planificado' or sprint.estado_sprint == 'Iniciado' :
-                lista_sprints.append(sprint.nombre_sprint)
-        if len(lista_sprints) == 1:
-            messages.error(request, 'No puedes realizar la acción ya que el sprint '+lista_sprints[0]+' no ha sido finalizado o cancelado')
+    if 'Planificado' in y or 'Iniciado' in y or len(us_pendientes) > 0:
+        if len(us_pendientes) > 0:
+            if len(us_pendientes) == 1:
+                messages.error(request, 'No puedes realizar la acción ya que un User Story no ha sido finalizado o cancelado')
+            else:
+                messages.error(request,
+                               'No puedes realizar la acción ya que algunos User Stories no ha sido finalizados o cancelados')
         else:
-            c = ','.join(lista_sprints)
-            messages.error(request, 'No puedes realizar la acción ya que los sprints '+c+' no han sido finalizados o cancelado')
+            for sprint in sprints:
+                if sprint.estado_sprint == 'Planificado' or sprint.estado_sprint == 'Iniciado' :
+                    lista_sprints.append(sprint.nombre_sprint)
+            if len(lista_sprints) == 1:
+                messages.error(request, 'No puedes realizar la acción ya que el sprint '+lista_sprints[0]+' no ha sido finalizado o cancelado')
+            else:
+                c = ','.join(lista_sprints)
+                messages.error(request, 'No puedes realizar la acción ya que los sprints '+c+' no han sido finalizados o cancelado')
     else:
         Proyectos.objects.filter(id=id).update(estado_proyecto='Finalizado')
         #creacion de registro en la tabla log
@@ -1260,6 +1268,21 @@ def update_user_story(request, id_proyecto, id_user_story):
 
     return render(request, 'user_story/update_user_story.html', {'user_story': user_story, 'form': form, 'id_proyecto': id_proyecto, 'project': project})
 
+def cancelar_user_story(request, id_proyecto, id_user_story):
+
+    '''
+        Cancelar user story
+        fecha: 16/12/2022
+
+            Vista que permite cancelar un user story
+    '''
+
+    project = Proyectos.objects.get(id=id_proyecto)
+    user_story = UserStory.objects.get(id=id_user_story)
+    UserStory.objects.filter(id_proyecto=id_proyecto, nombre_us=user_story.nombre_us).update(estado_definitivo='Cancelado')
+    UserStory.objects.filter(id_proyecto=id_proyecto, nombre_us=user_story.nombre_us).update(cancelar="Cancelado")
+
+    return HttpResponseRedirect('/user_story/%d'%id_proyecto)
 
 def finalizar_user_story(request, id_proyecto, id_user_story, id_tipo_us,id_sprint):
 

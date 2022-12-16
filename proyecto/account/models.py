@@ -155,6 +155,10 @@ class Rol(models.Model):
     def __str__(self):
         return self.rol
 
+    @property
+    def rol_exist(self):
+        return self.id_rol > 0
+
 
 class LogRol(models.Model):
     '''
@@ -212,6 +216,7 @@ class UserStory(models.Model):
     ]
     estado_definitivo = models.TextField(max_length=11, choices=estados, default='Pendiente')
     rechazar = models.TextField(null=True)
+    cancelar = models.TextField(null=True)
 
     @property
     def us_exist(self):
@@ -355,6 +360,10 @@ class Estados(models.Model):
 
     def __str__(self):
         return self.nombre_estado
+
+    @property
+    def estados_exist(self):
+        return self.id_estados > 0
 
 
 class LogEstados(models.Model):

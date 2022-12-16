@@ -79,6 +79,8 @@
 
           h = lista_ht[d];
 
+        }else{
+            lista_ht[d] = 0;
         }
         
       }
@@ -120,6 +122,14 @@
       listDate.push(strDate);
       dateMove.setDate(dateMove.getDate()+1);
     };
+    var listadias = [];
+    listadias[0]=fecha_inicio
+
+    for(var i=1; i<=duracion; i++){
+
+      listadias[i] = "Dia "+i;
+
+    }
 
     function sumArrayUpTo(arrData, index) {
       var total = 0;
@@ -156,7 +166,7 @@
 
       i=0;
       var speedData = {
-        labels: listDate,
+        labels: listadias,
         datasets: [
           {
             label: "Burndown",

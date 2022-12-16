@@ -70,5 +70,5 @@ urlpatterns = [
     path('reasignar_encargado/<int:id_proyecto>/<int:id_user_story>/<int:id_sprint>', views.reasignar_encargado, name="reasignar-encargado"),
     path('reasignar_miembros_sprint/<int:id_proyecto>/<int:id_sprint>/<int:id_miembro>', views.reasignar_miembros_sprint, name="reasignar-miembros-sprint"),
     path('add_tarea_us/<int:id_proyecto>/<int:id_user_story>/<int:id_tipo_us>/<int:id_sprint>', views.add_tarea_us, name='add-tarea-us'),
-
+    path('cancelar_user_story/<int:id_proyecto>/<int:id_user_story>', views.cancelar_user_story, name='cancelar-user_story'),
 ]
