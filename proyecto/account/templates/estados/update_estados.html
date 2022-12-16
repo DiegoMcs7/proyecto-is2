@@ -5,6 +5,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@500&display=swap" rel="stylesheet">
+    <link rel="shortcut icon" href="{%  static 'favicon.ico' %}">
 
 
 
@@ -56,10 +57,14 @@
 
 
 
-
+    <div style="margin-left: 2%;margin-top: 3%;">
+        <h1 style="color:#A0A7AC">{{tipous.nombre_tipo_us}}</h1>
+    </div>
 {% if user.is_authenticated %}
-	<h1>Editar Estado</h1>
-<br/><br/>
+    <div style="margin-left: 2%;margin-top: 1%;">
+        <h4 style="color:#A0A7AC">Editar estado<h4/>
+    </div>
+    <br/><br/>
 
 {% if submitted %}
 
@@ -72,8 +77,10 @@
 			{% csrf_token %}
 
 			{{ form.as_p }}
-
-			<input type="submit" value="Actualizar" class="btn btn-secondary">
+            <div style="display:flex;">
+                <input type="submit" value="Actualizar" class="btn btn-secondary">
+                <a class="button" href="{% url 'estados-list' project.id tipous.id %}" style="margin-left: 15px; text-decoration: none; font-family: Arial, Helvetica, sans-serif; background-color: slategray;">Cancelar</a>
+            </div>
 
 		</form>
 			</div>

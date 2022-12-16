@@ -7,7 +7,7 @@ from .models import Estados, Miembro_Sprint, Miembros, Profile, Proyectos, Rol, 
 from django.shortcuts import render, redirect
 from .forms import AddMembersForm, AddMembersSprintForm, EstadosForm, ProyectosForm, RolForm, TipoUsForm, UserEditForm, \
     UserRegistrationForm, \
-    SprintForm, UserStoryForm, AsignarEstadosTipoUsForm
+    SprintForm, UserStoryForm
 from django.contrib.auth.decorators import login_required
 from tablib import Dataset
 from django.contrib import messages

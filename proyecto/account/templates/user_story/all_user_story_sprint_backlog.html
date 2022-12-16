@@ -5,6 +5,7 @@
      <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@500&display=swap" rel="stylesheet">
+    <link rel="shortcut icon" href="{%  static 'favicon.ico' %}">
 
 
     <title>Menu </title>
@@ -21,7 +22,7 @@
 </head>
 <body style="overflow: overlay;">
     <div id="header">
-             <a href="{% url "tablero" %}"><span class="logo" style="color:#df8a3d; margin-left:-5%; margin-top:7px"> <i class="bi bi-grid-3x3-gap-fill"></i></span></a>
+        <a href="{% url "tablero" %}"><span class="logo" style="color:#df8a3d; margin-left:-5%; margin-top:7px"> <i class="bi bi-grid-3x3-gap-fill"></i></span></a>
        <a href="{% url "tablero" %}"><span class="logo" style="color:#df8a3d; margin-left:-8%; font-family: 'Noto Sans', sans-serif; font-size: 1.500em;"> {{ project.nombre_proyecto }}</span></a>
 
         {% if request.user.is_authenticated %}
@@ -56,8 +57,6 @@
 <h1> Asignar user story a "{{sprint.nombre_sprint}}"</h1>
 <br/>
 
-
-
 <div>
         <script>
             document.addEventListener("DOMContentLoaded", () => {
@@ -75,8 +74,9 @@
                       <th>Nombre</th>
                       <th>Descripción</th>
                       <th>Horas Estimadas</th>
-                      <th>Prioridad de us</th>
+                      <th>Prioridad</th>
                       <th>Encargado</th>
+                      <th>Horas Trabajadas</th>
                     </tr>
                 </thead>
             {% for p in user_story_list %}
@@ -85,15 +85,19 @@
                     style="tr:hover {background-color: #77bdff;}">
                     <td style="padding:10px;">{{p.nombre_us}}</td>
                     <td style="padding:10px;">{{p.desc_us}}</td>
-                    <td style="padding:10px;">{{p.horas_estimadas}} hs</td>
-                    <td style="padding:10px;">{{p.prioridad_us}}</td>
+                    <td style="padding:10px;">{{p.horas_estimadas}}hs</td>
+                    <td style="padding:10px;">{{p.prioridad_final}}</td>
                     {% if p.encargado == None %}
                         <td style="padding:10px;"> </td>
                     {% else %}
-                        <td style="padding:10px;">{{p.encargado}}</td>
+                        <td style="padding:10px;">{{p.encargado}}/</td>
                     {% endif %}
+                    <td style="padding:10px;">{{p.horas_trabajadas}}hs</td>
+
                     {% if 'Can change miembro_ sprint' in out or p.encargado == request.user %}
+                    {% if sprint.estado_sprint == 'Planificado' %}
                     <td style="padding:10px;"><a href="{% url 'update-sprint-user-story' id_project p.id sprint.id %}">Asignar</a></td>
+                    {% endif %}
                     {% endif %}
                 </tr>
                 {% endif %}

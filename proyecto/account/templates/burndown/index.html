@@ -1,0 +1,299 @@
+{% load static %}
+
+<html>
+  
+  <!-- See live at https://codepen.io/paulera/pen/ejGKEr -->
+  
+  <head>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@500&display=swap" rel="stylesheet">
+    <link rel="shortcut icon" href="{%  static 'favicon.ico' %}">
+
+
+    <title>Listar tipo de user story </title>
+    <link rel="stylesheet" type="text/css" href="{% static "css/base.css" %}" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-iYQeCzEYFbKjA/T2uDLTpkwGzCiq6soy8tYaI1GyVh/UjpbCx/TYkiZhlZB6+fzT" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css"/>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-OERcA2EqjJCMA+/3y+gxIOqMEjwtxJY7qPCqsdltbNJuaOe923+mo//f6V8Qbsw3" crossorigin="anonymous"></script>
+
+    <style>
+        a{
+        font-size: 1.03em;
+        font-family: 'Noto Sans', sans-serif;
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script>
+    <script>
+    /**
+     * Sum elements of an array up to the index provided.
+     */
+
+    var data_sprint = JSON.parse("{{data_sprint|escapejs}}");
+    var data_us = JSON.parse("{{data_us|escapejs}}");
+    var data_tarea = JSON.parse("{{data_tarea|escapejs}}");
+
+    var fecha_inicio = data_sprint[0]['fields']['fecha_inicio'];
+    var duracion = data_sprint[0]['fields']['duracion_dias'];
+    var horas_trabajadas = data_us[0]['fields']['horas_trabajadas'];
+    var horas_estimadas = data_us[0]['fields']['horas_estimadas'];
+    var tareas_duracion = data_tarea[0]['fields']['duracion'];
+
+    fecha_fin = calcular(fecha_inicio, duracion);
+
+    var h = 0;
+
+    for ( let d in data_sprint){
+
+      h = h + data_sprint[d]['fields']['capacidad'];//capacidad en horas
+
+    }
+
+    for(let x in data_tarea){
+      for(let y in data_tarea){
+
+        if(x != y && data_tarea[x]['fields']['duracion'] == 0){
+
+          if(data_tarea[x]['fields']['fecha'] == data_tarea[y]['fields']['fecha']){
+
+          data_tarea[x]['fields']['duracion'] = data_tarea[x]['fields']['duracion'] + data_tarea[y]['fields']['duracion'];
+          data_tarea[y]['fields']['duracion'] = 0;
+
+          }
+
+        }
+
+      }
+    }
+
+    var lista_ht = [];
+
+    for(let d in data_tarea){
+
+      if(data_tarea[d]['fields']['duracion']!=0){
+
+        if(h - data_tarea[d]['fields']['duracion']>=0){
+
+          lista_ht[d] = h - data_tarea[d]['fields']['duracion'];
+
+          h = lista_ht[d];
+
+        }else{
+            lista_ht[d] = 0;
+        }
+        
+      }
+    
+    }
+
+    console.log(lista_ht);
+
+    var lista_he = [];
+
+    for(let d in data_us){
+
+      lista_he[d] = 0;
+
+    }
+
+    function calcular(fecha, dias) {
+      var date = fecha.split("-"),
+      hoy = new Date(date[0], date[1], date[2]),
+      dias = parseInt(dias),
+      calculado = new Date(),
+      dateResul = hoy.getDate() + dias;
+      calculado.setDate(dateResul);
+
+      resultado = calculado.getFullYear() + "-"  + (calculado.getMonth() + 1) + "-" + calculado.getDate();
+      
+      return(resultado);
+
+    }
+
+    var listDate = [];
+    var startDate = fecha_inicio;
+    var endDate = fecha_fin;
+    var dateMove = new Date(startDate);
+    var strDate = startDate;
+
+    while (strDate < endDate){
+      var strDate = dateMove.toISOString().slice(0,10);
+      listDate.push(strDate);
+      dateMove.setDate(dateMove.getDate()+1);
+    };
+    var listadias = [];
+    listadias[0]=fecha_inicio
+
+    for(var i=1; i<=duracion; i++){
+
+      listadias[i] = "Dia "+i;
+
+    }
+
+    function sumArrayUpTo(arrData, index) {
+      var total = 0;
+      for (var i = 0; i <= index; i++) {
+        if (arrData.length > i) {
+          total += arrData[i];
+            }
+      }
+      return total;
+      
+    }
+
+    function showBurnDown(elementId, burndownData, scopeChange = []) {
+
+      var speedCanvas = document.getElementById(elementId);
+
+      Chart.defaults.global.defaultFontFamily = "Arial";
+      Chart.defaults.global.defaultFontSize = 14;
+
+      const totalHoursInSprint = burndownData[0];
+      const idealHoursPerDay = totalHoursInSprint / duracion ;
+
+      var list = [];
+
+      c = 0;
+
+      for (var x = 0; x<=duracion; x++){
+
+          list[x] = Math.round(totalHoursInSprint - (idealHoursPerDay * c) + sumArrayUpTo(scopeChange, c));
+
+          c++;
+
+      }
+
+      i=0;
+      var speedData = {
+        labels: listadias,
+        datasets: [
+          {
+            label: "Burndown",
+            data: burndownData,
+            fill: false,
+            borderColor: "#EE6868",
+            backgroundColor: "#EE6868",
+            lineTension: 0,
+          },
+          {
+            label: "Ideal",
+            borderColor: "#6C8893",
+            backgroundColor: "#6C8893",
+            lineTension: 0,
+            borderDash: [5, 5],
+            fill: false,
+            data: list
+            
+          },
+        ],
+        
+      };
+
+      var chartOptions = {
+        legend: {
+          display: true,
+          position: 'top',
+          labels: {
+            boxWidth: 80,
+            fontColor: 'black'
+          }
+        },
+        scales: {
+            yAxes: [{
+                ticks: {
+                    min: 0,
+                    max: Math.round(data_sprint[0]['fields']['capacidad'])
+                },
+                scaleLabel: {
+                display: true,
+                labelString: 'Horas'
+                },
+            }],
+            xAxes: [{
+                scaleLabel: {
+                display: true,
+                labelString: 'Dias'
+                },
+            }],
+            
+        }
+      };
+
+      var lineChart = new Chart(speedCanvas, {
+        type: 'line',
+        data: speedData,
+        options: chartOptions
+      });
+
+    }
+    </script>
+  </head>
+  <style>
+    
+    @media print{
+
+      #asd *{display:none}
+      #header *{display:none}
+      #burndown43,#burndown43 *{display:block}
+
+    }  
+      
+  </style>
+  <body>
+    <div id="header">
+      <a href="{% url "tablero" %}"><span class="logo" style="color:#df8a3d; margin-left:-5%; margin-top:7px"> <i class="bi bi-grid-3x3-gap-fill"></i></span></a>
+     <a href="{% url "tablero" %}"><span class="logo" style="color:#df8a3d; margin-left:-8%; font-family: 'Noto Sans', sans-serif; font-size: 1.500em;"> {{ project.nombre_proyecto }}</span></a>
+      {% if request.user.is_authenticated %}
+        <ul class="menu">
+            <li>
+            <a href="{% url "list-projects" %}">Proyectos</a>
+            </li>
+            <li>
+            <a href="{% url "tipos_us-list" project.id %}">Tipo US</a></a>
+            </li>
+            <li>
+            <a href="{% url "sprint-list" project.id %}">Sprints</a>
+            </li>
+             <li>
+            <a href="{% url "user_story-list" project.id %}">Product Backlog</a>
+            </li>
+             <li>
+            <a href="{% url "list-roles" project.id %}">Roles</a>
+            </li>
+        </ul>
+        {% endif %}
+        <span class="user">
+            {% if request.user.is_authenticated %}
+            Hola, {{ request.user.first_name }}..
+            <a style="color:#df8a3d" href="{% url "logout" %}">Cerrar Sesión</a>
+            {% else %}
+            <a href="{% url "login" %}">Iniciar Sesión</a>
+            {% endif %}
+        </span>
+  </div>
+    <h1>Burndown Chart/{{s.nombre_sprint}}</h1>
+    <div style="width:1000px;display:block;margin:0 auto;"><canvas id="burndown43"></canvas></div>
+    <script>
+    showBurnDown (
+      "burndown43",
+      lista_ht, // burndown data horas trabajadas
+      lista_he // scope change horas estimadas
+    );
+    </script>
+        <div id="asd" style="margin-left: 3%;margin-top: 3%;">
+          <a class="button" href="{% url "sprint-list" project.id %}" style="text-decoration: none; font-family: Arial, Helvetica, sans-serif; background-color: slategray;">Volver</a>
+          <button id="print"><a class="button" href="#" style="text-decoration: none; font-family: Arial, Helvetica, sans-serif; background-color: slategray;">Descargar en PDF</a></button>
+          <script>
+            const printmn = document.getElementById('print');
+            printmn.addEventListener('click',function(){
+
+              print();
+
+            });
+          </script>
+       </div>
+       
+  </body>
+</html>
+

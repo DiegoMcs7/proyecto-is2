@@ -13,7 +13,7 @@ class TestModels:
         warnings.warn(UserWarning("Testeando Modelo Proyecto"))
 
     def test_rol_exist(self):
-        rol = mixer.blend('account.Rol', id_rol=2)
+        rol = mixer.blend('account.Rol', id_rol=1)
         assert rol.rol_exist == True,"Modelo Rol no existe"
 
         warnings.warn(UserWarning("Testeando Modelo Roles "))

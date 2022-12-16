@@ -5,6 +5,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@500&display=swap" rel="stylesheet">
+    <link rel="shortcut icon" href="{%  static 'favicon.ico' %}">
 
 
     <title>Listar tipo de user story </title>
@@ -12,6 +13,8 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-iYQeCzEYFbKjA/T2uDLTpkwGzCiq6soy8tYaI1GyVh/UjpbCx/TYkiZhlZB6+fzT" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css"/>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-OERcA2EqjJCMA+/3y+gxIOqMEjwtxJY7qPCqsdltbNJuaOe923+mo//f6V8Qbsw3" crossorigin="anonymous"></script>
+
     <style>
         a{
         font-size: 1.03em;
@@ -51,19 +54,38 @@
               {% endif %}
           </span>
     </div>
+    <h1>Lista de Sprints</h1>
+    <br>
+    {% if mensaje_error == 1 %}
+        <div class="alert alert-danger" role="alert">
+            No puedes realizar la acción ya que existen User Stories no finalizados
+        </div>
+    {% endif %}
+    {% for message in messages %}
 
+    <div class="alert alert-success">
+        <a class="close" href="#" data-dismiss="alert"></a>
+        {{ message }}
+    </div>
+
+    {% endfor %}
 
 {% if 'Can add sprint' in out or request.user.is_superuser %}
         <div style="margin-left: 3%;margin-top: 3%;">
+           {% if project.estado_proyecto == 'Planificado' or project.estado_proyecto == 'Iniciado' %}
            <a class="button-create" href="{% url "add-sprint" id_project %}">Agregar Sprint</a>
+           {% endif %}
            <a class="button" href="{% url "add-members" id_project %}" style="margin-left: 15px; text-decoration: none; font-family: Arial, Helvetica, sans-serif; background-color: slategray;">Volver</a>
         </div>
 {% endif %}
 
+
+
     <div>
+        <!--solo al dar clic a las columnas con clase ".script" se activara el llamado a la vista-->
         <script>
             document.addEventListener("DOMContentLoaded", () => {
-              const rows = document.querySelectorAll("tr[data-href]");
+              const rows = document.querySelectorAll(".script");
               rows.forEach( row => {
                 row.addEventListener("click", () =>{
                   window.location.href = row.dataset.href;
@@ -79,30 +101,128 @@
                       <th>Descripción</th>
                       <th>Estado de Sprint</th>
                       <th>Duracion</th>
-                      <th>Capacidad</th>
+                      <th>Capacidad Total</th>
+                      <th>Capacidad Restantes</th>
                       <th>Fecha inicio</th>
                     </tr>
                 </thead>
-                
             {% for p in sprint_list %}
                 {% if id_project == p.id_proyecto_id %}
-                <tr scope="row" data-href="{% url 'add-members-sprint' id_project p.pk %}"
+                <tr scope="row"
                     style="tr:hover {background-color: #77bdff;}">
-                    <td style="padding:10px;">{{p.id}} </a></td>
-                    <td style="padding:10px;">{{p.nombre_sprint}}</td>
-                    <td style="padding:10px;">{{p.desc_sprint}}</td>
-                    <td style="padding:10px;">{{p.estado_sprint}}</td>
-                    <td style="padding:10px;">{{p.duracion_dias}} días</td>
+                    <td class="script" data-href="{% url 'add-members-sprint' id_project p.pk %}" style="padding:10px;">{{p.id}} </a></td>
+                    <td class="script" data-href="{% url 'add-members-sprint' id_project p.pk %}" style="padding:10px;">{{p.nombre_sprint}}</td>
+                    <td class="script" data-href="{% url 'add-members-sprint' id_project p.pk %}" style="padding:10px;">{{p.desc_sprint}}</td>
+                    <td class="script" data-href="{% url 'add-members-sprint' id_project p.pk %}" style="padding:10px;">{{p.estado_sprint}}</td>
+                    <td class="script" data-href="{% url 'add-members-sprint' id_project p.pk %}" style="padding:10px;">{{p.duracion_dias}} días</td>
                     {% if p.capacidad %}
-                    <td style="padding:10px;">{{ p.capacidad }} horas</td>
+                        <td style="padding:10px;" class="script" data-href="{% url 'add-members-sprint' id_project p.pk %}">{{ p.capacidad }} horas</td>
                     {% else %}
-                    <td style="padding:10px;"> </td>
+                        <td style="padding:10px;" class="script" data-href="{% url 'add-members-sprint' id_project p.pk %}"> </td>
                     {% endif %}
-                    <td style="padding:10px;">{{p.fecha_inicio}}</td>
-                    {% if 'Can change sprint' in out or request.user.is_superuser %}
-                    <td style="padding:10px;"><a href="{% url 'update-sprint' id_project p.pk %}">Editar</a></td>
+                    {% if p.capacidad_restante %}
+                        <td style="padding:10px;" class="script" data-href="{% url 'add-members-sprint' id_project p.pk %}">{{ p.capacidad_restante }} horas</td>
+                    {% else %}
+                        <td style="padding:10px;" class="script" data-href="{% url 'add-members-sprint' id_project p.pk %}"> </td>
                     {% endif %}
-                    <td><a href="{% url 'action-sprint' id_project p.pk %}">Acciones</a></td>
+                        <td style="padding:10px;" class="script" data-href="{% url 'add-members-sprint' id_project p.pk %}">{{p.fecha_inicio}}</td>
+                        <td class="excluded-class">
+                            <!--Si esta finalizado o cancelado ya no se puede editar-->
+                           {% if 'Can change sprint' in out and p.estado_sprint != 'Cancelado' and p.estado_sprint != 'Finalizado'%}
+                              <div class="btn-group">
+                                {% if project.estado_proyecto == 'Planificado' or project.estado_proyecto == 'Iniciado' %}
+                                  <button type="button" class="btn btn-success dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Acciones
+                                  </button>
+                                  {% endif %}
+
+                                  <!--Modal para inicializar-->
+                                  <div class="modal fade" id="incializarModal-{{ p.id }}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                      <div class="modal-content">
+                                        <div class="modal-header">
+                                          <h1 class="modal-title fs-5" id="incializarModalLabel">Inicializar</h1>
+                                          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                          ¿Desea inicializar el Sprint?
+                                        </div>
+                                        <div class="modal-footer">
+                                          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" ><a href="{% url 'sprint-list' id_project %}" style="color:#ffff; text-decoration: none;">No</a></button>
+                                          <button type="button" class="btn btn-primary"> <a href="{% url 'inicializar_sprint' id_project p.pk %}" style="color:#ffff; text-decoration: none;">Si</a></button>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+  
+                               <!--Modal para finalizar-->
+                                   <div class="modal fade" id="finalizarModal-{{ p.id }}" tabindex="-1"  aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                      <div class="modal-content">
+                                        <div class="modal-header">
+                                          <h1 class="modal-title fs-5" id="finalizarModalLabel">Finalizar</h1>
+                                          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                          ¿Desea finalizar el Sprint?
+                                        </div>
+                                        <div class="modal-footer">
+                                          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" ><a href="{% url 'sprint-list' id_project %}" style="color:#ffff; text-decoration: none;">No</a></button>
+                                          <button type="button" class="btn btn-primary"> <a href="{% url 'finalizar_sprint' id_project p.pk %}" style="color:#ffff; text-decoration: none;">Si</a></button>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                               <!--Modal para cancelar-->
+                                <div class="modal fade" id="cancelarModal-{{ p.id }}" tabindex="-1"  aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                      <div class="modal-content">
+                                        <div class="modal-header">
+                                          <h1 class="modal-title fs-5" id="cancelarModalLabel">Cancelar</h1>
+                                          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                          ¿Desea cancelar el Sprint?
+                                        </div>
+                                        <form class="text-danger" style="margin-left:15px;" action="{% url 'cancelar_sprint' id_project p.pk %}" method="post">
+                                          {% csrf_token %}
+                                          <label for="cancel">Motivo de cancelación: </label>
+                                          <input id="cancel" type="text" name="cancel" value="{{ cancel }}">
+                                          <input style="margin-top:15px; margin-left:400px;" type="submit" value="OK">
+                                        </form>
+                                        <div class="modal-footer">
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+
+                                  <ul class="dropdown-menu">
+                                    {% if 'Can change sprint' in out and p.estado_sprint != 'Cancelado'%}
+                                        <li><a class="dropdown-item" href="{% url 'update-sprint' id_project p.pk %}">Editar</a></li>
+                                    {% endif %}
+
+                                    {% if p.estado_sprint != 'Iniciado' and p.estado_sprint != 'Cancelado' and p.estado_sprint != 'Finalizado'%}
+                                        <li><a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#incializarModal-{{ p.id }}" href="{% url 'inicializar_sprint' id_project p.pk %}">Inicializar</a></li>
+                                    {% endif %}
+
+                                    {% if p.estado_sprint != 'Finalizado' and p.estado_sprint != 'Cancelado' and p.estado_sprint != 'Planificado' %}
+                                        <li><a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#finalizarModal-{{ p.id }}"  href="{% url 'finalizar_sprint' id_project p.pk %}">Finalizar</a></li>
+                                    {% endif %}
+
+                                    {% if p.estado_sprint == 'Iniciado' or p.estado_sprint == 'Planificado' %}
+                                        <li><a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#cancelarModal-{{ p.id }}" href="{% url 'cancelar_sprint' id_project p.pk %}">Cancelar</a></li>
+                                    {% endif %}
+
+                                  </ul>
+                              </div>
+                           {% endif %}
+                    </td>
+                    {% if p.estado_sprint != 'Planificado' %}
+                    <td style="padding:10px;" class="script" data-href="{% url 'tipos_us-list-kbn' project.id p.pk %}"><button type="button" class="btn btn-info">Kanban</button></td>
+                    <td style="padding:10px;" class="script" data-href="{% url 'burndown' id_project p.pk %}"><button type="button" class="btn btn-primary">BurnDownChart</button></td>
+                    {% endif %}
+                    <td style="padding:10px;" class="script" data-href="{% url 'log-sprint' project.id p.pk %}"><button type="button" class="btn btn-secondary">Historial</button></td>
+
                 </tr>
                 {% endif %}
             {% endfor %}

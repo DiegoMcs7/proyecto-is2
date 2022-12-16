@@ -5,6 +5,7 @@
    <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@500&display=swap" rel="stylesheet">
+    <link rel="shortcut icon" href="{%  static 'favicon.ico' %}">
 
 
     <title>Listar tipo de user story </title>
@@ -55,14 +56,23 @@
 
     <h1> {{sprint.nombre_sprint}}</h1>
 
+    {% if mensaje_error == 1 %}
+        <div class="alert alert-danger" role="alert">
+            El usuario ya forma parte del sprint " {{sprint.nombre_sprint}} "
+        </div>
+    {% endif %}
+
     {% if 'Can add miembros' in out or request.user.is_superuser %}
     <div class="row">
 		<div class="col-4">
 			<form  class="text-danger" style="margin-left:15px;" action="" method=POST>
 				{% csrf_token %}
 				{{ form.as_p }}
+                <div style="display: flex;">
 				<input type="submit" value="Agregar al equipo">
-			</form>
+                <a class="button" href="{% url "add-members-sprint" project.id sprint.id %}" style="margin-left: 15px; text-decoration: none; font-family: Arial, Helvetica, sans-serif; background-color: slategray;">Volver</a>
+			    </div>
+            </form>
 		</div>
 	</div>
 {% endif %}

@@ -5,6 +5,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@500&display=swap" rel="stylesheet">
+    <link rel="shortcut icon" href="{%  static 'favicon.ico' %}">
 
 
     <title>Listar tipo de user story </title>
@@ -57,7 +58,7 @@
 
 
 {% if user.is_authenticated %}
-	<h1>Editar User Story</h1>
+	<h1>Asignar horas de trabajo</h1>
 <br/>
 
 {% if submitted %}
@@ -75,7 +76,9 @@
 			
             <div style="display: flex;">
                 <input type="submit" value="Actualizar" class="btn btn-secondary">
-                <a class="button" href="{% url "user_story-list" id_proyecto %}" style="margin-left: 10px; text-decoration: none; font-family: Arial, Helvetica, sans-serif; background-color: slategray;">Cancelar</a>
+
+               <a class="button" href="{% url "user_story_sprint_backlog-list" sprint.id %}" style="margin-left: 10px; text-decoration: none; font-family: Arial, Helvetica, sans-serif; background-color: slategray;">Cancelar</a>
+
             </div>
 		</form>
        		</div>
